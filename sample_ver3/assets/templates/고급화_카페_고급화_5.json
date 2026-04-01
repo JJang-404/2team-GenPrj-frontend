@@ -1,0 +1,145 @@
+{
+  "version": "1.0",
+  "resolution": {
+    "width": 736,
+    "height": 981,
+    "units": "px"
+  },
+  "elements": {
+    "logo": {
+      "visible": true,
+      "description": "small circular brand marks at top-right",
+      "bbox": [
+        600,
+        20,
+        100,
+        48
+      ],
+      "bbox_units": "px",
+      "font_role": "logo",
+      "confidence": 0.88
+    },
+    "slogan": {
+      "visible": true,
+      "text_sample": "SIP CHILL REPEAT",
+      "description": "small tagline at top-left",
+      "bbox": [
+        24,
+        24,
+        160,
+        20
+      ],
+      "bbox_units": "px",
+      "font_role": "caption",
+      "confidence": 0.95
+    },
+    "headline": {
+      "visible": true,
+      "text_sample": "HABIT COFFEE",
+      "description": "primary large display title centered near top",
+      "bbox": [
+        28,
+        120,
+        680,
+        220
+      ],
+      "bbox_units": "px",
+      "font_role": "display",
+      "confidence": 0.99
+    },
+    "subheadline": {
+      "visible": true,
+      "text_sample": "CAFFEINE & CHILL",
+      "description": "secondary headline / strapline immediately under main title",
+      "bbox": [
+        120,
+        340,
+        496,
+        48
+      ],
+      "bbox_units": "px",
+      "font_role": "subheading",
+      "confidence": 0.98
+    },
+    "body": {
+      "visible": true,
+      "text_sample": "small descriptive paragraph left of the glass",
+      "description": "paragraph copy block on the lower-left quadrant",
+      "bbox": [
+        28,
+        540,
+        320,
+        140
+      ],
+      "bbox_units": "px",
+      "font_role": "body",
+      "confidence": 0.94
+    },
+    "price": {
+      "visible": false,
+      "description": "no explicit price element detected",
+      "bbox": null,
+      "bbox_units": "px",
+      "font_role": null,
+      "confidence": 0.02
+    },
+    "discount_badge": {
+      "visible": false,
+      "description": "no discount badge detected",
+      "bbox": null,
+      "bbox_units": "px",
+      "font_role": null,
+      "confidence": 0.02
+    },
+    "footer_tagline": {
+      "visible": true,
+      "text_sample": "SIP CHILL REPEAT (small, bottom-right)",
+      "description": "small repeat of the tagline at bottom-right",
+      "bbox": [
+        552,
+        920,
+        160,
+        28
+      ],
+      "bbox_units": "px",
+      "font_role": "caption",
+      "confidence": 0.86
+    }
+  },
+  "typography": {
+    "headline": {
+      "role": "display",
+      "estimated_size_px": 140,
+      "style": "heavy condensed sans-serif",
+      "alignment": "center",
+      "color_contrast": "light_on_dark"
+    },
+    "subheadline": {
+      "role": "subheading",
+      "estimated_size_px": 36,
+      "style": "medium sans-serif",
+      "alignment": "center",
+      "color_contrast": "light_on_dark"
+    },
+    "body": {
+      "role": "body",
+      "estimated_size_px": 12,
+      "style": "regular sans-serif",
+      "alignment": "left",
+      "color_contrast": "light_on_dark"
+    },
+    "slogan": {
+      "role": "caption",
+      "estimated_size_px": 10,
+      "style": "light sans-serif",
+      "alignment": "left/top",
+      "color_contrast": "light_on_dark"
+    },
+    "logo": {
+      "role": "logo",
+      "estimated_size_px": 36,
+      "style": "icon/mark",
+      "alignment": "top-right"
+    }
+  }
+}

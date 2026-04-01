@@ -1,0 +1,94 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1040
+  },
+  "typography": [
+    {
+      "id": "headline_1",
+      "role": "headline",
+      "font_role": "display_title",
+      "bbox": {
+        "x": 28,
+        "y": 20,
+        "width": 680,
+        "height": 160
+      },
+      "notes": "Main masthead ('FOOD') across top center"
+    },
+    {
+      "id": "slogan_1",
+      "role": "slogan",
+      "font_role": "meta_date",
+      "bbox": {
+        "x": 556,
+        "y": 110,
+        "width": 140,
+        "height": 36
+      },
+      "notes": "Small top-right date / tagline ('Sept 2023')"
+    },
+    {
+      "id": "callout_1",
+      "role": "headline",
+      "font_role": "subhead",
+      "bbox": {
+        "x": 420,
+        "y": 300,
+        "width": 280,
+        "height": 180
+      },
+      "notes": "Right-mid feature block ('SWEET & SAVOURY' + subtitle)"
+    },
+    {
+      "id": "feature_1",
+      "role": "body",
+      "font_role": "subhead",
+      "bbox": {
+        "x": 28,
+        "y": 500,
+        "width": 360,
+        "height": 140
+      },
+      "notes": "Left-mid overlay block ('COMFORT COOKING' + subtext)"
+    },
+    {
+      "id": "price_1",
+      "role": "price",
+      "font_role": "display_number",
+      "bbox": {
+        "x": 40,
+        "y": 860,
+        "width": 200,
+        "height": 180
+      },
+      "notes": "Large numeric callout at bottom-left ('18')"
+    },
+    {
+      "id": "body_1",
+      "role": "body",
+      "font_role": "body",
+      "bbox": {
+        "x": 220,
+        "y": 900,
+        "width": 460,
+        "height": 140
+      },
+      "notes": "Bottom-right descriptive text ('EVERYDAY COOKING RECIPES')"
+    },
+    {
+      "id": "logo_1",
+      "role": "logo",
+      "font_role": null,
+      "bbox": null,
+      "notes": "No distinct logo detected in top-left or top-right; left null"
+    },
+    {
+      "id": "discount_badge_1",
+      "role": "discount_badge",
+      "font_role": null,
+      "bbox": null,
+      "notes": "No discount badge detected"
+    }
+  ]
+}

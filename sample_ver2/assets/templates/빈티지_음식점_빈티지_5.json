@@ -1,0 +1,102 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1030
+  },
+  "typography": {
+    "headline": {
+      "font_role": "display",
+      "suggested_size_px": 96,
+      "weight": "heavy/bold",
+      "color_example": "#f2dfc8",
+      "usage": "Primary large title (decorative display)"
+    },
+    "slogan": {
+      "font_role": "subtitle",
+      "suggested_size_px": 36,
+      "weight": "bold",
+      "color_example": "#f6e6d0",
+      "usage": "Supporting catchphrase under headline"
+    },
+    "body": {
+      "font_role": "call_to_action",
+      "suggested_size_px": 56,
+      "weight": "bold",
+      "color_example": "#f7e7cf",
+      "usage": "Bottom strong CTA / tagline"
+    },
+    "discount_badge": {
+      "font_role": "badge",
+      "suggested_size_px": 20,
+      "weight": "bold",
+      "color_example": "#000000",
+      "usage": "Small callout or sticker text"
+    },
+    "logo": {
+      "font_role": "logo",
+      "suggested_size_px": 24,
+      "weight": "medium",
+      "color_example": "#000000",
+      "usage": "Brand mark / logo area (if present)"
+    },
+    "price": {
+      "font_role": "price",
+      "suggested_size_px": 48,
+      "weight": "bold",
+      "color_example": "#ffffff",
+      "usage": "Price or numeric emphasis (if present)"
+    }
+  },
+  "layout": {
+    "headline": {
+      "bbox": [
+        90,
+        60,
+        646,
+        200
+      ],
+      "font_role": "headline",
+      "notes": "Large decorative title near top-center ('뼈도리탕')"
+    },
+    "slogan": {
+      "bbox": [
+        100,
+        200,
+        636,
+        300
+      ],
+      "font_role": "slogan",
+      "notes": "Two-line catchphrase immediately below the headline"
+    },
+    "body": {
+      "bbox": [
+        90,
+        860,
+        646,
+        960
+      ],
+      "font_role": "body",
+      "notes": "Bottom strong tagline / call-to-action ('이젠 닭발은 잊어라!')"
+    },
+    "discount_badge": {
+      "bbox": [
+        520,
+        320,
+        680,
+        460
+      ],
+      "font_role": "discount_badge",
+      "notes": "Speech-bubble style callout on right side of the food image"
+    },
+    "logo": {
+      "bbox": null,
+      "font_role": "logo",
+      "notes": "No distinct logo detected in the image; reserved top-right/top-left if added"
+    },
+    "price": {
+      "bbox": null,
+      "font_role": "price",
+      "notes": "No price detected in the image; reserved area could be bottom-left or near badge"
+    }
+  }
+}

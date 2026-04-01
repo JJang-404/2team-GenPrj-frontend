@@ -1,0 +1,201 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1033
+  },
+  "typography": {
+    "logo": {
+      "font_role": "logo",
+      "suggested_size_px": 48,
+      "weight": "bold",
+      "alignment": "center"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "suggested_size_px": 36,
+      "weight": "bold",
+      "alignment": "center"
+    },
+    "headline": {
+      "font_role": "headline",
+      "suggested_size_px": 28,
+      "weight": "semi-bold",
+      "alignment": "left"
+    },
+    "body": {
+      "font_role": "body",
+      "suggested_size_px": 16,
+      "weight": "regular",
+      "alignment": "left"
+    },
+    "price": {
+      "font_role": "price",
+      "suggested_size_px": 22,
+      "weight": "bold",
+      "alignment": "left"
+    },
+    "discount_badge": {
+      "font_role": "badge",
+      "suggested_size_px": 18,
+      "weight": "bold",
+      "alignment": "center"
+    }
+  },
+  "elements": [
+    {
+      "id": "logo_1",
+      "role": "logo",
+      "bbox": [
+        240,
+        200,
+        420,
+        330
+      ],
+      "font_role": "logo"
+    },
+    {
+      "id": "slogan_main",
+      "role": "slogan",
+      "bbox": [
+        120,
+        940,
+        616,
+        1010
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "id": "headline_chicken",
+      "role": "headline",
+      "bbox": [
+        80,
+        95,
+        270,
+        180
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "body_chicken",
+      "role": "body",
+      "bbox": [
+        60,
+        120,
+        300,
+        300
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_chicken",
+      "role": "price",
+      "bbox": [
+        170,
+        260,
+        230,
+        300
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "headline_shrimp",
+      "role": "headline",
+      "bbox": [
+        420,
+        260,
+        600,
+        340
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "body_shrimp",
+      "role": "body",
+      "bbox": [
+        420,
+        290,
+        620,
+        420
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_shrimp",
+      "role": "price",
+      "bbox": [
+        520,
+        340,
+        580,
+        380
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "headline_greek",
+      "role": "headline",
+      "bbox": [
+        80,
+        500,
+        300,
+        580
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "body_greek",
+      "role": "body",
+      "bbox": [
+        60,
+        520,
+        320,
+        660
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_greek",
+      "role": "price",
+      "bbox": [
+        200,
+        630,
+        260,
+        670
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "headline_seaweed",
+      "role": "headline",
+      "bbox": [
+        360,
+        720,
+        600,
+        800
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "body_seaweed",
+      "role": "body",
+      "bbox": [
+        360,
+        740,
+        620,
+        880
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_seaweed",
+      "role": "price",
+      "bbox": [
+        520,
+        820,
+        580,
+        860
+      ],
+      "font_role": "price"
+    }
+  ],
+  "discount_badges": []
+}

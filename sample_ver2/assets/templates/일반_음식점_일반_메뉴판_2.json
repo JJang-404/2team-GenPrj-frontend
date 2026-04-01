@@ -1,0 +1,99 @@
+{
+  "resolution": {
+    "width": 735,
+    "height": 1040
+  },
+  "typography": [
+    {
+      "id": "logo",
+      "label_text": "Jolie",
+      "font_role": "logo",
+      "bbox": [
+        20,
+        18,
+        110,
+        72
+      ],
+      "confidence": 0.95,
+      "notes": "Top-left brand mark"
+    },
+    {
+      "id": "headline",
+      "label_text": "Ala Carte",
+      "font_role": "headline",
+      "bbox": [
+        110,
+        30,
+        515,
+        120
+      ],
+      "confidence": 0.98,
+      "notes": "Main title centered near top"
+    },
+    {
+      "id": "slogan",
+      "label_text": null,
+      "font_role": "slogan",
+      "bbox": [
+        120,
+        150,
+        495,
+        26
+      ],
+      "confidence": 0.4,
+      "notes": "No explicit slogan detected; area under headline reserved for small catchphrase/underline"
+    },
+    {
+      "id": "body_left",
+      "label_text": "Starter / Japanese menus (item names)",
+      "font_role": "body",
+      "bbox": [
+        18,
+        190,
+        300,
+        560
+      ],
+      "confidence": 0.96,
+      "notes": "Left column menu items and descriptions"
+    },
+    {
+      "id": "body_center",
+      "label_text": "Soup / Main Course / Indonesian lists (item names)",
+      "font_role": "body",
+      "bbox": [
+        260,
+        200,
+        220,
+        540
+      ],
+      "confidence": 0.96,
+      "notes": "Center column menu items and section headers"
+    },
+    {
+      "id": "price",
+      "label_text": "Prices (numeric values)",
+      "font_role": "price",
+      "bbox": [
+        492,
+        200,
+        170,
+        540
+      ],
+      "confidence": 0.97,
+      "notes": "Numeric price column aligned to the right of menu text"
+    },
+    {
+      "id": "discount_badge",
+      "label_text": "QR / badge",
+      "font_role": "discount_badge",
+      "bbox": [
+        625,
+        12,
+        98,
+        98
+      ],
+      "confidence": 0.92,
+      "notes": "Top-right QR code / badge area"
+    }
+  ]
+}

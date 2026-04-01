@@ -1,0 +1,70 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 867
+  },
+  "typography": [
+    {
+      "id": "logo",
+      "role": "logo",
+      "font_role": "logo",
+      "bbox": [
+        18,
+        12,
+        72,
+        56
+      ]
+    },
+    {
+      "id": "headline",
+      "role": "headline",
+      "font_role": "display_bold",
+      "bbox": [
+        40,
+        70,
+        480,
+        200
+      ]
+    },
+    {
+      "id": "slogan",
+      "role": "slogan",
+      "font_role": "script_handwriting",
+      "bbox": [
+        360,
+        60,
+        300,
+        110
+      ]
+    },
+    {
+      "id": "body",
+      "role": "body",
+      "font_role": "body_regular",
+      "bbox": [
+        40,
+        280,
+        520,
+        380
+      ]
+    },
+    {
+      "id": "price",
+      "role": "price",
+      "font_role": "highlight_bold",
+      "bbox": [
+        480,
+        300,
+        110,
+        70
+      ]
+    },
+    {
+      "id": "discount_badge",
+      "role": "discount_badge",
+      "font_role": "badge",
+      "bbox": null
+    }
+  ],
+  "notes": "bbox format = [x, y, width, height] in pixels (origin: top-left). Coordinates are estimated template positions for 736x867 image."
+}

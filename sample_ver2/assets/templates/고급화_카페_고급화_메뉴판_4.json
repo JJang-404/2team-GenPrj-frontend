@@ -1,0 +1,131 @@
+{
+  "resolution": {
+    "width": 735,
+    "height": 952
+  },
+  "typography": {
+    "logo": {
+      "font_role": "logo",
+      "approx_size_px": 28,
+      "weight": "bold"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "approx_size_px": 40,
+      "weight": "script/regular"
+    },
+    "headline": {
+      "font_role": "headline",
+      "approx_size_px": 72,
+      "weight": "bold/uppercase"
+    },
+    "section_headline": {
+      "font_role": "headline",
+      "approx_size_px": 30,
+      "weight": "bold/uppercase"
+    },
+    "body": {
+      "font_role": "body",
+      "approx_size_px": 20,
+      "weight": "regular"
+    },
+    "price": {
+      "font_role": "price",
+      "approx_size_px": 20,
+      "weight": "regular/right-aligned"
+    },
+    "discount_badge": {
+      "font_role": "discount_badge",
+      "approx_size_px": 22,
+      "weight": "bold"
+    }
+  },
+  "elements": [
+    {
+      "name": "logo",
+      "font_role": "logo",
+      "bbox": [
+        595,
+        20,
+        725,
+        160
+      ]
+    },
+    {
+      "name": "slogan",
+      "font_role": "slogan",
+      "bbox": [
+        330,
+        30,
+        725,
+        120
+      ]
+    },
+    {
+      "name": "headline",
+      "font_role": "headline",
+      "bbox": [
+        330,
+        100,
+        725,
+        220
+      ]
+    },
+    {
+      "name": "section_headline_espresso",
+      "font_role": "section_headline",
+      "bbox": [
+        330,
+        220,
+        725,
+        300
+      ]
+    },
+    {
+      "name": "body_items",
+      "font_role": "body",
+      "bbox": [
+        330,
+        260,
+        560,
+        820
+      ]
+    },
+    {
+      "name": "price_column",
+      "font_role": "price",
+      "bbox": [
+        560,
+        260,
+        725,
+        820
+      ]
+    },
+    {
+      "name": "section_headline_iced",
+      "font_role": "section_headline",
+      "bbox": [
+        330,
+        420,
+        725,
+        500
+      ]
+    },
+    {
+      "name": "section_headline_sandwiches",
+      "font_role": "section_headline",
+      "bbox": [
+        330,
+        600,
+        725,
+        680
+      ]
+    },
+    {
+      "name": "discount_badge",
+      "font_role": "discount_badge",
+      "present": false,
+      "bbox": null
+    }
+  ]
+}

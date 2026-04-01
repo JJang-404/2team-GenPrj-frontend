@@ -1,0 +1,183 @@
+{
+  "resolution": [
+    566,
+    800
+  ],
+  "typography": {
+    "logo": {
+      "font_size_px": 18,
+      "font_weight": "bold",
+      "align": "center",
+      "color": "#16357A",
+      "notes": "small emblem text inside decorative arch"
+    },
+    "headline": {
+      "font_size_px": 48,
+      "font_weight": "bold",
+      "align": "center",
+      "color": "#16357A",
+      "notes": "main cafe name"
+    },
+    "slogan": {
+      "font_size_px": 14,
+      "font_weight": "regular",
+      "align": "center",
+      "color": "#16357A",
+      "notes": "subtitle under headline"
+    },
+    "body": {
+      "font_size_px": 18,
+      "font_weight": "regular",
+      "align": "left",
+      "color": "#19366E",
+      "notes": "menu item names and section headers"
+    },
+    "price": {
+      "font_size_px": 18,
+      "font_weight": "regular",
+      "align": "right",
+      "color": "#19366E",
+      "notes": "numerical prices aligned to the right of list columns"
+    },
+    "discount_badge": {
+      "font_size_px": 14,
+      "font_weight": "bold",
+      "align": "center",
+      "color": "#FFFFFF",
+      "badge_color": "#2E56A8",
+      "notes": "pill / small badge for promotions"
+    }
+  },
+  "elements": [
+    {
+      "id": "logo_top_emblem",
+      "font_role": "logo",
+      "bbox": [
+        240,
+        40,
+        326,
+        95
+      ]
+    },
+    {
+      "id": "headline_miri_cafe",
+      "font_role": "headline",
+      "bbox": [
+        80,
+        110,
+        486,
+        200
+      ]
+    },
+    {
+      "id": "slogan_drink_sweets",
+      "font_role": "slogan",
+      "bbox": [
+        200,
+        200,
+        366,
+        240
+      ]
+    },
+    {
+      "id": "discount_badge_takeout",
+      "font_role": "discount_badge",
+      "bbox": [
+        75,
+        265,
+        205,
+        300
+      ]
+    },
+    {
+      "id": "body_drink_list",
+      "font_role": "body",
+      "bbox": [
+        80,
+        300,
+        300,
+        420
+      ]
+    },
+    {
+      "id": "price_drink_list",
+      "font_role": "price",
+      "bbox": [
+        300,
+        300,
+        360,
+        420
+      ]
+    },
+    {
+      "id": "body_dessert_header",
+      "font_role": "body",
+      "bbox": [
+        200,
+        420,
+        380,
+        455
+      ]
+    },
+    {
+      "id": "discount_badge_dessert_dates",
+      "font_role": "discount_badge",
+      "bbox": [
+        388,
+        425,
+        440,
+        455
+      ]
+    },
+    {
+      "id": "body_dessert_list",
+      "font_role": "body",
+      "bbox": [
+        80,
+        455,
+        300,
+        580
+      ]
+    },
+    {
+      "id": "price_dessert_list",
+      "font_role": "price",
+      "bbox": [
+        300,
+        455,
+        375,
+        580
+      ]
+    },
+    {
+      "id": "body_tea_header",
+      "font_role": "body",
+      "bbox": [
+        80,
+        580,
+        260,
+        615
+      ]
+    },
+    {
+      "id": "body_tea_list",
+      "font_role": "body",
+      "bbox": [
+        80,
+        615,
+        300,
+        730
+      ]
+    },
+    {
+      "id": "price_tea_list",
+      "font_role": "price",
+      "bbox": [
+        300,
+        615,
+        375,
+        730
+      ]
+    }
+  ]
+}

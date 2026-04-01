@@ -1,0 +1,118 @@
+{
+  "resolution": {
+    "width": 658,
+    "height": 977
+  },
+  "typography": {
+    "display_large": {
+      "description": "Large decorative neon/logo type used for the main brand title",
+      "suggested_font_size_px": 64,
+      "weight": "700-900",
+      "color": "#FFD97A"
+    },
+    "headline": {
+      "description": "Primary headline inside product/poster card",
+      "suggested_font_size_px": 44,
+      "weight": "700",
+      "color": "#B33A3A"
+    },
+    "slogan": {
+      "description": "Short supporting slogan / catchphrase under the logo",
+      "suggested_font_size_px": 18,
+      "weight": "500",
+      "color": "#FFFFFF"
+    },
+    "body_regular": {
+      "description": "Body / descriptive text for details and captions",
+      "suggested_font_size_px": 16,
+      "weight": "400",
+      "color": "#FFFFFF"
+    },
+    "price": {
+      "description": "Price line / pricing information",
+      "suggested_font_size_px": 16,
+      "weight": "600",
+      "color": "#FFFFFF"
+    },
+    "badge": {
+      "description": "Small badge/label text for stamps or tags",
+      "suggested_font_size_px": 14,
+      "weight": "600",
+      "color": "#5A3E2B"
+    }
+  },
+  "elements": {
+    "logo": {
+      "bounding_box": [
+        50,
+        15,
+        608,
+        150
+      ],
+      "font_role": "display_large",
+      "role": "logo",
+      "confidence": 0.95,
+      "notes": "Top-centered neon brand/title area"
+    },
+    "slogan": {
+      "bounding_box": [
+        120,
+        150,
+        538,
+        185
+      ],
+      "font_role": "slogan",
+      "role": "slogan",
+      "confidence": 0.92,
+      "notes": "Short line of explanatory/catch phrase directly under the logo"
+    },
+    "headline": {
+      "bounding_box": [
+        60,
+        200,
+        440,
+        420
+      ],
+      "font_role": "headline",
+      "role": "headline",
+      "confidence": 0.9,
+      "notes": "Primary poster/card title (cream card at upper-middle left)"
+    },
+    "body": {
+      "bounding_box": [
+        340,
+        500,
+        625,
+        820
+      ],
+      "font_role": "body_regular",
+      "role": "body",
+      "confidence": 0.88,
+      "notes": "Main descriptive/caption area around the large lower-right food image"
+    },
+    "price": {
+      "bounding_box": [
+        20,
+        920,
+        450,
+        960
+      ],
+      "font_role": "price",
+      "role": "price",
+      "confidence": 0.94,
+      "notes": "Footer price line at the very bottom left"
+    },
+    "discount_badge": {
+      "bounding_box": [
+        500,
+        200,
+        640,
+        340
+      ],
+      "font_role": "badge",
+      "role": "discount_badge",
+      "confidence": 0.65,
+      "notes": "Small square/label badge on the upper-right food tile (no explicit discount number visible, treated as badge area)"
+    }
+  }
+}

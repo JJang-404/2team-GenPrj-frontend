@@ -1,0 +1,112 @@
+{
+  "resolution": [
+    679,
+    960
+  ],
+  "typography": {
+    "logo": {
+      "font_role": "logo",
+      "suggested_font_size_px": 36,
+      "weight": "bold",
+      "color_hint": "black/dark",
+      "notes": "compact stacked logotype"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "suggested_font_size_px": 30,
+      "weight": "regular",
+      "color_hint": "muted gray",
+      "notes": "small uppercase/caps-like Korean tagline, slight rotation"
+    },
+    "headline": {
+      "font_role": "headline",
+      "suggested_font_size_px": 110,
+      "weight": "heavy",
+      "color_hint": "gold / dark brown",
+      "notes": "large display headline, bold, rotated ~-10 to -15 degrees"
+    },
+    "body": {
+      "font_role": "body",
+      "suggested_font_size_px": 28,
+      "weight": "regular",
+      "color_hint": "dark gray",
+      "notes": "supporting descriptive copy (if present) below/above headline"
+    },
+    "price": {
+      "font_role": "price",
+      "suggested_font_size_px": 48,
+      "weight": "bold",
+      "color_hint": "accent (red/black)",
+      "notes": "price badge / numeric emphasis"
+    },
+    "discount_badge": {
+      "font_role": "discount_badge",
+      "suggested_font_size_px": 32,
+      "weight": "bold",
+      "color_hint": "accent (red/yellow)",
+      "notes": "circular or diagonal badge for percent-off"
+    }
+  },
+  "elements": {
+    "logo": {
+      "bbox": [
+        540,
+        720,
+        110,
+        120
+      ],
+      "bbox_format": "x,y,width,height",
+      "font_role": "logo",
+      "angle_degrees": 0,
+      "confidence": 0.9
+    },
+    "slogan": {
+      "bbox": [
+        80,
+        585,
+        520,
+        60
+      ],
+      "bbox_format": "x,y,width,height",
+      "font_role": "slogan",
+      "angle_degrees": -12,
+      "confidence": 0.95
+    },
+    "headline": {
+      "bbox": [
+        40,
+        650,
+        600,
+        240
+      ],
+      "bbox_format": "x,y,width,height",
+      "font_role": "headline",
+      "angle_degrees": -12,
+      "confidence": 1.0
+    },
+    "body": {
+      "bbox": null,
+      "bbox_format": "x,y,width,height",
+      "font_role": "body",
+      "angle_degrees": null,
+      "confidence": 0.1,
+      "note": "no distinct multi-line descriptive body detected; placeholder null"
+    },
+    "price": {
+      "bbox": null,
+      "bbox_format": "x,y,width,height",
+      "font_role": "price",
+      "angle_degrees": null,
+      "confidence": 0.05,
+      "note": "no price element visible"
+    },
+    "discount_badge": {
+      "bbox": null,
+      "bbox_format": "x,y,width,height",
+      "font_role": "discount_badge",
+      "angle_degrees": null,
+      "confidence": 0.05,
+      "note": "no discount badge detected"
+    }
+  }
+}

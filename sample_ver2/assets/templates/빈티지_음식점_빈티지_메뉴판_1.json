@@ -1,0 +1,279 @@
+{
+  "resolution": {
+    "width": 442,
+    "height": 626
+  },
+  "typography": {
+    "font_roles": {
+      "logo": {
+        "description": "Brand mark or wordmark, prominent but compact",
+        "style": "bold, display",
+        "recommended_size_px": 36
+      },
+      "slogan": {
+        "description": "Catchphrase or subheader under main title",
+        "style": "semi-bold, uppercase",
+        "recommended_size_px": 18
+      },
+      "headline": {
+        "description": "Main and section headers (large, attention-grabbing)",
+        "style": "extra-bold, condensed/uppercase",
+        "recommended_size_px": 48
+      },
+      "body": {
+        "description": "Descriptive paragraphs and ingredient/description text",
+        "style": "regular, readable",
+        "recommended_size_px": 12
+      },
+      "price": {
+        "description": "Numeric price lines, aligned with body items",
+        "style": "bold, tabular",
+        "recommended_size_px": 14
+      },
+      "discount_badge": {
+        "description": "Promotional badge text (percent / short phrase)",
+        "style": "bold, condensed, high-contrast",
+        "recommended_size_px": 16
+      }
+    }
+  },
+  "elements": [
+    {
+      "id": "headline_menu",
+      "label": "MENU",
+      "bbox": [
+        68,
+        12,
+        374,
+        88
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "slogan_bar_restaurant",
+      "label": "BAR & RESTAURANT",
+      "bbox": [
+        136,
+        78,
+        306,
+        104
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "id": "section_fries_header",
+      "label": "FRIES (section header)",
+      "bbox": [
+        28,
+        128,
+        160,
+        156
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "fries_body_text",
+      "label": "Fries descriptions (body)",
+      "bbox": [
+        28,
+        150,
+        210,
+        260
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "fries_price_1",
+      "label": "Fries price 1",
+      "bbox": [
+        188,
+        152,
+        236,
+        176
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "fries_price_2",
+      "label": "Fries price 2",
+      "bbox": [
+        188,
+        192,
+        236,
+        216
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "fries_price_3",
+      "label": "Fries price 3",
+      "bbox": [
+        188,
+        232,
+        236,
+        256
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "image_fries_basket",
+      "label": "Fries image (illustration)",
+      "bbox": [
+        200,
+        120,
+        420,
+        250
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "meat_block",
+      "label": "MEAT (feature headline)",
+      "bbox": [
+        210,
+        260,
+        400,
+        350
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "meat_subheader",
+      "label": "BEST BURGERS (subheader above MEAT)",
+      "bbox": [
+        210,
+        256,
+        290,
+        286
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "id": "meat_badge_100_fresh",
+      "label": "100% FRESH (vertical badge)",
+      "bbox": [
+        372,
+        268,
+        416,
+        360
+      ],
+      "font_role": "discount_badge"
+    },
+    {
+      "id": "cupcake_image",
+      "label": "Cupcake image (illustration)",
+      "bbox": [
+        28,
+        300,
+        180,
+        380
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "open_5_days_tag",
+      "label": "OPEN 5 DAYS A WEEK (tag)",
+      "bbox": [
+        20,
+        328,
+        96,
+        420
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "id": "starters_header",
+      "label": "STARTERS (section header)",
+      "bbox": [
+        24,
+        468,
+        170,
+        496
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "starters_body",
+      "label": "Starters descriptions",
+      "bbox": [
+        24,
+        496,
+        200,
+        590
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "starters_price_1",
+      "label": "Starter price 1",
+      "bbox": [
+        176,
+        512,
+        220,
+        536
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "starters_price_2",
+      "label": "Starter price 2",
+      "bbox": [
+        176,
+        552,
+        220,
+        576
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "coffee_header",
+      "label": "COFFEE (section header ribbon)",
+      "bbox": [
+        220,
+        420,
+        360,
+        456
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "coffee_menu_box",
+      "label": "Coffee descriptions & prices (boxed)",
+      "bbox": [
+        220,
+        456,
+        420,
+        584
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "coffee_price_1",
+      "label": "Coffee price 1",
+      "bbox": [
+        360,
+        468,
+        412,
+        492
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "coffee_price_2",
+      "label": "Coffee price 2",
+      "bbox": [
+        360,
+        516,
+        412,
+        540
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "logo",
+      "label": "logo (none / not present as separate mark)",
+      "bbox": null,
+      "font_role": "logo"
+    }
+  ]
+}

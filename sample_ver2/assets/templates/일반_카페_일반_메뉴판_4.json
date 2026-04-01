@@ -1,0 +1,120 @@
+{
+  "resolution": [
+    658,
+    1088
+  ],
+  "coordinate_system": "pixel_xy_top_left",
+  "format": "[x1, y1, x2, y2] (pixels)",
+  "typography": {
+    "logo": {
+      "font_role": "logo",
+      "recommended_size_px": 28,
+      "weight": "bold",
+      "style": "display"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "recommended_size_px": 18,
+      "weight": "semi-bold",
+      "style": "all-caps/label"
+    },
+    "headline": {
+      "font_role": "headline",
+      "recommended_size_px": 48,
+      "weight": "bold",
+      "style": "display/main"
+    },
+    "body": {
+      "font_role": "body",
+      "recommended_size_px": 16,
+      "weight": "regular",
+      "style": "paragraph"
+    },
+    "price": {
+      "font_role": "price",
+      "recommended_size_px": 56,
+      "weight": "bold",
+      "style": "numeric-emphasis"
+    },
+    "discount_badge": {
+      "font_role": "badge",
+      "recommended_size_px": 16,
+      "weight": "bold",
+      "style": "badge/label"
+    }
+  },
+  "elements": {
+    "logo": {
+      "bbox": [
+        24,
+        18,
+        196,
+        66
+      ],
+      "role": "logo",
+      "font_role": "logo",
+      "confidence": 0.95,
+      "notes": "brand mark and wordmark at top-left"
+    },
+    "slogan": {
+      "bbox": [
+        24,
+        70,
+        460,
+        110
+      ],
+      "role": "slogan",
+      "font_role": "slogan",
+      "confidence": 0.88,
+      "notes": "top headline area (DRINK MENU / section label)"
+    },
+    "headline": {
+      "bbox": [
+        36,
+        362,
+        320,
+        520
+      ],
+      "role": "headline",
+      "font_role": "headline",
+      "confidence": 0.92,
+      "notes": "main product name area under prominent cup image"
+    },
+    "price": {
+      "bbox": [
+        36,
+        472,
+        260,
+        560
+      ],
+      "role": "price",
+      "font_role": "price",
+      "confidence": 0.96,
+      "notes": "large price (S ¥220) near main product"
+    },
+    "body": {
+      "bbox": [
+        36,
+        560,
+        330,
+        820
+      ],
+      "role": "body",
+      "font_role": "body",
+      "confidence": 0.9,
+      "notes": "descriptive paragraph / product copy on left column"
+    },
+    "discount_badge": {
+      "bbox": [
+        514,
+        18,
+        650,
+        110
+      ],
+      "role": "discount_badge",
+      "font_role": "badge",
+      "confidence": 0.85,
+      "notes": "size/price icons at top-right (S M L) treated as badge area"
+    }
+  }
+}

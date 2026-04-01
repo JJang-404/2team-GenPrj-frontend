@@ -1,0 +1,132 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1308
+  },
+  "typography": {
+    "logo": {
+      "font_role": "logo",
+      "font_family_guess": "rounded geometric sans",
+      "font_size_px": 48,
+      "font_weight": "bold",
+      "color": "#FFFFFF",
+      "alignment": "center"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "font_family_guess": "condensed sans",
+      "font_size_px": 22,
+      "font_weight": "medium",
+      "color": "#FFFFFF",
+      "alignment": "center"
+    },
+    "headline": {
+      "font_role": "headline",
+      "font_family_guess": "handwritten/display",
+      "font_size_px": 220,
+      "font_weight": "light/display",
+      "color": "#FFFFFF",
+      "alignment": "center"
+    },
+    "body": {
+      "font_role": "body",
+      "font_family_guess": "rounded sans",
+      "font_size_px": 20,
+      "font_weight": "regular",
+      "color": "#000000",
+      "alignment": "center",
+      "note": "white rounded pill background with black text"
+    },
+    "footer": {
+      "font_role": "footer",
+      "font_family_guess": "clean sans",
+      "font_size_px": 20,
+      "font_weight": "regular",
+      "color": "#FFFFFF",
+      "alignment": "left"
+    }
+  },
+  "elements": [
+    {
+      "id": "logo_01",
+      "role": "logo",
+      "font_role": "logo",
+      "bbox": [
+        168,
+        40,
+        568,
+        112
+      ],
+      "confidence": 0.95,
+      "notes": "Top-centered brand mark text 'LICERIA & CO.'"
+    },
+    {
+      "id": "slogan_01",
+      "role": "slogan",
+      "font_role": "slogan",
+      "bbox": [
+        260,
+        112,
+        476,
+        200
+      ],
+      "confidence": 0.88,
+      "notes": "Small line and word markers between logo and headline (includes small 'x' and 'THAILAND')"
+    },
+    {
+      "id": "headline_01",
+      "role": "headline",
+      "font_role": "headline",
+      "bbox": [
+        88,
+        180,
+        648,
+        640
+      ],
+      "confidence": 0.99,
+      "notes": "Main decorative 'COFFEE' wordmark and accompanying illustration"
+    },
+    {
+      "id": "body_01",
+      "role": "body",
+      "font_role": "body",
+      "bbox": [
+        96,
+        700,
+        640,
+        760
+      ],
+      "confidence": 0.94,
+      "notes": "White rounded pill containing descriptive Thai text"
+    },
+    {
+      "id": "price_01",
+      "role": "price",
+      "font_role": null,
+      "bbox": null,
+      "confidence": 0.1,
+      "notes": "No explicit price visible in this layout"
+    },
+    {
+      "id": "discount_badge_01",
+      "role": "discount_badge",
+      "font_role": null,
+      "bbox": null,
+      "confidence": 0.05,
+      "notes": "No discount badge detected"
+    },
+    {
+      "id": "footer_01",
+      "role": "footer",
+      "font_role": "footer",
+      "bbox": [
+        40,
+        1228,
+        696,
+        1288
+      ],
+      "confidence": 0.96,
+      "notes": "Event date and location line at the very bottom"
+    }
+  ]
+}

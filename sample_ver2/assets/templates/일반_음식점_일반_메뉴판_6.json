@@ -1,0 +1,167 @@
+{
+  "resolution": {
+    "width": 735,
+    "height": 1040
+  },
+  "typography": [
+    {
+      "element": "logo",
+      "bounding_box": [
+        640,
+        10,
+        85,
+        85
+      ],
+      "font_role": "logo"
+    },
+    {
+      "element": "slogan",
+      "bounding_box": [
+        260,
+        40,
+        215,
+        80
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "element": "headline",
+      "bounding_box": [
+        90,
+        300,
+        555,
+        320
+      ],
+      "font_role": "headline"
+    },
+    {
+      "element": "body",
+      "bounding_box": [
+        120,
+        650,
+        495,
+        300
+      ],
+      "font_role": "body"
+    }
+  ],
+  "logo": {
+    "bounding_box": [
+      640,
+      10,
+      85,
+      85
+    ],
+    "font_role": "logo"
+  },
+  "slogan": {
+    "bounding_box": [
+      260,
+      40,
+      215,
+      80
+    ],
+    "font_role": "slogan"
+  },
+  "headline": {
+    "bounding_box": [
+      90,
+      300,
+      555,
+      320
+    ],
+    "font_role": "headline"
+  },
+  "body": {
+    "bounding_box": [
+      120,
+      650,
+      495,
+      300
+    ],
+    "font_role": "body"
+  },
+  "price": [
+    {
+      "label": "LONGGANISA ₱210",
+      "bounding_box": [
+        340,
+        75,
+        160,
+        60
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "BIBINGKA ₱120",
+      "bounding_box": [
+        40,
+        110,
+        160,
+        100
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "SUMAN ₱90",
+      "bounding_box": [
+        340,
+        170,
+        130,
+        80
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "CHAMPORADO ₱120",
+      "bounding_box": [
+        20,
+        400,
+        170,
+        110
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "PALABOK ₱410",
+      "bounding_box": [
+        520,
+        420,
+        185,
+        110
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "CHICKEN BBQ ₱210",
+      "bounding_box": [
+        520,
+        700,
+        190,
+        140
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "PALITAW ₱110",
+      "bounding_box": [
+        290,
+        700,
+        160,
+        120
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "KARE-KARE ₱400",
+      "bounding_box": [
+        30,
+        820,
+        260,
+        200
+      ],
+      "font_role": "price"
+    }
+  ],
+  "discount_badge": []
+}

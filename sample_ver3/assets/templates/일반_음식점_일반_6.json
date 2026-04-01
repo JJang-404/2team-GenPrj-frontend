@@ -1,0 +1,81 @@
+{
+  "resolution": {
+    "width": 425,
+    "height": 850
+  },
+  "typography": [
+    {
+      "element": "logo",
+      "font_role": "logo",
+      "bbox": [
+        340,
+        20,
+        70,
+        40
+      ],
+      "confidence": 0.6,
+      "notes": "placeholder/top-right area (no distinct corporate logo visible; reserved for logo)."
+    },
+    {
+      "element": "slogan",
+      "font_role": "slogan",
+      "bbox": [
+        260,
+        100,
+        60,
+        160
+      ],
+      "confidence": 0.95,
+      "notes": "red vertical pill with short vertical text to the right of the main headline."
+    },
+    {
+      "element": "headline",
+      "font_role": "display",
+      "bbox": [
+        90,
+        60,
+        220,
+        360
+      ],
+      "confidence": 0.98,
+      "notes": "large vertical white main title occupying upper-center/left area."
+    },
+    {
+      "element": "body",
+      "font_role": "body",
+      "bbox": [
+        40,
+        360,
+        345,
+        70
+      ],
+      "confidence": 0.96,
+      "notes": "smaller descriptive text under the headline, centered horizontally above the price."
+    },
+    {
+      "element": "price",
+      "font_role": "price",
+      "bbox": [
+        140,
+        440,
+        145,
+        70
+      ],
+      "confidence": 0.98,
+      "notes": "prominent yellow price text centered above the bowl image."
+    },
+    {
+      "element": "discount_badge",
+      "font_role": "badge",
+      "bbox": [
+        290,
+        600,
+        120,
+        120
+      ],
+      "confidence": 0.9,
+      "notes": "circular beige tag on the bottom-right of the bowl (used as badge/notice)."
+    }
+  ],
+  "notes": "All bounding boxes are approximate and given as [x, y, width, height] in pixels for a 425x850 canvas to define a reusable template layout."
+}

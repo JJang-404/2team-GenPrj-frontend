@@ -1,0 +1,276 @@
+{
+  "name": "delivery_discount_banner",
+  "style_group": "delivery",
+  "description": "배달앱 할인 배너형 썸네일. 강한 CTA와 할인 배지, 제품 컷아웃을 우측 집중 배치한다.",
+  "canvas": {
+    "width": 1080,
+    "height": 1080,
+    "aspect_ratio": "1:1"
+  },
+  "safe_area": {
+    "x": 58,
+    "y": 58,
+    "width": 964,
+    "height": 964
+  },
+  "background": {
+    "type": "gradient",
+    "color": "#2b1915",
+    "gradient_top": "#381d16",
+    "gradient_bottom": "#231211",
+    "accent": "#d8c13d",
+    "texture": "dark_delivery_grid"
+  },
+  "image_slots": [
+    {
+      "id": "hero",
+      "role": "main_product",
+      "x": 450,
+      "y": 160,
+      "width": 560,
+      "height": 690,
+      "fit": "contain",
+      "mask_shape": "cutout",
+      "opacity": 1.0
+    }
+  ],
+  "text_blocks": {
+    "logo": {
+      "enabled": true,
+      "content_key": "logo",
+      "font_role": "delivery_impact_en",
+      "font_size": 32,
+      "color": "#ffffff",
+      "area": {
+        "x": 66,
+        "y": 60,
+        "width": 300,
+        "height": 40
+      }
+    },
+    "slogan": {
+      "enabled": true,
+      "content_key": "slogan",
+      "font_role": "delivery_body_en",
+      "font_size": 18,
+      "color": "#c8b3a1",
+      "area": {
+        "x": 66,
+        "y": 104,
+        "width": 300,
+        "height": 24
+      }
+    },
+    "headline": {
+      "enabled": true,
+      "content_key": "headline",
+      "font_role": "delivery_impact_kr",
+      "font_size": 76,
+      "color": "#ffffff",
+      "wrap": true,
+      "area": {
+        "x": 70,
+        "y": 188,
+        "width": 340,
+        "height": 220
+      }
+    },
+    "subheadline": {
+      "enabled": true,
+      "content_key": "subheadline",
+      "font_role": "delivery_body_kr",
+      "font_size": 28,
+      "color": "#f2ece8",
+      "wrap": true,
+      "area": {
+        "x": 72,
+        "y": 428,
+        "width": 330,
+        "height": 120
+      }
+    },
+    "body": {
+      "enabled": true,
+      "content_key": "body",
+      "font_role": "delivery_body_kr",
+      "font_size": 24,
+      "color": "#d4c2b8",
+      "wrap": true,
+      "area": {
+        "x": 72,
+        "y": 552,
+        "width": 330,
+        "height": 90
+      }
+    },
+    "price": {
+      "enabled": true,
+      "hidden_when_labeled": true,
+      "content_key": "price",
+      "font_role": "delivery_impact_kr",
+      "font_size": 50,
+      "color": "#2b1915",
+      "align": "center",
+      "area": {
+        "x": 90,
+        "y": 786,
+        "width": 260,
+        "height": 64
+      }
+    },
+    "discount_badge": {
+      "enabled": true,
+      "hidden_when_labeled": true,
+      "content_key": "discount_badge",
+      "font_role": "delivery_impact_kr",
+      "font_size": 30,
+      "color": "#ffffff",
+      "area": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    },
+    "footer": {
+      "enabled": true,
+      "hidden_when_labeled": true,
+      "content_key": "footer",
+      "font_role": "delivery_body_kr",
+      "font_size": 20,
+      "color": "#d8ccc4",
+      "area": {
+        "x": 70,
+        "y": 974,
+        "width": 360,
+        "height": 26
+      }
+    },
+    "hashtags": {
+      "enabled": true,
+      "content_key": "hashtags",
+      "font_role": "delivery_body_kr",
+      "font_size": 18,
+      "color": "#d3c6bf",
+      "area": {
+        "x": 72,
+        "y": 942,
+        "width": 330,
+        "height": 24
+      }
+    },
+    "open_close": {
+      "enabled": true,
+      "content_key": "open_close",
+      "font_role": "delivery_body_kr",
+      "font_size": 18,
+      "color": "#d8ccc4",
+      "align": "right",
+      "area": {
+        "x": 800,
+        "y": 60,
+        "width": 220,
+        "height": 24
+      }
+    }
+  },
+  "badges": [
+    {
+      "content_key": "discount_badge",
+      "default_text": "첫주문 30% 할인",
+      "x": 774,
+      "y": 116,
+      "width": 210,
+      "height": 210,
+      "shape": "ellipse",
+      "fill": "#a0b02a",
+      "opacity": 240,
+      "font_role": "delivery_impact_kr",
+      "font_size": 28,
+      "text_color": "#ffffff"
+    }
+  ],
+  "stickers": [],
+  "ribbons": [
+    {
+      "content_key": "price",
+      "x": 76,
+      "y": 768,
+      "width": 290,
+      "height": 100,
+      "shape": "rounded_rectangle",
+      "radius": 34,
+      "fill": "#f4cf48",
+      "opacity": 245,
+      "font_role": "delivery_impact_kr",
+      "font_size": 44,
+      "text_color": "#2b1915"
+    },
+    {
+      "content_key": "footer",
+      "default_text": "지금 주문",
+      "x": 774,
+      "y": 846,
+      "width": 210,
+      "height": 112,
+      "shape": "rounded_rectangle",
+      "radius": 36,
+      "fill": "#9eb52d",
+      "opacity": 230,
+      "font_role": "delivery_impact_kr",
+      "font_size": 34,
+      "text_color": "#ffffff"
+    }
+  ],
+  "color_palette": {
+    "primary": "#ffffff",
+    "secondary": "#f4cf48",
+    "accent": "#9eb52d",
+    "background": "#2b1915",
+    "surface": "#382018"
+  },
+  "font_mapping": {
+    "headline": "delivery_impact_kr",
+    "body": "delivery_body_kr",
+    "cta": "delivery_impact_kr"
+  },
+  "decoration": {
+    "shapes": [
+      {
+        "type": "rectangle",
+        "x": 0,
+        "y": 0,
+        "width": 1080,
+        "height": 1080,
+        "fill": "#2b1915",
+        "opacity": 14
+      },
+      {
+        "type": "rounded_rectangle",
+        "x": 54,
+        "y": 154,
+        "width": 388,
+        "height": 862,
+        "radius": 42,
+        "fill": "#170f0d",
+        "opacity": 110
+      }
+    ],
+    "lines": [
+      {
+        "x1": 470,
+        "y1": 110,
+        "x2": 470,
+        "y2": 980,
+        "fill": "#604036",
+        "width": 2
+      }
+    ]
+  },
+  "layout_intent": [
+    "delivery",
+    "discount",
+    "thumbnail",
+    "cta_focus"
+  ]
+}

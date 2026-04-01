@@ -1,0 +1,327 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1313
+  },
+  "typography": {
+    "logo": {
+      "font_role": "logo_brand",
+      "approx_font_size_px": 22,
+      "weight": "bold"
+    },
+    "headline": {
+      "font_role": "display_bold",
+      "approx_font_size_px": 36,
+      "weight": "bold"
+    },
+    "slogan": {
+      "font_role": "subheader",
+      "approx_font_size_px": 18,
+      "weight": "semibold"
+    },
+    "body": {
+      "font_role": "body_regular",
+      "approx_font_size_px": 11,
+      "weight": "regular"
+    },
+    "price": {
+      "font_role": "price_bold",
+      "approx_font_size_px": 20,
+      "weight": "bold"
+    },
+    "discount_badge": {
+      "font_role": "badge_label",
+      "approx_font_size_px": 14,
+      "weight": "bold"
+    }
+  },
+  "elements": {
+    "logo": {
+      "bbox": [
+        330,
+        20,
+        410,
+        80
+      ],
+      "font_role": "logo_brand",
+      "note": "small circular brand mark near the top center"
+    },
+    "headline": {
+      "bbox": [
+        240,
+        80,
+        500,
+        150
+      ],
+      "font_role": "display_bold",
+      "note": "main red title under the logo (center top)"
+    },
+    "slogan": {
+      "bbox": [
+        200,
+        150,
+        520,
+        210
+      ],
+      "font_role": "subheader",
+      "note": "subheading / catchphrase below headline"
+    },
+    "body_slots": [
+      {
+        "id": "top_left_dish_desc",
+        "bbox": [
+          40,
+          180,
+          220,
+          320
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "top_center_dish_desc",
+        "bbox": [
+          260,
+          170,
+          470,
+          340
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "top_right_dish_desc",
+        "bbox": [
+          490,
+          160,
+          710,
+          320
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "mid_upper_left_dish_desc",
+        "bbox": [
+          40,
+          340,
+          220,
+          500
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "mid_upper_center_dish_desc",
+        "bbox": [
+          260,
+          340,
+          470,
+          520
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "mid_upper_right_dish_desc",
+        "bbox": [
+          490,
+          340,
+          710,
+          520
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "mid_lower_left_dish_desc",
+        "bbox": [
+          40,
+          540,
+          220,
+          700
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "mid_lower_center_dish_desc",
+        "bbox": [
+          260,
+          540,
+          470,
+          720
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "mid_lower_right_dish_desc",
+        "bbox": [
+          490,
+          540,
+          710,
+          720
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "lower_left_dish_desc",
+        "bbox": [
+          40,
+          780,
+          220,
+          940
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "lower_center_dish_desc",
+        "bbox": [
+          260,
+          780,
+          470,
+          940
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "lower_right_dish_desc",
+        "bbox": [
+          490,
+          780,
+          710,
+          940
+        ],
+        "font_role": "body_regular"
+      },
+      {
+        "id": "footer_caption",
+        "bbox": [
+          120,
+          1100,
+          616,
+          1270
+        ],
+        "font_role": "body_regular",
+        "note": "small footer copy and credits at the bottom"
+      }
+    ],
+    "price_tags": [
+      {
+        "id": "price_top_center",
+        "bbox": [
+          310,
+          200,
+          350,
+          230
+        ],
+        "font_role": "price_bold"
+      },
+      {
+        "id": "price_top_right",
+        "bbox": [
+          610,
+          210,
+          645,
+          240
+        ],
+        "font_role": "price_bold"
+      },
+      {
+        "id": "price_mid_right",
+        "bbox": [
+          615,
+          420,
+          645,
+          455
+        ],
+        "font_role": "price_bold"
+      },
+      {
+        "id": "price_mid_left",
+        "bbox": [
+          95,
+          420,
+          130,
+          455
+        ],
+        "font_role": "price_bold"
+      },
+      {
+        "id": "price_lower_center",
+        "bbox": [
+          360,
+          880,
+          395,
+          910
+        ],
+        "font_role": "price_bold"
+      },
+      {
+        "id": "price_bottom_right",
+        "bbox": [
+          610,
+          1000,
+          640,
+          1030
+        ],
+        "font_role": "price_bold"
+      }
+    ],
+    "discount_badges": [
+      {
+        "id": "badge_top_left",
+        "bbox": [
+          100,
+          230,
+          130,
+          260
+        ],
+        "font_role": "badge_label"
+      },
+      {
+        "id": "badge_top_center",
+        "bbox": [
+          300,
+          260,
+          330,
+          290
+        ],
+        "font_role": "badge_label"
+      },
+      {
+        "id": "badge_top_right",
+        "bbox": [
+          580,
+          230,
+          610,
+          260
+        ],
+        "font_role": "badge_label"
+      },
+      {
+        "id": "badge_mid_center",
+        "bbox": [
+          360,
+          460,
+          390,
+          490
+        ],
+        "font_role": "badge_label"
+      },
+      {
+        "id": "badge_mid_left",
+        "bbox": [
+          130,
+          700,
+          160,
+          730
+        ],
+        "font_role": "badge_label"
+      },
+      {
+        "id": "badge_lower_center",
+        "bbox": [
+          360,
+          980,
+          390,
+          1010
+        ],
+        "font_role": "badge_label"
+      }
+    ]
+  }
+}

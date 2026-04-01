@@ -1,0 +1,77 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 920
+  },
+  "typography": {
+    "elements": [
+      {
+        "id": "slogan_1",
+        "role": "slogan",
+        "font_role": "slogan",
+        "bbox": {
+          "x": 120,
+          "y": 70,
+          "width": 496,
+          "height": 56
+        },
+        "present": true
+      },
+      {
+        "id": "headline_1",
+        "role": "headline",
+        "font_role": "headline",
+        "bbox": {
+          "x": 72,
+          "y": 140,
+          "width": 592,
+          "height": 180
+        },
+        "present": true
+      },
+      {
+        "id": "price_1",
+        "role": "price",
+        "font_role": "price",
+        "bbox": {
+          "x": 328,
+          "y": 340,
+          "width": 80,
+          "height": 38
+        },
+        "present": true
+      },
+      {
+        "id": "body_1",
+        "role": "body",
+        "font_role": "body",
+        "bbox": {
+          "x": 48,
+          "y": 720,
+          "width": 520,
+          "height": 120
+        },
+        "present": true
+      },
+      {
+        "id": "logo_1",
+        "role": "logo",
+        "font_role": "logo",
+        "bbox": {
+          "x": 614,
+          "y": 772,
+          "width": 100,
+          "height": 100
+        },
+        "present": true
+      },
+      {
+        "id": "discount_badge_1",
+        "role": "discount_badge",
+        "font_role": "discount_badge",
+        "bbox": null,
+        "present": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1226
+  },
+  "typography": {
+    "logo": {
+      "font_role": "logo",
+      "suggested_size_px": 28,
+      "weight": "bold",
+      "notes": "stylized brand mark / logotype"
+    },
+    "headline": {
+      "font_role": "headline",
+      "suggested_size_px": 72,
+      "weight": "heavy",
+      "notes": "main promotional title - large, decorative"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "suggested_size_px": 18,
+      "weight": "semi-bold",
+      "notes": "small secondary tagline if present"
+    },
+    "body": {
+      "font_role": "body",
+      "suggested_size_px": 20,
+      "weight": "regular",
+      "notes": "dish names and short descriptions"
+    },
+    "price": {
+      "font_role": "price",
+      "suggested_size_px": 20,
+      "weight": "bold",
+      "notes": "price callouts (often colored/high-contrast)"
+    },
+    "discount_badge": {
+      "font_role": "discount_badge",
+      "suggested_size_px": 16,
+      "weight": "bold",
+      "notes": "small circular/rect badge, if present"
+    }
+  },
+  "elements": [
+    {
+      "id": "logo_teriyaki_boy",
+      "type": "logo",
+      "text": "Teriyaki BOY",
+      "bounding_box": [
+        36,
+        20,
+        260,
+        110
+      ],
+      "font_role": "logo"
+    },
+    {
+      "id": "logo_sizzlin_steak",
+      "type": "logo",
+      "text": "SIZZLIN' STEAK",
+      "bounding_box": [
+        360,
+        18,
+        680,
+        100
+      ],
+      "font_role": "logo"
+    },
+    {
+      "id": "headline_taste_of_thailand",
+      "type": "headline",
+      "text": "Taste of THAILAND",
+      "bounding_box": [
+        378,
+        130,
+        620,
+        360
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "dish_pad_gra_pao_bowl",
+      "type": "image_item",
+      "text": "Pad Gra Pao (bowl)",
+      "bounding_box": [
+        20,
+        220,
+        320,
+        500
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "text_pad_gra_pao",
+      "type": "body_text",
+      "text": "Pad Gra Pao",
+      "bounding_box": [
+        40,
+        220,
+        180,
+        270
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_pad_gra_pao",
+      "type": "price",
+      "text": "AED 22",
+      "bounding_box": [
+        190,
+        235,
+        235,
+        285
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "dish_mango_sticky_rice_plate",
+      "type": "image_item",
+      "text": "Mango Sticky Rice (plate)",
+      "bounding_box": [
+        300,
+        520,
+        435,
+        660
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "text_mango_sticky_rice",
+      "type": "body_text",
+      "text": "Mango\nSticky Rice",
+      "bounding_box": [
+        270,
+        665,
+        465,
+        740
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_mango_sticky_rice",
+      "type": "price",
+      "text": "AED 9",
+      "bounding_box": [
+        480,
+        690,
+        520,
+        740
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "dish_khao_pad_gai_bowl",
+      "type": "image_item",
+      "text": "Khao Pad Gai (bowl)",
+      "bounding_box": [
+        460,
+        360,
+        720,
+        640
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "text_khao_pad_gai",
+      "type": "body_text",
+      "text": "Khao Pad\nGai",
+      "bounding_box": [
+        485,
+        640,
+        640,
+        740
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_khao_pad_gai",
+      "type": "price",
+      "text": "AED 19",
+      "bounding_box": [
+        660,
+        640,
+        715,
+        740
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "dish_pad_thai_bowl",
+      "type": "image_item",
+      "text": "Pad Thai (bowl)",
+      "bounding_box": [
+        20,
+        740,
+        320,
+        980
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "text_pad_thai",
+      "type": "body_text",
+      "text": "Pad Thai",
+      "bounding_box": [
+        40,
+        930,
+        200,
+        1000
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_pad_thai",
+      "type": "price",
+      "text": "AED 22",
+      "bounding_box": [
+        200,
+        930,
+        255,
+        1000
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "dish_thai_red_curry_bowl",
+      "type": "image_item",
+      "text": "Thai Red Curry (bowl)",
+      "bounding_box": [
+        320,
+        820,
+        620,
+        1100
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "text_thai_red_curry",
+      "type": "body_text",
+      "text": "Thai Red\nCurry",
+      "bounding_box": [
+        280,
+        1010,
+        430,
+        1100
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_thai_red_curry",
+      "type": "price",
+      "text": "AED 26",
+      "bounding_box": [
+        460,
+        980,
+        520,
+        1040
+      ],
+      "font_role": "price"
+    }
+  ],
+  "discount_badge": null,
+  "notes": "Bounding boxes are estimated for a 736x1226 canvas. 'image_item' entries represent the major photographed bowls/plates; 'body_text' entries are dish name labels. No explicit promotional discount badge detected."
+}

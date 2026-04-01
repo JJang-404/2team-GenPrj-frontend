@@ -1,0 +1,82 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1072
+  },
+  "typography": {
+    "logo": "logo-mark",
+    "slogan": "caption",
+    "headline": "display-2",
+    "body": "body-1",
+    "price": "price",
+    "discount_badge": "badge"
+  },
+  "elements": {
+    "logo": {
+      "bbox": [
+        268,
+        980,
+        468,
+        1036
+      ],
+      "font_role": "logo-mark",
+      "present": true,
+      "note": "brand wordmark + icon at bottom center"
+    },
+    "slogan": {
+      "bbox": [
+        48,
+        44,
+        420,
+        100
+      ],
+      "font_role": "caption",
+      "present": true,
+      "note": "small Korean tagline near top-left"
+    },
+    "headline": {
+      "bbox": [
+        48,
+        110,
+        460,
+        320
+      ],
+      "font_role": "display-2",
+      "present": true,
+      "note": "large two-line 'Caramel Macchiato' headline at upper-left"
+    },
+    "body": {
+      "bbox": [
+        520,
+        520,
+        700,
+        640
+      ],
+      "font_role": "body-1",
+      "present": true,
+      "note": "product name/description near middle-right beside the glass"
+    },
+    "price": {
+      "bbox": [
+        520,
+        820,
+        712,
+        900
+      ],
+      "font_role": "price",
+      "present": false,
+      "note": "no explicit price visible — placeholder area (bottom-right) for price if needed"
+    },
+    "discount_badge": {
+      "bbox": [
+        600,
+        40,
+        716,
+        140
+      ],
+      "font_role": "badge",
+      "present": false,
+      "note": "no discount badge present — placeholder area (top-right) for badge"
+    }
+  }
+}

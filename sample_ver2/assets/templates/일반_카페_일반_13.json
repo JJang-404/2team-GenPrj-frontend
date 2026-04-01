@@ -1,0 +1,65 @@
+{
+  "resolution": {
+    "width": 375,
+    "height": 562
+  },
+  "typography": {
+    "logo": "sans-serif, bold, small (brand mark)",
+    "headline": "decorative brush/script, very large, display",
+    "slogan": "condensed-sans, medium, uppercase on badge",
+    "body": "sans-serif, small, regular (supporting copy / QR text)",
+    "price": "numeric, bold (not present in image)",
+    "discount_badge": "condensed-sans, small, uppercase on colored ribbon"
+  },
+  "elements": {
+    "logo": {
+      "bbox": [
+        127,
+        18,
+        120,
+        50
+      ],
+      "font_role": "logo"
+    },
+    "headline": {
+      "bbox": [
+        20,
+        70,
+        335,
+        140
+      ],
+      "font_role": "headline"
+    },
+    "slogan": {
+      "bbox": [
+        100,
+        180,
+        170,
+        36
+      ],
+      "font_role": "slogan"
+    },
+    "body": {
+      "bbox": [
+        110,
+        400,
+        155,
+        110
+      ],
+      "font_role": "body"
+    },
+    "price": {
+      "bbox": null,
+      "font_role": "price"
+    },
+    "discount_badge": {
+      "bbox": [
+        90,
+        174,
+        190,
+        40
+      ],
+      "font_role": "discount_badge"
+    }
+  }
+}

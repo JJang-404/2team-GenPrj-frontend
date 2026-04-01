@@ -1,0 +1,102 @@
+{
+  "resolution": {
+    "width": 585,
+    "height": 827
+  },
+  "elements": {
+    "logo": {
+      "box": [
+        245,
+        740,
+        315,
+        795
+      ],
+      "font_role": "logo"
+    },
+    "slogan": {
+      "box": [
+        40,
+        80,
+        360,
+        220
+      ],
+      "font_role": "slogan"
+    },
+    "headline": {
+      "box": [
+        48,
+        600,
+        384,
+        688
+      ],
+      "font_role": "headline"
+    },
+    "body": [
+      {
+        "name": "subhead_company",
+        "box": [
+          48,
+          688,
+          384,
+          736
+        ],
+        "font_role": "body"
+      },
+      {
+        "name": "side_vertical_list",
+        "box": [
+          440,
+          600,
+          568,
+          760
+        ],
+        "font_role": "body"
+      }
+    ],
+    "price": {
+      "box": null,
+      "font_role": null
+    },
+    "discount_badge": {
+      "box": [
+        420,
+        36,
+        540,
+        140
+      ],
+      "font_role": "badge"
+    }
+  },
+  "typography": {
+    "logo": {
+      "font_role": "logo",
+      "suggested_size_px": 18,
+      "weight": "bold"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "suggested_size_px": 48,
+      "weight": "semi-bold"
+    },
+    "headline": {
+      "font_role": "headline",
+      "suggested_size_px": 42,
+      "weight": "bold"
+    },
+    "body": {
+      "font_role": "body",
+      "suggested_size_px": 16,
+      "weight": "regular"
+    },
+    "badge": {
+      "font_role": "badge",
+      "suggested_size_px": 20,
+      "weight": "bold"
+    },
+    "price": {
+      "font_role": "price",
+      "suggested_size_px": 28,
+      "weight": "bold"
+    }
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1050
+  },
+  "coordinate_format": "[x, y, width, height] (pixels, origin top-left)",
+  "elements": [
+    {
+      "name": "logo",
+      "role": "logo",
+      "bbox": [
+        28,
+        18,
+        150,
+        36
+      ],
+      "font_role": "brand",
+      "confidence": 0.98,
+      "notes": "Top-left HAITAIRO wordmark"
+    },
+    {
+      "name": "headline",
+      "role": "headline",
+      "bbox": [
+        30,
+        90,
+        420,
+        260
+      ],
+      "font_role": "display-hero",
+      "confidence": 0.99,
+      "notes": "Large 'Fruit Juice' stacked headline on left"
+    },
+    {
+      "name": "slogan",
+      "role": "slogan",
+      "bbox": [
+        40,
+        380,
+        320,
+        80
+      ],
+      "font_role": "slogan",
+      "confidence": 0.95,
+      "notes": "Catchphrase Korean line beneath headline area"
+    },
+    {
+      "name": "body",
+      "role": "body",
+      "bbox": [
+        40,
+        480,
+        320,
+        300
+      ],
+      "font_role": "body-regular",
+      "confidence": 0.93,
+      "notes": "Smaller descriptive lines (e.g. product descriptions) in lower-left cream area"
+    },
+    {
+      "name": "discount_badge",
+      "role": "discount_badge",
+      "bbox": [
+        470,
+        170,
+        170,
+        60
+      ],
+      "font_role": "badge-label",
+      "confidence": 0.92,
+      "notes": "Green label near watermelon glass (product badge style)"
+    },
+    {
+      "name": "price",
+      "role": "price",
+      "bbox": null,
+      "font_role": null,
+      "confidence": 0.2,
+      "notes": "No explicit price visible in this poster"
+    }
+  ],
+  "typography": {
+    "brand": {
+      "font_role": "brand",
+      "estimated_font_size_px": 30,
+      "weight": "bold"
+    },
+    "display-hero": {
+      "font_role": "display-hero",
+      "estimated_font_size_px": 150,
+      "weight": "extra-bold"
+    },
+    "slogan": {
+      "font_role": "slogan",
+      "estimated_font_size_px": 28,
+      "weight": "medium"
+    },
+    "body-regular": {
+      "font_role": "body-regular",
+      "estimated_font_size_px": 20,
+      "weight": "regular"
+    },
+    "badge-label": {
+      "font_role": "badge-label",
+      "estimated_font_size_px": 24,
+      "weight": "bold"
+    },
+    "price": null
+  }
+}

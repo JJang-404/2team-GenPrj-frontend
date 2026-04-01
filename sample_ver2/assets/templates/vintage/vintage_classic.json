@@ -1,0 +1,267 @@
+{
+  "name": "vintage_classic",
+  "style_group": "vintage",
+  "description": "레트로 종이 질감과 아치형 배너를 사용하는 클래식 빈티지 포스터.",
+  "canvas": {
+    "width": 1024,
+    "height": 1536,
+    "aspect_ratio": "2:3"
+  },
+  "safe_area": {
+    "x": 70,
+    "y": 70,
+    "width": 884,
+    "height": 1396
+  },
+  "background": {
+    "type": "gradient",
+    "color": "#ede1ca",
+    "gradient_top": "#f2e6d1",
+    "gradient_bottom": "#dcc5a2",
+    "accent": "#ae1f1f",
+    "texture": "aged_paper"
+  },
+  "image_slots": [
+    {
+      "id": "hero",
+      "role": "main_product",
+      "x": 164,
+      "y": 468,
+      "width": 696,
+      "height": 520,
+      "fit": "contain",
+      "mask_shape": "cutout",
+      "opacity": 1.0
+    }
+  ],
+  "text_blocks": {
+    "logo": {
+      "enabled": true,
+      "content_key": "logo",
+      "font_role": "vintage_decorative_kr",
+      "font_size": 30,
+      "color": "#8f201b",
+      "align": "center",
+      "area": {
+        "x": 332,
+        "y": 72,
+        "width": 360,
+        "height": 40
+      }
+    },
+    "slogan": {
+      "enabled": true,
+      "content_key": "slogan",
+      "font_role": "vintage_body_kr",
+      "font_size": 22,
+      "color": "#8d6d49",
+      "align": "center",
+      "area": {
+        "x": 210,
+        "y": 136,
+        "width": 604,
+        "height": 30
+      }
+    },
+    "headline": {
+      "enabled": true,
+      "content_key": "headline",
+      "font_role": "vintage_decorative_kr",
+      "font_size": 62,
+      "color": "#5e2018",
+      "align": "center",
+      "wrap": true,
+      "area": {
+        "x": 126,
+        "y": 206,
+        "width": 772,
+        "height": 90
+      }
+    },
+    "subheadline": {
+      "enabled": true,
+      "content_key": "subheadline",
+      "font_role": "vintage_decorative_kr",
+      "font_size": 34,
+      "color": "#8f201b",
+      "align": "center",
+      "wrap": true,
+      "area": {
+        "x": 170,
+        "y": 1038,
+        "width": 684,
+        "height": 56
+      }
+    },
+    "body": {
+      "enabled": true,
+      "content_key": "body",
+      "font_role": "vintage_body_kr",
+      "font_size": 24,
+      "color": "#614935",
+      "align": "center",
+      "wrap": true,
+      "area": {
+        "x": 164,
+        "y": 1104,
+        "width": 696,
+        "height": 76
+      }
+    },
+    "price": {
+      "enabled": true,
+      "hidden_when_labeled": true,
+      "content_key": "price",
+      "font_role": "vintage_decorative_en",
+      "font_size": 38,
+      "color": "#503411",
+      "align": "center",
+      "area": {
+        "x": 710,
+        "y": 1192,
+        "width": 170,
+        "height": 44
+      }
+    },
+    "discount_badge": {
+      "enabled": false,
+      "content_key": "discount_badge",
+      "font_role": "vintage_decorative_kr",
+      "font_size": 0,
+      "color": "#000000",
+      "area": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    },
+    "footer": {
+      "enabled": true,
+      "content_key": "footer",
+      "font_role": "vintage_body_kr",
+      "font_size": 20,
+      "color": "#7c6245",
+      "align": "center",
+      "area": {
+        "x": 290,
+        "y": 1460,
+        "width": 444,
+        "height": 26
+      }
+    },
+    "hashtags": {
+      "enabled": true,
+      "content_key": "hashtags",
+      "font_role": "vintage_body_kr",
+      "font_size": 18,
+      "color": "#8d6d49",
+      "align": "left",
+      "area": {
+        "x": 84,
+        "y": 1402,
+        "width": 320,
+        "height": 28
+      }
+    },
+    "open_close": {
+      "enabled": true,
+      "content_key": "open_close",
+      "font_role": "vintage_body_kr",
+      "font_size": 20,
+      "color": "#8d6d49",
+      "align": "right",
+      "area": {
+        "x": 682,
+        "y": 1402,
+        "width": 260,
+        "height": 28
+      }
+    }
+  },
+  "badges": [
+    {
+      "content_key": "price",
+      "default_text": "₩3,000",
+      "x": 744,
+      "y": 1180,
+      "width": 140,
+      "height": 62,
+      "shape": "ellipse",
+      "fill": "#f0cb43",
+      "opacity": 240,
+      "font_role": "vintage_decorative_en",
+      "font_size": 24,
+      "text_color": "#5b3f1b"
+    }
+  ],
+  "stickers": [],
+  "ribbons": [
+    {
+      "content_key": "discount_badge",
+      "default_text": "RETRO PICK",
+      "x": 118,
+      "y": 318,
+      "width": 788,
+      "height": 86,
+      "shape": "rounded_rectangle",
+      "radius": 42,
+      "fill": "#b61f1c",
+      "opacity": 228,
+      "font_role": "vintage_decorative_en",
+      "font_size": 34,
+      "padding_x": 50,
+      "padding_y": 18,
+      "text_color": "#fff2d8"
+    }
+  ],
+  "color_palette": {
+    "primary": "#b61f1c",
+    "secondary": "#f0cb43",
+    "accent": "#8d6d49",
+    "background": "#ede1ca",
+    "surface": "#f5ead7"
+  },
+  "font_mapping": {
+    "headline": "vintage_decorative_kr",
+    "body": "vintage_body_kr",
+    "label": "vintage_decorative_en"
+  },
+  "decoration": {
+    "shapes": [
+      {
+        "type": "rectangle",
+        "x": 38,
+        "y": 38,
+        "width": 948,
+        "height": 1460,
+        "fill": "#c14528",
+        "opacity": 18
+      }
+    ],
+    "lines": [
+      {
+        "x1": 54,
+        "y1": 54,
+        "x2": 970,
+        "y2": 54,
+        "fill": "#af3e28",
+        "width": 4
+      },
+      {
+        "x1": 54,
+        "y1": 1482,
+        "x2": 970,
+        "y2": 1482,
+        "fill": "#af3e28",
+        "width": 4
+      }
+    ]
+  },
+  "layout_intent": [
+    "vintage",
+    "retro",
+    "poster",
+    "classic"
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1008
+  },
+  "typography": {
+    "logo_display": {
+      "font_family": "sans-condensed",
+      "weight": "bold",
+      "suggested_size_px": 56,
+      "case": "uppercase"
+    },
+    "headline_lux_serif": {
+      "font_family": "display_serif",
+      "weight": "bold",
+      "suggested_size_px": 96,
+      "case": "uppercase"
+    },
+    "slogan_sans": {
+      "font_family": "sans",
+      "weight": "regular",
+      "suggested_size_px": 18,
+      "case": "sentence"
+    },
+    "body_regular": {
+      "font_family": "sans",
+      "weight": "regular",
+      "suggested_size_px": 20,
+      "case": "sentence"
+    },
+    "price_bold": {
+      "font_family": "sans",
+      "weight": "bold",
+      "suggested_size_px": 28,
+      "case": "numeric"
+    },
+    "discount_badge": {
+      "font_family": "sans",
+      "weight": "bold",
+      "suggested_size_px": 24,
+      "case": "uppercase"
+    }
+  },
+  "elements": {
+    "logo": {
+      "role": "logo",
+      "bounding_box": [
+        270,
+        20,
+        466,
+        90
+      ],
+      "font_role": "logo_display",
+      "notes": "Top-center small logotype (\"HI-TEA\")"
+    },
+    "headline": {
+      "role": "headline",
+      "bounding_box": [
+        90,
+        60,
+        646,
+        220
+      ],
+      "font_role": "headline_lux_serif",
+      "notes": "Large display title (CHAMOMILE)"
+    },
+    "slogan": {
+      "role": "slogan",
+      "bounding_box": [
+        170,
+        220,
+        566,
+        270
+      ],
+      "font_role": "slogan_sans",
+      "notes": "Short descriptive line under headline"
+    },
+    "body": {
+      "role": "body",
+      "bounding_box": [
+        100,
+        270,
+        636,
+        560
+      ],
+      "font_role": "body_regular",
+      "notes": "Product descriptions and smaller explanatory text around the drinks area"
+    },
+    "price": [
+      {
+        "role": "price",
+        "value": "69",
+        "bounding_box": [
+          100,
+          350,
+          180,
+          410
+        ],
+        "font_role": "price_bold",
+        "notes": "Left drink price"
+      },
+      {
+        "role": "price",
+        "value": "69",
+        "bounding_box": [
+          360,
+          300,
+          420,
+          360
+        ],
+        "font_role": "price_bold",
+        "notes": "Center tall drink price"
+      },
+      {
+        "role": "price",
+        "value": "69",
+        "bounding_box": [
+          540,
+          300,
+          620,
+          360
+        ],
+        "font_role": "price_bold",
+        "notes": "Right drink price"
+      },
+      {
+        "role": "price",
+        "value": "65",
+        "bounding_box": [
+          420,
+          820,
+          480,
+          860
+        ],
+        "font_role": "price_bold",
+        "notes": "Bottom-right drink price"
+      }
+    ],
+    "discount_badge": {
+      "role": "discount_badge",
+      "bounding_box": null,
+      "font_role": null,
+      "notes": "No visible discount badge in this layout"
+    }
+  }
+}

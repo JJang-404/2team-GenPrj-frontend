@@ -1,0 +1,211 @@
+{
+  "resolution": [
+    564,
+    798
+  ],
+  "elements": [
+    {
+      "id": "logo_center",
+      "label": "BORCELLE Restaurant (logo badge)",
+      "bbox": [
+        102,
+        36,
+        360,
+        100
+      ],
+      "font_role": "logo"
+    },
+    {
+      "id": "slogan_left",
+      "label": "WE ARE OPEN (top-left slogan/notice)",
+      "bbox": [
+        24,
+        36,
+        120,
+        84
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "id": "slogan_right",
+      "label": "Best Food (top-right small slogan)",
+      "bbox": [
+        430,
+        52,
+        104,
+        56
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "id": "headline_appetizers",
+      "label": "Appetizers (left-column section headline)",
+      "bbox": [
+        28,
+        162,
+        240,
+        64
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "body_appetizers_box",
+      "label": "Appetizers item list (blue box containing items and descriptions)",
+      "bbox": [
+        28,
+        232,
+        240,
+        220
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_truffle_fries",
+      "label": "Truffle Fries price ($6.99) (left column price)",
+      "bbox": [
+        230,
+        260,
+        60,
+        28
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "headline_maincourse",
+      "label": "MAIN COURSE (right-column section headline)",
+      "bbox": [
+        352,
+        156,
+        200,
+        64
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "body_maincourse",
+      "label": "Main Course item list (right column body text and dish descriptions)",
+      "bbox": [
+        352,
+        224,
+        200,
+        300
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_grilled_chicken",
+      "label": "Grilled Chicken & Avocado Wrap price ($6.99) (right column price)",
+      "bbox": [
+        516,
+        246,
+        40,
+        28
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "headline_desserts",
+      "label": "DESSERTS (left middle section headline)",
+      "bbox": [
+        28,
+        478,
+        220,
+        56
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "body_desserts",
+      "label": "Desserts list and descriptions (left middle body)",
+      "bbox": [
+        28,
+        538,
+        240,
+        160
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_caramel_brownie",
+      "label": "Caramel Brownie price ($5.99) (desserts)",
+      "bbox": [
+        188,
+        560,
+        60,
+        28
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "beverages_box",
+      "label": "Beverages list (bottom-left rounded panel)",
+      "bbox": [
+        28,
+        700,
+        220,
+        88
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "special_badge",
+      "label": "SPECIAL badge (bottom-right promo badge)",
+      "bbox": [
+        332,
+        560,
+        200,
+        220
+      ],
+      "font_role": "discount_badge"
+    },
+    {
+      "id": "special_price",
+      "label": "Salmon Poke Bowl price ($14.99) (inside special badge)",
+      "bbox": [
+        420,
+        640,
+        110,
+        56
+      ],
+      "font_role": "price"
+    }
+  ],
+  "typography": {
+    "logo": {
+      "font_size_px": 56,
+      "weight": "700",
+      "style": "display/condensed",
+      "usage": "primary visual brand mark"
+    },
+    "slogan": {
+      "font_size_px": 18,
+      "weight": "600",
+      "style": "uppercase/condensed",
+      "usage": "secondary small notices/catchphrases"
+    },
+    "headline": {
+      "font_size_px": 42,
+      "weight": "700",
+      "style": "display/hand-lettered",
+      "usage": "section headings"
+    },
+    "body": {
+      "font_size_px": 16,
+      "weight": "400",
+      "style": "regular/serif-like",
+      "usage": "item descriptions and paragraph text"
+    },
+    "price": {
+      "font_size_px": 20,
+      "weight": "700",
+      "style": "bold/colored",
+      "usage": "price labels, emphasis numeric"
+    },
+    "discount_badge": {
+      "font_size_px": 36,
+      "weight": "700",
+      "style": "bold/display with outline",
+      "usage": "promotional badge headline"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "resolution": {
+    "width": 735,
+    "height": 952
+  },
+  "format": "bbox_xyxy",
+  "elements": [
+    {
+      "name": "logo",
+      "bbox": [
+        560,
+        20,
+        720,
+        140
+      ],
+      "font_role": "logo"
+    },
+    {
+      "name": "slogan",
+      "bbox": [
+        300,
+        25,
+        560,
+        95
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "name": "headline",
+      "bbox": [
+        300,
+        95,
+        560,
+        170
+      ],
+      "font_role": "headline"
+    },
+    {
+      "name": "body",
+      "bbox": [
+        300,
+        200,
+        540,
+        800
+      ],
+      "font_role": "body"
+    },
+    {
+      "name": "price",
+      "bbox": [
+        540,
+        200,
+        720,
+        800
+      ],
+      "font_role": "price"
+    },
+    {
+      "name": "discount_badge",
+      "bbox": null,
+      "font_role": null
+    }
+  ],
+  "typography": {
+    "logo": "logo",
+    "slogan": "script_display",
+    "headline": "heavy_sans_uppercase",
+    "body": "light_sans_regular",
+    "price": "light_sans_right_aligned",
+    "discount_badge": "n/a"
+  },
+  "meta": {
+    "coordinate_note": "All bounding boxes use [x_min, y_min, x_max, y_max] on a 735x952 canvas. Coordinates are estimated template positions."
+  }
+}

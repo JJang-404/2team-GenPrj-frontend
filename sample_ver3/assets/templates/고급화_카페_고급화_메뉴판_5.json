@@ -1,0 +1,106 @@
+{
+  "resolution": {
+    "width": 489,
+    "height": 693
+  },
+  "elements": [
+    {
+      "role": "headline",
+      "bbox": [
+        20,
+        18,
+        260,
+        70
+      ],
+      "font_role": "display_large"
+    },
+    {
+      "role": "slogan",
+      "bbox": [
+        30,
+        92,
+        220,
+        30
+      ],
+      "font_role": "section_label"
+    },
+    {
+      "role": "body",
+      "bbox": [
+        20,
+        130,
+        260,
+        420
+      ],
+      "font_role": "body_text"
+    },
+    {
+      "role": "price",
+      "bbox": [
+        210,
+        130,
+        70,
+        420
+      ],
+      "font_role": "price"
+    },
+    {
+      "role": "discount_badge",
+      "bbox": [
+        300,
+        420,
+        140,
+        140
+      ],
+      "font_role": "badge"
+    },
+    {
+      "role": "logo",
+      "bbox": [
+        12,
+        670,
+        80,
+        18
+      ],
+      "font_role": "logo"
+    }
+  ],
+  "typography": {
+    "display_large": {
+      "font_size_px": 48,
+      "weight": "bold",
+      "color": "#FFFFFF",
+      "alignment": "left"
+    },
+    "section_label": {
+      "font_size_px": 18,
+      "weight": "semi-bold",
+      "color": "#D88A2E",
+      "alignment": "left"
+    },
+    "body_text": {
+      "font_size_px": 14,
+      "weight": "regular",
+      "color": "#EAEAEA",
+      "alignment": "left"
+    },
+    "price": {
+      "font_size_px": 14,
+      "weight": "regular",
+      "color": "#EAEAEA",
+      "alignment": "right"
+    },
+    "badge": {
+      "font_size_px": 16,
+      "weight": "semi-bold",
+      "color": "#FFFFFF",
+      "alignment": "center"
+    },
+    "logo": {
+      "font_size_px": 10,
+      "weight": "regular",
+      "color": "#AAAAAA",
+      "alignment": "left"
+    }
+  }
+}

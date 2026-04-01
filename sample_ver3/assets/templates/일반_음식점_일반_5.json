@@ -1,0 +1,71 @@
+{
+  "resolution": {
+    "width": 428,
+    "height": 600
+  },
+  "coordinate_format": "[x, y, width, height] (pixels, origin: top-left)",
+  "typography": {
+    "headline": {
+      "bbox": [
+        28,
+        32,
+        300,
+        120
+      ],
+      "font_role": "headline",
+      "confidence": 0.98,
+      "notes": "Primary large Korean title at upper-left ('곤드레 떡갈비 한상')."
+    },
+    "slogan": {
+      "bbox": [
+        28,
+        152,
+        300,
+        36
+      ],
+      "font_role": "slogan",
+      "confidence": 0.92,
+      "notes": "Short catchphrase/strapline directly under the headline."
+    },
+    "body": {
+      "bbox": [
+        28,
+        196,
+        320,
+        70
+      ],
+      "font_role": "body",
+      "confidence": 0.9,
+      "notes": "Descriptive paragraph/secondary text between headline and product image."
+    },
+    "price": {
+      "bbox": [
+        28,
+        520,
+        180,
+        48
+      ],
+      "font_role": "price",
+      "confidence": 0.97,
+      "notes": "Price text at lower-left (e.g., '11,000 원')."
+    },
+    "logo": {
+      "bbox": [
+        326,
+        36,
+        76,
+        76
+      ],
+      "font_role": "logo",
+      "confidence": 0.65,
+      "notes": "Top-right circular plate/graphic area treated as possible logo placement (no explicit brand mark)."
+    },
+    "discount_badge": {
+      "present": false,
+      "bbox": null,
+      "font_role": "discount_badge",
+      "confidence": 0.0,
+      "notes": "No discount badge detected in the layout."
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "resolution": {
+    "width": 735,
+    "height": 866,
+    "units": "pixels"
+  },
+  "coordinate_format": "xyxy",
+  "typography": {
+    "logo": {
+      "font_role": "brand_mark",
+      "suggested_font_size_px": 20,
+      "weight": "bold",
+      "color_hint": "brand_blue"
+    },
+    "slogan": {
+      "font_role": "meta_caption",
+      "suggested_font_size_px": 18,
+      "weight": "semibold",
+      "color_hint": "dark_brown"
+    },
+    "headline": {
+      "font_role": "display_bold",
+      "suggested_font_size_px": 84,
+      "weight": "heavy",
+      "color_hint": "orange/brown"
+    },
+    "body": {
+      "font_role": "body_regular",
+      "suggested_font_size_px": 26,
+      "weight": "regular",
+      "color_hint": "white_or_light"
+    },
+    "price": {
+      "font_role": "price_bold",
+      "suggested_font_size_px": 64,
+      "weight": "heavy",
+      "color_hint": "white_on_orange"
+    },
+    "discount_badge": {
+      "font_role": "badge_bold",
+      "suggested_font_size_px": 28,
+      "weight": "bold",
+      "color_hint": "red"
+    }
+  },
+  "elements": [
+    {
+      "id": "logo",
+      "bounding_box": [
+        20,
+        18,
+        92,
+        74
+      ],
+      "font_role": "brand_mark",
+      "confidence": 0.95,
+      "notes": "top-left brand mark"
+    },
+    {
+      "id": "slogan",
+      "bounding_box": [
+        470,
+        28,
+        700,
+        110
+      ],
+      "font_role": "meta_caption",
+      "confidence": 0.9,
+      "notes": "curved small text and illustration above headline on beige panel (POTATO HOTDOG)"
+    },
+    {
+      "id": "discount_badge",
+      "bounding_box": [
+        430,
+        110,
+        535,
+        155
+      ],
+      "font_role": "badge_bold",
+      "confidence": 0.92,
+      "notes": "red 'NEW' ribbon / badge at top-left of beige panel"
+    },
+    {
+      "id": "headline",
+      "bounding_box": [
+        420,
+        130,
+        710,
+        470
+      ],
+      "font_role": "display_bold",
+      "confidence": 0.98,
+      "notes": "large main Korean headline on the beige panel"
+    },
+    {
+      "id": "body",
+      "bounding_box": [
+        430,
+        470,
+        710,
+        600
+      ],
+      "font_role": "body_regular",
+      "confidence": 0.9,
+      "notes": "descriptive copy below headline (smaller explanatory text)"
+    },
+    {
+      "id": "price",
+      "bounding_box": [
+        520,
+        660,
+        730,
+        846
+      ],
+      "font_role": "price_bold",
+      "confidence": 0.97,
+      "notes": "bottom-right orange price panel showing 1,800원"
+    },
+    {
+      "id": "secondary_badge",
+      "bounding_box": [
+        36,
+        520,
+        170,
+        660
+      ],
+      "font_role": "badge_bold",
+      "confidence": 0.88,
+      "notes": "circular callout image (sausage cross-section) near lower-left — useful as secondary badge/graphic"
+    }
+  ],
+  "schema_version": "1.0"
+}

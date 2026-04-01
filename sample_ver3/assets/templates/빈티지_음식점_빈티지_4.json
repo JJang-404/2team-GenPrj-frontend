@@ -1,0 +1,71 @@
+{
+  "resolution": [
+    736,
+    867
+  ],
+  "coordinate_format": "xywh",
+  "elements": {
+    "logo": {
+      "bbox": [
+        20,
+        18,
+        90,
+        60
+      ],
+      "font_role": "logo"
+    },
+    "slogan": {
+      "bbox": [
+        640,
+        6,
+        96,
+        160
+      ],
+      "font_role": "slogan"
+    },
+    "headline": {
+      "bbox": [
+        40,
+        110,
+        220,
+        560
+      ],
+      "font_role": "headline"
+    },
+    "body": {
+      "bbox": [
+        10,
+        260,
+        40,
+        320
+      ],
+      "font_role": "body"
+    },
+    "price": {
+      "bbox": [
+        452,
+        200,
+        200,
+        120
+      ],
+      "font_role": "price"
+    },
+    "discount_badge": {
+      "bbox": [
+        520,
+        320,
+        170,
+        170
+      ],
+      "font_role": "discount_badge"
+    }
+  },
+  "typography": {
+    "logo": "brand_logo",
+    "slogan": "display_bold",
+    "headline": "display_extrabold",
+    "body": "body_regular",
+    "price": "price_bold",
+    "discount_badge": "badge_bold"
+  }
+}

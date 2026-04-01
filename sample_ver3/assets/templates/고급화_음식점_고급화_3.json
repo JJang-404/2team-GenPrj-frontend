@@ -1,0 +1,118 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1041
+  },
+  "typography": {
+    "logo": {
+      "bbox": [
+        520,
+        28,
+        708,
+        64
+      ],
+      "font_role": "logo",
+      "comment": "small top-right text ('INCLUDE RECEIPT FOOD')"
+    },
+    "slogan": {
+      "bbox": [
+        48,
+        28,
+        240,
+        64
+      ],
+      "font_role": "slogan",
+      "comment": "date/top-left ('MARCH 2024')"
+    },
+    "headline": {
+      "bbox": [
+        40,
+        80,
+        696,
+        220
+      ],
+      "font_role": "display",
+      "comment": "large cover title ('DELICIOUS') centered at top"
+    },
+    "subheadline": {
+      "bbox": [
+        60,
+        220,
+        540,
+        270
+      ],
+      "font_role": "subtitle",
+      "comment": "secondary title/tagline ('FOOD MAGAZINE') below main headline"
+    },
+    "feature_title": {
+      "bbox": [
+        460,
+        300,
+        680,
+        360
+      ],
+      "font_role": "title",
+      "comment": "right-side feature heading ('CRAVINGS')"
+    },
+    "feature_body": {
+      "bbox": [
+        420,
+        340,
+        700,
+        440
+      ],
+      "font_role": "body",
+      "comment": "short descriptive lines under the right feature heading"
+    },
+    "author_title": {
+      "bbox": [
+        48,
+        540,
+        320,
+        600
+      ],
+      "font_role": "title",
+      "comment": "left-mid author/feature name ('CHEF OLIVIA')"
+    },
+    "author_body": {
+      "bbox": [
+        48,
+        600,
+        360,
+        720
+      ],
+      "font_role": "body",
+      "comment": "description under author/feature name"
+    },
+    "body": {
+      "bbox": [
+        40,
+        800,
+        400,
+        960
+      ],
+      "font_role": "body",
+      "comment": "main paragraph text block at lower-left"
+    },
+    "barcode": {
+      "bbox": [
+        520,
+        860,
+        710,
+        1010
+      ],
+      "font_role": "graphic",
+      "comment": "barcode area bottom-right"
+    },
+    "price": {
+      "bbox": null,
+      "font_role": null,
+      "comment": "no obvious price displayed on this cover"
+    },
+    "discount_badge": {
+      "bbox": null,
+      "font_role": null,
+      "comment": "no discount badge detected"
+    }
+  }
+}

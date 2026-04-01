@@ -1,0 +1,89 @@
+{
+  "resolution": {
+    "width": 283,
+    "height": 400,
+    "units": "px"
+  },
+  "typography": {
+    "notes": "Estimated roles and relative sizes for each text element in the poster. Values are approximate for a 283x400 canvas.",
+    "headline_estimated_font_size_px": 34,
+    "logo_estimated_font_size_px": 12,
+    "price_estimated_font_size_px": 14,
+    "body_estimated_font_size_px": 10,
+    "slogan_estimated_font_size_px": 0
+  },
+  "elements": [
+    {
+      "name": "logo",
+      "present": true,
+      "bbox": [
+        100,
+        44,
+        184,
+        80
+      ],
+      "font_role": "logo",
+      "notes": "Small oval 'BIZ CAFE' above the main headline, top-center"
+    },
+    {
+      "name": "slogan",
+      "present": false,
+      "bbox": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "font_role": "slogan",
+      "notes": "No distinct separate slogan detected apart from logo/headline"
+    },
+    {
+      "name": "headline",
+      "present": true,
+      "bbox": [
+        16,
+        70,
+        267,
+        140
+      ],
+      "font_role": "headline",
+      "notes": "Large cursive 'Americano' across the upper-mid area"
+    },
+    {
+      "name": "body",
+      "present": true,
+      "bbox": [
+        20,
+        300,
+        262,
+        386
+      ],
+      "font_role": "body",
+      "notes": "Small descriptive lines at the bottom of the poster"
+    },
+    {
+      "name": "price",
+      "present": true,
+      "bbox": [
+        118,
+        268,
+        168,
+        296
+      ],
+      "font_role": "price",
+      "notes": "Centered small price text ('1,500원') above the body copy"
+    },
+    {
+      "name": "discount_badge",
+      "present": false,
+      "bbox": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "font_role": "discount_badge",
+      "notes": "No discount badge detected"
+    }
+  ]
+}

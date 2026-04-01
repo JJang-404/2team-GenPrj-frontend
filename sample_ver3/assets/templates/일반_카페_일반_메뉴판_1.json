@@ -1,0 +1,222 @@
+{
+  "resolution": {
+    "width": 1600,
+    "height": 1035
+  },
+  "bbox_format": "[x_min, y_min, x_max, y_max]",
+  "typography": {
+    "logo": {
+      "font_family": "serif",
+      "font_size": 22,
+      "weight": "semi-bold"
+    },
+    "slogan": {
+      "font_family": "sans-serif",
+      "font_size": 14,
+      "weight": "regular"
+    },
+    "headline": {
+      "font_family": "serif",
+      "font_size": 56,
+      "weight": "bold"
+    },
+    "section_header": {
+      "font_family": "serif",
+      "font_size": 28,
+      "weight": "bold"
+    },
+    "body": {
+      "font_family": "sans-serif",
+      "font_size": 16,
+      "weight": "regular"
+    },
+    "price": {
+      "font_family": "sans-serif",
+      "font_size": 16,
+      "weight": "medium"
+    },
+    "badge": {
+      "font_family": "sans-serif",
+      "font_size": 12,
+      "weight": "medium"
+    }
+  },
+  "elements": [
+    {
+      "id": "headline_main",
+      "type": "headline",
+      "bbox": [
+        30,
+        20,
+        420,
+        120
+      ],
+      "font_role": "headline"
+    },
+    {
+      "id": "logo_top_right",
+      "type": "logo",
+      "bbox": [
+        1220,
+        18,
+        1570,
+        100
+      ],
+      "font_role": "logo"
+    },
+    {
+      "id": "slogan_hours",
+      "type": "slogan",
+      "bbox": [
+        1220,
+        30,
+        1570,
+        110
+      ],
+      "font_role": "slogan"
+    },
+    {
+      "id": "section_signature",
+      "type": "headline",
+      "bbox": [
+        550,
+        140,
+        840,
+        210
+      ],
+      "font_role": "section_header"
+    },
+    {
+      "id": "body_signature",
+      "type": "body",
+      "bbox": [
+        540,
+        210,
+        860,
+        380
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_signature",
+      "type": "price",
+      "bbox": [
+        860,
+        210,
+        980,
+        380
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "section_coffee",
+      "type": "headline",
+      "bbox": [
+        550,
+        400,
+        840,
+        470
+      ],
+      "font_role": "section_header"
+    },
+    {
+      "id": "body_coffee",
+      "type": "body",
+      "bbox": [
+        540,
+        470,
+        860,
+        860
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_coffee",
+      "type": "price",
+      "bbox": [
+        860,
+        470,
+        980,
+        860
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "section_drinks",
+      "type": "headline",
+      "bbox": [
+        1050,
+        140,
+        1420,
+        210
+      ],
+      "font_role": "section_header"
+    },
+    {
+      "id": "body_drinks",
+      "type": "body",
+      "bbox": [
+        1000,
+        210,
+        1420,
+        380
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_drinks",
+      "type": "price",
+      "bbox": [
+        1420,
+        210,
+        1560,
+        380
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "section_tea",
+      "type": "headline",
+      "bbox": [
+        1050,
+        400,
+        1420,
+        470
+      ],
+      "font_role": "section_header"
+    },
+    {
+      "id": "body_tea",
+      "type": "body",
+      "bbox": [
+        1000,
+        470,
+        1420,
+        860
+      ],
+      "font_role": "body"
+    },
+    {
+      "id": "price_tea",
+      "type": "price",
+      "bbox": [
+        1420,
+        470,
+        1560,
+        860
+      ],
+      "font_role": "price"
+    },
+    {
+      "id": "discount_badge_top_right",
+      "type": "discount_badge",
+      "bbox": [
+        1000,
+        150,
+        1080,
+        190
+      ],
+      "font_role": "badge"
+    }
+  ]
+}

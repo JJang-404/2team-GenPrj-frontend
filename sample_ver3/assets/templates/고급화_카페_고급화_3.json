@@ -1,0 +1,120 @@
+{
+  "resolution": {
+    "width": 735,
+    "height": 917
+  },
+  "typography": {
+    "roles": {
+      "logo": {
+        "suggested_font_family": "Sans-Serif",
+        "suggested_font_size_pt": 14,
+        "weight": "regular",
+        "color": "light"
+      },
+      "slogan": {
+        "suggested_font_family": "Sans-Serif",
+        "suggested_font_size_pt": 12,
+        "weight": "light",
+        "color": "light"
+      },
+      "headline": {
+        "suggested_font_family": "Serif",
+        "suggested_font_size_pt": 56,
+        "weight": "semi-bold",
+        "color": "warm-beige"
+      },
+      "body": {
+        "suggested_font_family": "Sans-Serif",
+        "suggested_font_size_pt": 12,
+        "weight": "regular",
+        "color": "light"
+      },
+      "price": {
+        "suggested_font_family": "Sans-Serif",
+        "suggested_font_size_pt": 24,
+        "weight": "bold",
+        "color": "accent"
+      },
+      "discount_badge": {
+        "suggested_font_family": "Sans-Serif",
+        "suggested_font_size_pt": 18,
+        "weight": "bold",
+        "color": "accent_on_dark"
+      }
+    }
+  },
+  "elements": [
+    {
+      "id": "logo",
+      "font_role": "logo",
+      "bounding_box": [
+        560,
+        20,
+        720,
+        90
+      ],
+      "confidence": 0.4,
+      "notes": "Placeholder top-right logo area (image has no obvious logo)."
+    },
+    {
+      "id": "slogan",
+      "font_role": "slogan",
+      "bounding_box": [
+        40,
+        35,
+        380,
+        95
+      ],
+      "confidence": 0.92,
+      "notes": "Small left-aligned slogan near top-left."
+    },
+    {
+      "id": "headline",
+      "font_role": "headline",
+      "bounding_box": [
+        245,
+        280,
+        490,
+        420
+      ],
+      "confidence": 0.98,
+      "notes": "Main title 'POUR Happiness' centered over the glass."
+    },
+    {
+      "id": "body",
+      "font_role": "body",
+      "bounding_box": [
+        470,
+        520,
+        715,
+        580
+      ],
+      "confidence": 0.9,
+      "notes": "Supporting copy on right-middle."
+    },
+    {
+      "id": "price",
+      "font_role": "price",
+      "bounding_box": [
+        40,
+        700,
+        220,
+        780
+      ],
+      "confidence": 0.1,
+      "notes": "No visible price in source; area provided as a bottom-left placeholder."
+    },
+    {
+      "id": "discount_badge",
+      "font_role": "discount_badge",
+      "bounding_box": [
+        500,
+        260,
+        620,
+        360
+      ],
+      "confidence": 0.15,
+      "notes": "No explicit badge present; suggested badge position top-right of headline/glass."
+    }
+  ]
+}

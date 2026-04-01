@@ -1,0 +1,171 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 1038
+  },
+  "typography": {
+    "headline": {
+      "font_role": "display_xl_bold",
+      "approx_size_px": 64,
+      "weight": "700",
+      "color_hint": "yellow/black-outline (high-contrast)"
+    },
+    "slogan": {
+      "font_role": "caption_md_bold",
+      "approx_size_px": 18,
+      "weight": "600",
+      "color_hint": "black/orange"
+    },
+    "body": {
+      "font_role": "body_md_regular",
+      "approx_size_px": 20,
+      "weight": "400",
+      "color_hint": "black"
+    },
+    "price": {
+      "font_role": "price_sm_bold",
+      "approx_size_px": 16,
+      "weight": "700",
+      "color_hint": "black/red"
+    },
+    "logo": {
+      "font_role": "brand_xs_regular",
+      "approx_size_px": 12,
+      "weight": "600",
+      "color_hint": "white/on-dark-bar"
+    },
+    "discount_badge": {
+      "font_role": "badge_sm_bold",
+      "approx_size_px": 14,
+      "weight": "700",
+      "color_hint": "white/on-yellow_or_red"
+    }
+  },
+  "elements": {
+    "logo": {
+      "bbox": {
+        "x": 12,
+        "y": 988,
+        "w": 220,
+        "h": 36
+      },
+      "font_role": "brand_xs_regular",
+      "confidence": 0.92,
+      "note": "bottom dark footer bar, left side (Metro/logo area)"
+    },
+    "slogan": {
+      "bbox": {
+        "x": 72,
+        "y": 360,
+        "w": 592,
+        "h": 44
+      },
+      "font_role": "caption_md_bold",
+      "confidence": 0.88,
+      "note": "short repeated catchphrases above the large central title"
+    },
+    "headline": {
+      "bbox": {
+        "x": 60,
+        "y": 412,
+        "w": 616,
+        "h": 160
+      },
+      "font_role": "display_xl_bold",
+      "confidence": 0.97,
+      "note": "central large event title (yellow characters)"
+    },
+    "body": {
+      "bbox": {
+        "x": 200,
+        "y": 590,
+        "w": 336,
+        "h": 72
+      },
+      "font_role": "body_md_regular",
+      "confidence": 0.9,
+      "note": "dates and small descriptive lines under the headline"
+    },
+    "price": [
+      {
+        "bbox": {
+          "x": 36,
+          "y": 166,
+          "w": 180,
+          "h": 36
+        },
+        "font_role": "price_sm_bold",
+        "confidence": 0.82,
+        "note": "price tag for top-left dish tile"
+      },
+      {
+        "bbox": {
+          "x": 256,
+          "y": 76,
+          "w": 160,
+          "h": 36
+        },
+        "font_role": "price_sm_bold",
+        "confidence": 0.79,
+        "note": "price on top-center orange tile"
+      },
+      {
+        "bbox": {
+          "x": 300,
+          "y": 300,
+          "w": 140,
+          "h": 36
+        },
+        "font_role": "price_sm_bold",
+        "confidence": 0.85,
+        "note": "price on central curry plate tile"
+      },
+      {
+        "bbox": {
+          "x": 40,
+          "y": 820,
+          "w": 170,
+          "h": 40
+        },
+        "font_role": "price_sm_bold",
+        "confidence": 0.78,
+        "note": "price near bottom-left dessert tile"
+      },
+      {
+        "bbox": {
+          "x": 548,
+          "y": 792,
+          "w": 156,
+          "h": 44
+        },
+        "font_role": "price_sm_bold",
+        "confidence": 0.8,
+        "note": "price near bottom-right pancake tile"
+      }
+    ],
+    "discount_badge": [
+      {
+        "bbox": {
+          "x": 548,
+          "y": 296,
+          "w": 120,
+          "h": 120
+        },
+        "font_role": "badge_sm_bold",
+        "confidence": 0.86,
+        "note": "yellow starburst / callout on right-middle tile (promotional badge)"
+      },
+      {
+        "bbox": {
+          "x": 100,
+          "y": 704,
+          "w": 70,
+          "h": 70
+        },
+        "font_role": "badge_sm_bold",
+        "confidence": 0.74,
+        "note": "small circular/time badge on a dish tile"
+      }
+    ]
+  }
+}

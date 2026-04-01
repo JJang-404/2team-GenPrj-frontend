@@ -1,0 +1,290 @@
+{
+  "name": "general_korean_menu",
+  "style_group": "general_food",
+  "description": "한식 메뉴 홍보형 포스터. 상단 강한 제목, 하단 카드 섹션, 복수 가격 노출에 적합하다.",
+  "canvas": {
+    "width": 1024,
+    "height": 1365,
+    "aspect_ratio": "4:5"
+  },
+  "safe_area": {
+    "x": 60,
+    "y": 60,
+    "width": 904,
+    "height": 1245
+  },
+  "background": {
+    "type": "gradient",
+    "color": "#efe4cf",
+    "gradient_top": "#f4ead8",
+    "gradient_bottom": "#e4d0b0",
+    "accent": "#9d311d",
+    "texture": "paper_halftone"
+  },
+  "image_slots": [
+    {
+      "id": "hero",
+      "role": "main_product",
+      "x": 100,
+      "y": 250,
+      "width": 824,
+      "height": 500,
+      "fit": "cover",
+      "mask_shape": "rounded_rectangle",
+      "opacity": 1.0
+    },
+    {
+      "id": "detail_a",
+      "role": "secondary_product",
+      "x": 96,
+      "y": 862,
+      "width": 250,
+      "height": 250,
+      "fit": "cover",
+      "mask_shape": "circle",
+      "opacity": 1.0
+    },
+    {
+      "id": "detail_b",
+      "role": "secondary_product",
+      "x": 387,
+      "y": 862,
+      "width": 250,
+      "height": 250,
+      "fit": "cover",
+      "mask_shape": "circle",
+      "opacity": 1.0
+    },
+    {
+      "id": "detail_c",
+      "role": "secondary_product",
+      "x": 678,
+      "y": 862,
+      "width": 250,
+      "height": 250,
+      "fit": "cover",
+      "mask_shape": "circle",
+      "opacity": 1.0
+    }
+  ],
+  "text_blocks": {
+    "logo": {
+      "enabled": true,
+      "content_key": "logo",
+      "font_role": "general_bold_kr",
+      "font_size": 32,
+      "color": "#682113",
+      "align": "center",
+      "area": {
+        "x": 292,
+        "y": 70,
+        "width": 440,
+        "height": 38
+      }
+    },
+    "slogan": {
+      "enabled": true,
+      "content_key": "slogan",
+      "font_role": "general_body_kr",
+      "font_size": 22,
+      "color": "#8b4f30",
+      "align": "center",
+      "area": {
+        "x": 220,
+        "y": 112,
+        "width": 584,
+        "height": 30
+      }
+    },
+    "headline": {
+      "enabled": true,
+      "content_key": "headline",
+      "font_role": "general_bold_kr",
+      "font_size": 70,
+      "color": "#7b2018",
+      "align": "center",
+      "wrap": true,
+      "line_spacing": 8,
+      "area": {
+        "x": 104,
+        "y": 150,
+        "width": 816,
+        "height": 88
+      }
+    },
+    "subheadline": {
+      "enabled": true,
+      "content_key": "subheadline",
+      "font_role": "general_body_kr",
+      "font_size": 28,
+      "color": "#4e2c22",
+      "align": "center",
+      "wrap": true,
+      "area": {
+        "x": 146,
+        "y": 760,
+        "width": 732,
+        "height": 70
+      }
+    },
+    "body": {
+      "enabled": true,
+      "content_key": "body",
+      "font_role": "general_body_kr",
+      "font_size": 24,
+      "color": "#473228",
+      "wrap": true,
+      "area": {
+        "x": 84,
+        "y": 1144,
+        "width": 856,
+        "height": 70
+      }
+    },
+    "price": {
+      "enabled": true,
+      "content_key": "price",
+      "font_role": "general_bold_kr",
+      "font_size": 40,
+      "color": "#ffffff",
+      "align": "center",
+      "area": {
+        "x": 392,
+        "y": 1232,
+        "width": 240,
+        "height": 52
+      }
+    },
+    "discount_badge": {
+      "enabled": false,
+      "content_key": "discount_badge",
+      "font_role": "delivery_impact_kr",
+      "font_size": 0,
+      "color": "#ffffff",
+      "area": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    },
+    "footer": {
+      "enabled": true,
+      "content_key": "footer",
+      "font_role": "general_body_kr",
+      "font_size": 22,
+      "color": "#6d513d",
+      "align": "center",
+      "area": {
+        "x": 220,
+        "y": 1302,
+        "width": 584,
+        "height": 28
+      }
+    },
+    "hashtags": {
+      "enabled": true,
+      "content_key": "hashtags",
+      "font_role": "general_body_kr",
+      "font_size": 20,
+      "color": "#80412c",
+      "area": {
+        "x": 92,
+        "y": 1238,
+        "width": 230,
+        "height": 30
+      }
+    },
+    "open_close": {
+      "enabled": true,
+      "content_key": "open_close",
+      "font_role": "general_body_kr",
+      "font_size": 20,
+      "color": "#80412c",
+      "align": "right",
+      "area": {
+        "x": 710,
+        "y": 1238,
+        "width": 220,
+        "height": 30
+      }
+    }
+  },
+  "badges": [
+    {
+      "content_key": "headline",
+      "default_text": "대표 메뉴",
+      "x": 84,
+      "y": 786,
+      "width": 160,
+      "height": 52,
+      "shape": "rounded_rectangle",
+      "radius": 18,
+      "fill": "#8d2319",
+      "opacity": 230,
+      "font_role": "general_bold_kr",
+      "font_size": 22,
+      "text_color": "#f8e7cf"
+    }
+  ],
+  "stickers": [],
+  "ribbons": [
+    {
+      "content_key": "price",
+      "x": 352,
+      "y": 1222,
+      "width": 320,
+      "height": 68,
+      "shape": "rounded_rectangle",
+      "radius": 24,
+      "fill": "#a52f1b",
+      "opacity": 235,
+      "font_role": "general_bold_kr",
+      "font_size": 34,
+      "text_color": "#fff6e8"
+    }
+  ],
+  "color_palette": {
+    "primary": "#7b2018",
+    "secondary": "#a52f1b",
+    "accent": "#f2c572",
+    "background": "#efe4cf",
+    "surface": "#f7edd9"
+  },
+  "font_mapping": {
+    "headline": "general_bold_kr",
+    "body": "general_body_kr",
+    "badge": "general_bold_kr"
+  },
+  "decoration": {
+    "shapes": [
+      {
+        "type": "rounded_rectangle",
+        "x": 72,
+        "y": 846,
+        "width": 880,
+        "height": 286,
+        "radius": 28,
+        "fill": "#f8eedc",
+        "opacity": 225
+      }
+    ],
+    "lines": [
+      {
+        "x1": 72,
+        "y1": 154,
+        "x2": 952,
+        "y2": 154,
+        "fill": "#c0875d",
+        "width": 3
+      }
+    ]
+  },
+  "layout_intent": [
+    "general",
+    "korean_menu",
+    "bold",
+    "information_rich"
+  ]
+}
+

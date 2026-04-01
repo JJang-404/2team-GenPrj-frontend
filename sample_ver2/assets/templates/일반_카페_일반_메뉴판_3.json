@@ -1,0 +1,138 @@
+{
+  "resolution": {
+    "width": 489,
+    "height": 693
+  },
+  "typography": [
+    {
+      "label": "logo_graphic_top_right",
+      "bbox": [
+        360,
+        30,
+        480,
+        190
+      ],
+      "font_role": "logo"
+    },
+    {
+      "label": "title_menu",
+      "bbox": [
+        170,
+        20,
+        320,
+        70
+      ],
+      "font_role": "headline"
+    },
+    {
+      "label": "section_coffee_header",
+      "bbox": [
+        30,
+        80,
+        180,
+        120
+      ],
+      "font_role": "headline"
+    },
+    {
+      "label": "coffee_items_list",
+      "bbox": [
+        30,
+        120,
+        260,
+        260
+      ],
+      "font_role": "body"
+    },
+    {
+      "label": "coffee_prices",
+      "bbox": [
+        320,
+        120,
+        420,
+        260
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "illustration_cold_cup_left_mid",
+      "bbox": [
+        30,
+        260,
+        180,
+        420
+      ],
+      "font_role": "logo"
+    },
+    {
+      "label": "section_non_coffee_header",
+      "bbox": [
+        170,
+        300,
+        330,
+        340
+      ],
+      "font_role": "headline"
+    },
+    {
+      "label": "non_coffee_items_list",
+      "bbox": [
+        160,
+        340,
+        300,
+        440
+      ],
+      "font_role": "body"
+    },
+    {
+      "label": "non_coffee_prices",
+      "bbox": [
+        320,
+        340,
+        410,
+        440
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "section_snack_header",
+      "bbox": [
+        30,
+        470,
+        180,
+        510
+      ],
+      "font_role": "headline"
+    },
+    {
+      "label": "snack_items_list",
+      "bbox": [
+        30,
+        510,
+        260,
+        630
+      ],
+      "font_role": "body"
+    },
+    {
+      "label": "snack_prices",
+      "bbox": [
+        320,
+        510,
+        410,
+        630
+      ],
+      "font_role": "price"
+    },
+    {
+      "label": "slogan",
+      "bbox": null,
+      "font_role": null
+    },
+    {
+      "label": "discount_badge",
+      "bbox": null,
+      "font_role": null
+    }
+  ]
+}

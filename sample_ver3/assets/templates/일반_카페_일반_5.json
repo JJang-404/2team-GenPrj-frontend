@@ -1,0 +1,112 @@
+{
+  "resolution": {
+    "width": 736,
+    "height": 736
+  },
+  "typography": {
+    "headline": {
+      "suggested_font_size_px": 72,
+      "weight": "bold",
+      "alignment": "center-right",
+      "color_hint": "white"
+    },
+    "slogan": {
+      "suggested_font_size_px": 22,
+      "weight": "semi-bold/italic",
+      "alignment": "center-right",
+      "color_hint": "light"
+    },
+    "body": {
+      "suggested_font_size_px": 16,
+      "weight": "regular",
+      "alignment": "center-right",
+      "color_hint": "light"
+    },
+    "price": {
+      "suggested_font_size_px": 18,
+      "weight": "semi-bold",
+      "alignment": "center",
+      "color_hint": "dark on light badge"
+    },
+    "discount_badge": {
+      "suggested_font_size_px": 14,
+      "weight": "bold",
+      "alignment": "center",
+      "color_hint": "white on dark circle"
+    },
+    "logo": {
+      "suggested_font_size_px": 12,
+      "weight": "regular",
+      "alignment": "left-bottom",
+      "color_hint": "white/contrast"
+    }
+  },
+  "elements": [
+    {
+      "role": "logo",
+      "font_role": "logo",
+      "bbox": [
+        20,
+        620,
+        210,
+        716
+      ],
+      "notes": "site/brand mark and small text at bottom-left"
+    },
+    {
+      "role": "slogan",
+      "font_role": "slogan",
+      "bbox": [
+        360,
+        64,
+        620,
+        136
+      ],
+      "notes": "small script word above main headline ('Primium')"
+    },
+    {
+      "role": "headline",
+      "font_role": "headline",
+      "bbox": [
+        320,
+        120,
+        700,
+        260
+      ],
+      "notes": "large 'COLD COFFEE' main title at center-right"
+    },
+    {
+      "role": "body",
+      "font_role": "body",
+      "bbox": [
+        330,
+        240,
+        700,
+        320
+      ],
+      "notes": "descriptive line under headline ('Chill out with every sip...')"
+    },
+    {
+      "role": "price",
+      "font_role": "price",
+      "bbox": [
+        420,
+        360,
+        660,
+        460
+      ],
+      "notes": "rounded price badge on right ('Big Share-$23 Mini Shake-$10')"
+    },
+    {
+      "role": "discount_badge",
+      "font_role": "discount_badge",
+      "bbox": [
+        80,
+        120,
+        190,
+        210
+      ],
+      "notes": "circular discount bubble on left ('Get 5% discount...')"
+    }
+  ]
+}
