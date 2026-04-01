@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>광고 이미지 에디터 - Demo</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; }
+    .app-header {
+      background: #16213e; padding: 14px 28px; border-bottom: 1px solid #0f3460;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .app-header h1 { font-size: 18px; color: #e94560; }
+    .badge { background: #e94560; color: white; font-size: 11px; padding: 2px 8px; border-radius: 99px; }
+    .app-header .tip { font-size: 12px; color: #666; margin-left: 4px; }
+    .layout { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 49px); }
+
+    /* 왼쪽 패널 */
+    .panel { background: #16213e; border-right: 1px solid #0f3460; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+    .sec-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #e94560; text-transform: uppercase; margin-bottom: 10px; }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+    .field label { font-size: 11px; color: #999; }
+    .field input[type="text"], .field input[type="number"], .field select, .field textarea {
+      background: #0f3460; border: 1px solid #1a4a8a; border-radius: 6px; color: #e0e0e0;
+      padding: 7px 10px; font-size: 12px; outline: none; transition: border-color 0.2s; font-family: inherit; width: 100%;
+    }
+    .field textarea { resize: vertical; min-height: 56px; line-height: 1.5; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #e94560; }
+    .field input[type="range"] { accent-color: #e94560; cursor: pointer; }
+    .field input[type="color"] { width: 100%; height: 34px; border: 1px solid #1a4a8a; border-radius: 6px; cursor: pointer; background: none; padding: 2px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* 요소 목록 버튼 */
+    .el-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .el-btn {
+      flex: 1; background: #0f3460; border: 1px solid #1a4a8a; border-radius: 7px;
+      color: #e0e0e0; padding: 7px 10px; font-size: 12px; cursor: pointer;
+      text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 7px;
+    }
+    .el-btn:hover { border-color: #e94560; }
+    .el-btn.active { border-color: #e94560; background: #2a1a3a; color: #e94560; }
+    .el-btn.disabled-el { opacity: 0.4; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .vis-btn {
+      background: none; border: 1px solid #1a4a8a; border-radius: 6px;
+      width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: #aaa; transition: all 0.15s; flex-shrink: 0; font-size: 14px;
+    }
+    .vis-btn:hover { border-color: #e94560; color: #e94560; }
+    .vis-btn.hidden { background: #1a4a8a; color: #e94560; }
+
+    /* 물결 설정 */
+    .wave-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .toggle-switch { position: relative; width: 36px; height: 20px; cursor: pointer; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider-track {
+      position: absolute; inset: 0; background: #1a4a8a; border-radius: 20px; transition: 0.2s;
+    }
+    .slider-track:before {
+      content: ''; position: absolute; width: 14px; height: 14px;
+      left: 3px; bottom: 3px; background: #aaa; border-radius: 50%; transition: 0.2s;
+    }
+    .toggle-switch input:checked + .slider-track { background: #e94560; }
+    .toggle-switch input:checked + .slider-track:before { transform: translateX(16px); background: white; }
+
+    /* 생성 버튼 */
+    .gen-btn {
+      width: 100%; padding: 11px; background: #e94560; color: white; border: none;
+      border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+    }
+    .gen-btn:hover { opacity: 0.85; }
+    .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .hint { font-size: 11px; color: #666; background: #0f1f3d; border-radius: 6px; padding: 9px; line-height: 1.6; }
+
+    /* API 페이로드 */
+    .api-box { background: #0f1f3d; border: 1px solid #1a4a8a; border-radius: 8px; padding: 10px; font-size: 10px; color: #aaa; line-height: 1.7; }
+    .api-box .lbl { color: #e94560; font-weight: bold; }
+
+    /* 오른쪽 캔버스 */
+    .canvas-area { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: #0d0d1a; gap: 12px; }
+    .canvas-outer { position: relative; border-radius: 12px; box-shadow: 0 16px 50px rgba(0,0,0,0.6); overflow: hidden; user-select: none; flex-shrink: 0; }
+    .canvas-outer img.bg-img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    .bg-placeholder { width: 100%; height: 100%; background: linear-gradient(160deg,#1a3a5c,#0d1f3c 45%,#2a1a3a); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: #444; font-size: 13px; }
+    .bg-placeholder svg { opacity: 0.25; }
+
+    /* 텍스트 요소 */
+    .text-el { position: absolute; cursor: grab; pointer-events: all; }
+    .text-el:active { cursor: grabbing; }
+    .text-el.selected .text-inner { outline: 2px dashed #e94560; outline-offset: 3px; }
+    .text-inner { padding: 5px 10px; border-radius: 5px; white-space: pre-line; line-height: 1.35; }
+    .drag-tip {
+      display: none; position: absolute; top: -20px; left: 0;
+      font-size: 9px; color: #e94560; white-space: nowrap; background: rgba(0,0,0,0.6);
+      padding: 1px 5px; border-radius: 3px;
+    }
+    .text-el.selected .drag-tip { display: block; }
+    .text-el textarea { cursor: text; }
+    .size-info { font-size: 11px; color: #444; }
+
+    .spinner { width: 16px; height: 16px; border: 2px solid #555; border-top-color: #e94560; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useCallback, useEffect } = React;
+
+const CANVAS_H = 500;
+const CANVAS_W = Math.round(CANVAS_H * 4 / 5); // 400
+
+const INITIAL_ELEMENTS = [
+  { id:"date",       label:"날짜",      text:"March. 31",                              x:4,   y:3,  fontSize:2.5, color:"#ffffff", bgColor:"transparent",    fontFamily:"Georgia,serif",  color_dot:"#4fc3f7", visible:true, align:"left"   },
+  { id:"title",      label:"타이틀",    text:"DELICIOUS",                              x:50,  y:7,  fontSize:8.2, color:"#ffffff", bgColor:"rgba(0,0,0,0.55)",fontFamily:"Georgia,serif",  color_dot:"#e94560", visible:true, align:"center" },
+  { id:"restaurant", label:"식당 이름", text:"코드잇",                                  x:50,  y:21, fontSize:3.4, color:"#ffffff", bgColor:"rgba(0,0,0,0.55)",fontFamily:"inherit",        color_dot:"#81c784", visible:true, align:"center" },
+  { id:"food_name",  label:"음식 이름", text:"블루베리 팬케이크",                        x:88,  y:30, fontSize:2.8, color:"#ffffff", bgColor:"rgba(0,0,0,0.55)",fontFamily:"inherit",        color_dot:"#ffb74d", visible:true, align:"right"  },
+  { id:"store_info", label:"가게 정보", text:"카페 코드잇\n02-1234-5678\n매일 11:00 - 21:00", x:2.5, y:58, fontSize:2.8, color:"#ffffff", bgColor:"rgba(0,0,0,0.55)",fontFamily:"inherit", color_dot:"#ce93d8", visible:true, align:"left"   },
+  { id:"store_ad",   label:"광고 문구", text:"신선한 재료로 만든 홈메이드 팬케이크",    x:50,  y:84, fontSize:2.8, color:"#ffffff", bgColor:"rgba(0,0,0,0.65)",fontFamily:"inherit",        color_dot:"#f48fb1", visible:true, align:"center" },
+];
+
+const INITIAL_WAVE = { enabled: true, amplitude: 28, offsetY: 82, opacity: 0.55 };
+
+// SVG 물결 경로 계산
+function buildWavePath(w, h, amplitude, offsetY) {
+  const startY = (offsetY / 100) * h;
+  if (amplitude === 0) {
+    // 완전 평평한 직선
+    return `M0,${startY} L${w},${startY} L${w},${h} L0,${h} Z`;
+  }
+  let d = `M0,${h} L0,${startY + amplitude} `;
+  const steps = 60;
+  for (let i = 0; i <= steps; i++) {
+    const x = (i / steps) * w;
+    const y = startY + amplitude * Math.sin((i / steps) * Math.PI * 2.5);
+    d += `L${x},${y} `;
+  }
+  d += `L${w},${h} Z`;
+  return d;
+}
+
+function App() {
+  const [elements, setElements] = useState(INITIAL_ELEMENTS);
+  const [selectedId, setSelectedId] = useState("title");
+  const [editingId, setEditingId] = useState(null);
+  const [bgImage, setBgImage] = useState(null);
+  const [wave, setWave] = useState(INITIAL_WAVE);
+  const [imgScale, setImgScale] = useState(1.0);
+  const [bgColor, setBgColor] = useState('#1a3a5c');
+  const [loading, setLoading] = useState(false);
+  const [apiPayload, setApiPayload] = useState(null);
+
+  const canvasRef = useRef(null);
+  const dragging = useRef(null);
+  const elementsRef = useRef(elements);
+  useEffect(() => { elementsRef.current = elements; }, [elements]);
+
+  const selected = elements.find(el => el.id === selectedId);
+
+  const updateSelected = (key, value) => {
+    setElements(prev => prev.map(el => el.id === selectedId ? { ...el, [key]: value } : el));
+  };
+
+  const toggleVisible = (id) => {
+    setElements(prev => prev.map(el => el.id === id ? { ...el, visible: !el.visible } : el));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => setBgImage(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  // ── 드래그: elementsRef 사용으로 재생성 없음 ────────────────
+  const onMouseDown = useCallback((e, id) => {
+    if (e.detail >= 2) return; // 더블클릭 무시
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedId(id);
+    const el = elementsRef.current.find(el => el.id === id);
+    if (!el) return;
+    dragging.current = { id, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y };
+  }, []);
+
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!dragging.current || !canvasRef.current) return;
+      const rect = canvasRef.current.getBoundingClientRect();
+      const dxPct = ((e.clientX - dragging.current.startX) / rect.width) * 100;
+      const dyPct = ((e.clientY - dragging.current.startY) / rect.height) * 100;
+      // y 범위: 3% ~ 88% (캔버스 안에 항상 보이도록)
+      setElements(prev => prev.map(el =>
+        el.id === dragging.current.id
+          ? { ...el,
+              x: Math.max(0, Math.min(88, dragging.current.origX + dxPct)),
+              y: Math.max(3, Math.min(88, dragging.current.origY + dyPct)) }
+          : el
+      ));
+    };
+    const onUp = () => { dragging.current = null; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  }, []);
+
+  // ── 더블클릭 편집 ───────────────────────────────────────────
+  const onDoubleClick = (e, id) => {
+    e.preventDefault();
+    setSelectedId(id);
+    setEditingId(id);
+  };
+  const commitEdit = (id, value) => {
+    setElements(prev => prev.map(el => el.id === id ? { ...el, text: value } : el));
+    setEditingId(null);
+  };
+  const onEditKey = (e, id) => {
+    if (e.key === 'Escape') setEditingId(null);
+    if (e.key === 'Enter' && !e.shiftKey && id !== 'store_info') commitEdit(id, e.target.value);
+  };
+
+  // ── API 생성 (mock) ──────────────────────────────────────────
+  const handleGenerate = () => {
+    setLoading(true);
+    const activeEls = elements.filter(el => el.visible);
+    const payload = {
+      texts:     Object.fromEntries(activeEls.map(el => [el.id, el.text])),
+      positions: Object.fromEntries(activeEls.map(el => [el.id, { x: el.x.toFixed(1)+'%', y: el.y.toFixed(1)+'%' }])),
+      styles:    Object.fromEntries(activeEls.map(el => [el.id, { fontSize: el.fontSize, color: el.color }])),
+      wave,
+      image: bgImage ? '(업로드된 이미지 포함)' : null,
+    };
+    setTimeout(() => { setApiPayload(payload); setLoading(false); }, 1000);
+  };
+
+  const wavePath = buildWavePath(CANVAS_W, CANVAS_H, wave.amplitude, wave.offsetY);
+
+  return (
+    <div>
+      <header className="app-header">
+        <h1>Ad Image Editor</h1>
+        <span className="badge">Demo</span>
+        <span className="tip">드래그: 위치이동 &nbsp;|&nbsp; 더블클릭: 텍스트 편집 &nbsp;|&nbsp; 눈아이콘: 요소 숨기기</span>
+      </header>
+
+      <div className="layout">
+        {/* ── 왼쪽 패널 ── */}
+        <aside className="panel">
+
+          {/* 배경 이미지 */}
+          <div>
+            <div className="sec-title">배경 이미지</div>
+            <label style={{display:'inline-flex',alignItems:'center',gap:8,background:'#0f3460',border:'1px dashed #1a4a8a',borderRadius:8,color:'#aaa',fontSize:12,padding:'7px 12px',cursor:'pointer',marginBottom:10}}>
+              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              음식 사진 업로드 (JPG/PNG)
+              <input type="file" accept="image/*" onChange={handleImageUpload} style={{display:'none'}} />
+            </label>
+            {bgImage && (
+              <div className="field">
+                <label>이미지 크기 (축소 ↔ 원본) — {Math.round(imgScale * 100)}%</label>
+                <input type="range" min="0.2" max="1" step="0.01"
+                  value={imgScale}
+                  onChange={e => setImgScale(parseFloat(e.target.value))} />
+              </div>
+            )}
+            <div className="row2">
+              <div className="field">
+                <label>나머지 배경 색상</label>
+                <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} />
+              </div>
+              {bgImage && imgScale < 1 && (
+                <div className="field">
+                  <label style={{color:'#e94560'}}>이미지 밖 영역</label>
+                  <div style={{height:34,borderRadius:6,background:bgColor,border:'1px solid #1a4a8a'}} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 텍스트 요소 목록 (숨기기 토글 포함) */}
+          <div>
+            <div className="sec-title">텍스트 요소</div>
+            {elements.map(el => (
+              <div key={el.id} className="el-row">
+                <button
+                  className={`el-btn${selectedId === el.id ? ' active' : ''}${!el.visible ? ' disabled-el' : ''}`}
+                  onClick={() => setSelectedId(el.id)}
+                >
+                  <span className="dot" style={{background: el.color_dot}} />
+                  {el.label}
+                  {!el.visible && <span style={{marginLeft:'auto',fontSize:10,color:'#666'}}>(숨김)</span>}
+                </button>
+                {/* 눈 아이콘 토글 */}
+                <button
+                  className={`vis-btn${!el.visible ? ' hidden' : ''}`}
+                  title={el.visible ? '숨기기' : '보이기'}
+                  onClick={() => toggleVisible(el.id)}
+                >
+                  {el.visible
+                    ? /* 눈 열림 */ <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    : /* 눈 닫힘 */ <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  }
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* 선택 요소 편집 */}
+          {selected && (
+            <div>
+              <div className="sec-title">편집 — {selected.label}</div>
+
+              {/* 정렬 버튼 */}
+              <div className="field">
+                <label>텍스트 정렬</label>
+                <div style={{display:'flex',gap:6}}>
+                  {['left','center','right'].map(a => (
+                    <button key={a}
+                      onClick={() => updateSelected('align', a)}
+                      style={{
+                        flex:1, padding:'6px 0', borderRadius:6, cursor:'pointer',
+                        border: selected.align === a ? '2px solid #e94560' : '1px solid #1a4a8a',
+                        background: selected.align === a ? '#2a1a3a' : '#0f3460',
+                        color: selected.align === a ? '#e94560' : '#aaa',
+                        fontSize:13, fontWeight:700,
+                      }}
+                    >
+                      {a === 'left' ? '≡ 좌' : a === 'center' ? '≡ 중' : '≡ 우'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="field">
+                <label>텍스트 내용 (Shift+Enter: 줄바꿈)</label>
+                <textarea
+                  rows={selected.id === 'store_info' ? 3 : 1}
+                  value={selected.text}
+                  onChange={e => updateSelected('text', e.target.value)}
+                />
+              </div>
+
+              <div className="field">
+                <label>폰트 크기 ({selected.fontSize.toFixed(1)})</label>
+                <input type="range" min="1" max="12" step="0.1"
+                  value={selected.fontSize}
+                  onChange={e => updateSelected('fontSize', parseFloat(e.target.value))} />
+              </div>
+
+              <div className="row2">
+                <div className="field">
+                  <label>글자 색상</label>
+                  <input type="color" value={selected.color}
+                    onChange={e => updateSelected('color', e.target.value)} />
+                </div>
+                <div className="field">
+                  <label>박스 투명도</label>
+                  <input type="range" min="0" max="1" step="0.05"
+                    value={parseFloat((selected.bgColor.match(/[\d.]+\)$/) || ['0'])[0])}
+                    onChange={e => updateSelected('bgColor', `rgba(0,0,0,${e.target.value})`)} />
+                </div>
+              </div>
+
+              <div className="row2">
+                <div className="field">
+                  <label>X 위치 (%)</label>
+                  <input type="number" min="0" max="88" step="0.5"
+                    value={parseFloat(selected.x).toFixed(1)}
+                    onChange={e => updateSelected('x', parseFloat(e.target.value))} />
+                </div>
+                <div className="field">
+                  <label>Y 위치 (%)</label>
+                  <input type="number" min="3" max="88" step="0.5"
+                    value={parseFloat(selected.y).toFixed(1)}
+                    onChange={e => updateSelected('y', parseFloat(e.target.value))} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 물결 설정 */}
+          <div>
+            <div className="sec-title">하단 물결 설정</div>
+
+            <div className="wave-row">
+              <span style={{fontSize:12,color:'#aaa'}}>물결 표시</span>
+              <label className="toggle-switch">
+                <input type="checkbox" checked={wave.enabled} onChange={e => setWave(w => ({...w, enabled: e.target.checked}))} />
+                <span className="slider-track"></span>
+              </label>
+            </div>
+
+            {wave.enabled && (
+              <>
+                <div className="field">
+                  <label>물결 위치 (위쪽 ↔ 아래쪽) — {wave.offsetY}%</label>
+                  <input type="range" min="50" max="95" step="1"
+                    value={wave.offsetY}
+                    onChange={e => setWave(w => ({...w, offsetY: parseInt(e.target.value)}))} />
+                </div>
+                <div className="field">
+                  <label>물결 진폭 (0 = 평평) — {wave.amplitude}px</label>
+                  <input type="range" min="0" max="60" step="1"
+                    value={wave.amplitude}
+                    onChange={e => setWave(w => ({...w, amplitude: parseInt(e.target.value)}))} />
+                </div>
+                <div className="field">
+                  <label>물결 어둠 — {Math.round(wave.opacity * 100)}%</label>
+                  <input type="range" min="0" max="1" step="0.05"
+                    value={wave.opacity}
+                    onChange={e => setWave(w => ({...w, opacity: parseFloat(e.target.value)}))} />
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* 생성 버튼 */}
+          <div>
+            <div className="sec-title">API 전송</div>
+            <button className="gen-btn" onClick={handleGenerate} disabled={loading}>
+              {loading ? <><span className="spinner"/>생성 중...</> : '이미지 생성하기 (API 호출)'}
+            </button>
+            <p className="hint" style={{marginTop:9}}>
+              FastAPI + PIL 백엔드로 텍스트·위치·스타일·물결 설정을 전송해 고화질 PNG를 생성합니다.
+              숨긴 요소는 전송되지 않습니다.
+            </p>
+          </div>
+
+          {/* API 페이로드 */}
+          {apiPayload && (
+            <div>
+              <div className="sec-title">전송될 JSON 페이로드</div>
+              <div className="api-box">
+                <span className="lbl">POST</span> /api/generate-ad
+                <pre style={{marginTop:6, fontSize:9.5, color:'#aaa', overflowX:'auto', whiteSpace:'pre-wrap'}}>
+{JSON.stringify(apiPayload, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* ── 오른쪽 미리보기 ── */}
+        <main className="canvas-area">
+          <div ref={canvasRef} className="canvas-outer" style={{ width: CANVAS_W, height: CANVAS_H }}>
+
+            {/* 레이어 1: 단색 배경 (항상 깔림) */}
+            <div style={{position:'absolute',inset:0,background:bgColor,zIndex:0}} />
+
+            {/* 레이어 2: 업로드 이미지 (scale 적용, 중앙 정렬) */}
+            {bgImage
+              ? <img
+                  src={bgImage} alt="bg" draggable={false}
+                  style={{
+                    position:'absolute',
+                    width:`${imgScale*100}%`,
+                    height:`${imgScale*100}%`,
+                    objectFit:'cover',
+                    top:'50%', left:'50%',
+                    transform:'translate(-50%,-50%)',
+                    zIndex:1, pointerEvents:'none',
+                  }}
+                />
+              : <div className="bg-placeholder" style={{position:'absolute',inset:0,zIndex:1,background:'transparent'}}>
+                  <svg width="44" height="44" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  음식 사진을 업로드하세요
+                </div>
+            }
+
+            {/* SVG 물결 오버레이 */}
+            {wave.enabled && (
+              <svg
+                style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:2 }}
+                width={CANVAS_W} height={CANVAS_H}
+                viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
+              >
+                <path d={wavePath} fill={`rgba(0,0,0,${wave.opacity})`} />
+              </svg>
+            )}
+
+            {/* 드래그·편집 텍스트 요소 */}
+            {elements.filter(el => el.visible).map(el => {
+              const isEditing = editingId === el.id;
+              const fontSize = el.fontSize * (CANVAS_W / 100);
+              // 정렬에 따른 절대 위치 계산
+              const posStyle = el.align === 'center'
+                ? { left:'50%', transform:`translateX(-50%)`, top:`${el.y}%` }
+                : el.align === 'right'
+                ? { right:`${100 - el.x}%`, left:'auto', top:`${el.y}%` }
+                : { left:`${el.x}%`, top:`${el.y}%` };
+              return (
+                <div
+                  key={el.id}
+                  className={`text-el${selectedId === el.id ? ' selected' : ''}`}
+                  style={{ ...posStyle, zIndex:3 }}
+                  onMouseDown={e => onMouseDown(e, el.id)}
+                  onDoubleClick={e => onDoubleClick(e, el.id)}
+                >
+                  <span className="drag-tip">
+                    {isEditing ? '✎ Enter 확정 / Esc 취소' : '⠿ 드래그 · 더블클릭 편집'}
+                  </span>
+                  {isEditing ? (
+                    <textarea
+                      autoFocus
+                      defaultValue={el.text}
+                      rows={el.id === 'store_info' ? 3 : 1}
+                      style={{
+                        fontSize:`${fontSize}px`, color:el.color,
+                        background: el.bgColor === 'transparent' ? 'rgba(0,0,0,0.7)' : el.bgColor,
+                        fontFamily:el.fontFamily, border:'2px solid #e94560',
+                        borderRadius:5, outline:'none', padding:'5px 10px',
+                        resize:'none', minWidth:100, lineHeight:1.35,
+                      }}
+                      onBlur={e => commitEdit(el.id, e.target.value)}
+                      onKeyDown={e => onEditKey(e, el.id)}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  ) : (
+                    <div className="text-inner" style={{
+                      fontSize:`${fontSize}px`, color:el.color,
+                      background:el.bgColor, fontFamily:el.fontFamily,
+                      textAlign: el.align,
+                    }}>
+                      {el.text}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="size-info">
+            미리보기 {CANVAS_W}×{CANVAS_H}px &nbsp;|&nbsp; 실제 출력: 1080×1350px (Instagram 4:5)
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
