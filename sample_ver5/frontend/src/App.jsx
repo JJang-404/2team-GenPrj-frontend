@@ -1,263 +1,239 @@
 import React, { useState } from 'react';
 import { 
-  Maximize2, RotateCcw, FileText, Palette, LayoutGrid, Layers,
-  Zap, Star, Upload, ChevronRight, X, Sparkles, Clock, Check
+  Zap, Star, Upload, ChevronRight, X, Sparkles, Clock, Check, ChevronLeft, Edit3, Plus, Trash2, Wand2, Layers, Palette, FileText, AlignLeft, MessageSquare, Sparkle, RotateCcw
 } from 'lucide-react';
 
 const App = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isGeneratingSlogan, setIsGeneratingSlogan] = useState(false); // 슬로건 생성 로딩 상태
+  
+  // 1. 초기 제품 리스트 (완전히 비워진 상태)
+  const [products, setProducts] = useState([
+    { id: Date.now(), name: '', price: '', description: '', image: null, isAiGen: false, showPrice: true, showDesc: true, showName: true }
+  ]);
+
   const [options, setOptions] = useState({
-    ratio: '1:1', sampleCount: 4, concept: 'vivid', brandColor: '#FF4757',
-    showPrice: true, 
-    showBusinessHours: false, // 영업시간 노출 여부 상태
-    showDetails: true
+    ratio: '4:5', sampleCount: 4, concept: 'vivid', brandColor: '#FF4757',
   });
   
   const [inputData, setInputData] = useState({ 
     storeName: '', 
-    price: '', 
-    businessHours: '', // 영업시간 데이터 상태
+    mainSlogan: '', // 전체 광고 문구
     details: '' 
   });
-  
-  const [imagePreviews, setImagePreviews] = useState([]);
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 3));
+  // --- [OpenAI 기준] 슬로건 생성: 가게명 + 첫번째 제품명 + 컨셉 조합 ---
+  const generateAiSlogan = () => {
+    if (!inputData.storeName && products[0].name === '') {
+      alert("가게 이름이나 제품명을 먼저 입력해야 적절한 문구가 생성됩니다.");
+      return;
+    }
+    setIsGeneratingSlogan(true);
+    setTimeout(() => {
+      const store = inputData.storeName || "우리 가게";
+      const product = products[0].name || "인기 메뉴";
+      const mockSlogans = [
+        `${store}에서 만나는 ${product}의 진수`,
+        `오늘 같은 날, ${store}의 ${product} 어떠세요?`,
+        `${product}의 특별한 변신, 오직 ${store}에서만`,
+        `${options.concept.toUpperCase()}한 감성으로 담아낸 ${product}`
+      ];
+      const randomSlogan = mockSlogans[Math.floor(Math.random() * mockSlogans.length)];
+      setInputData(prev => ({ ...prev, mainSlogan: randomSlogan }));
+      setIsGeneratingSlogan(false);
+    }, 1200);
   };
 
-  const removeImage = (index) => {
-    const newPreviews = [...imagePreviews];
-    URL.revokeObjectURL(newPreviews[index]);
-    newPreviews.splice(index, 1);
-    setImagePreviews(newPreviews);
+  const addProduct = () => {
+    setProducts([...products, { id: Date.now() + 1, name: '', price: '', description: '', image: null, isAiGen: false, showPrice: true, showDesc: true, showName: true }]);
   };
 
-  const getDraftLayout = (concept, images, sampleIndex) => {
-    const imgCount = images.length;
-    if (imgCount === 0) {
-      return (
-        <div className="flex-1 flex items-center justify-center opacity-20">
-          <Layers size={64} className="text-slate-400" />
-        </div>
-      );
+  const removeProduct = (id) => {
+    if (products.length > 1) setProducts(products.filter(p => p.id !== id));
+  };
+
+  const updateProduct = (id, field, value) => {
+    setProducts(products.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const handleProductImage = (id, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProducts(products.map(p => p.id === id ? { ...p, image: reader.result, isAiGen: false } : p));
+      };
+      reader.readAsDataURL(file);
     }
+  };
 
-    const baseImgStyle = "object-cover rounded-lg shadow-md transition-transform group-hover:scale-105 duration-500";
-    const dropShadowStyle = "drop-shadow-[0_10px_30px_rgba(0,0,0,0.3)]";
+  // --- [핵심] 모든 제품 통합 렌더링 + 불필요한 박스 자동 숨김 로직 ---
+  const renderAllProductsInOneDraft = (sampleIdx) => {
+    // 유효한 데이터(이미지, 이름, AI생성 중 하나라도 해당)가 있는 제품만 필터링
+    const activeProducts = products.filter(p => p.image || p.name || p.isAiGen);
 
-    if (imgCount === 1) {
-      return (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <img src={images[0]} alt="Product" className={`max-w-[85%] max-h-[85%] ${baseImgStyle} ${dropShadowStyle}`} />
-        </div>
-      );
-    }
+    return (
+      <div className="flex-1 relative w-full h-full min-h-0">
+        {activeProducts.map((product, pIdx) => {
+          const zIndex = 10 - pIdx;
+          const layouts = [
+            { top: pIdx === 0 ? '15%' : `${20 + pIdx * 25}%`, left: pIdx === 0 ? '15%' : `${50 - pIdx * 10}%`, size: pIdx === 0 ? 'w-[70%]' : 'w-[45%]', rot: pIdx % 2 === 0 ? 'rotate-3' : '-rotate-6' },
+            { top: `${10 + pIdx * 25}%`, left: pIdx % 2 === 0 ? '5%' : '40%', size: 'w-[55%]', rot: pIdx % 2 === 0 ? '-rotate-3' : 'rotate-6' },
+            { top: `${5 + pIdx * 20}%`, left: '22.5%', size: 'w-[55%]', rot: 'rotate-0' },
+            { top: `${20 + pIdx * 10}%`, left: `${10 + pIdx * 15}%`, size: 'w-[60%]', rot: `${pIdx * 5}deg` }
+          ];
+          const pos = layouts[sampleIdx % 4];
 
-    if (imgCount === 2) {
-      if (sampleIndex % 2 === 0) {
-        return (
-          <div className="flex-1 grid grid-cols-5 gap-4 items-center p-4 min-h-0 relative">
-            <img src={images[0]} alt="P1" className={`col-span-3 aspect-[3/4] ${baseImgStyle} ${dropShadowStyle}`} />
-            <img src={images[1]} alt="P2" className={`col-span-2 aspect-square self-end ${baseImgStyle} ${dropShadowStyle}`} />
-          </div>
-        );
-      } else {
-        return (
-          <div className="flex-1 flex flex-col gap-2 p-4 relative min-h-0">
-            <img src={images[0]} alt="P1" className={`w-[70%] aspect-square self-start z-10 ${baseImgStyle} ${dropShadowStyle}`} />
-            <img src={images[1]} alt="P2" className={`w-[70%] aspect-square self-end -mt-16 z-0 opacity-80 ${baseImgStyle}`} />
-          </div>
-        );
-      }
-    }
-
-    if (imgCount === 3) {
-      if (sampleIndex % 3 === 0) {
-        return (
-          <div className="flex-1 flex flex-col gap-4 p-4 min-h-0 relative">
-            <img src={images[0]} alt="Main" className={`w-full aspect-[4/3] ${baseImgStyle} ${dropShadowStyle}`} />
-            <div className="grid grid-cols-2 gap-4">
-              <img src={images[1]} alt="Sub 1" className={`aspect-square ${baseImgStyle} ${dropShadowStyle}`} />
-              <img src={images[2]} alt="Sub 2" className={`aspect-square scale-90 self-center ${baseImgStyle} ${dropShadowStyle}`} />
+          return (
+            <div key={product.id} className={`absolute transition-all duration-500 ${pos.size}`} style={{ top: pos.top, left: pos.left, zIndex, transform: `rotate(${pos.rot})` }}>
+              {/* 이미지 영역 */}
+              {product.image ? (
+                <img src={product.image} className="w-full h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]" alt=""/>
+              ) : product.isAiGen ? (
+                <div className="w-full aspect-square bg-white/10 backdrop-blur-md rounded-[2.5rem] border border-white/20 flex flex-col items-center justify-center">
+                  <Wand2 size={24} className="opacity-40 animate-pulse" />
+                  <p className="text-[8px] font-bold opacity-40 mt-1 uppercase text-center">{product.name || 'Auto Gen'}</p>
+                </div>
+              ) : null}
+              
+              {/* [수정] 텍스트 박스: 실제로 보여줄 내용이 있고 스위치가 켜져있을 때만 렌더링 */}
+              {((product.showName && product.name) || (product.showPrice && product.price)) && (
+                <div className="mt-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg inline-block animate-in fade-in duration-300">
+                  {product.showName && product.name && <p className="text-[10px] font-black leading-none">{product.name}</p>}
+                  {product.showPrice && product.price && <p className="text-[9px] font-bold text-yellow-400 mt-1">{product.price}</p>}
+                </div>
+              )}
             </div>
-          </div>
-        );
-      } else if (sampleIndex % 3 === 1) {
-        return (
-          <div className="flex-1 flex items-center justify-center p-2 relative min-h-0">
-            <img src={images[0]} alt="P1" className={`absolute w-[50%] aspect-square top-8 left-8 z-20 ${baseImgStyle} ${dropShadowStyle}`} />
-            <img src={images[1]} alt="P2" className={`absolute w-[45%] aspect-square top-24 right-8 z-10 opacity-90 ${baseImgStyle} ${dropShadowStyle}`} />
-            <img src={images[2]} alt="P3" className={`absolute w-[40%] aspect-square bottom-8 left-20 z-0 opacity-70 ${baseImgStyle}`} />
-          </div>
-        );
-      } else {
-        return (
-          <div className="flex-1 flex items-center justify-center p-4 relative min-h-0 text-white">
-            <img src={images[0]} alt="P1" className={`absolute w-[70%] aspect-[3/4] z-10 ${baseImgStyle} ${dropShadowStyle}`} />
-            <img src={images[1]} alt="P2" className={`absolute w-[50%] aspect-square -left-4 top-16 z-0 rotate-[-10deg] opacity-60 ${baseImgStyle}`} />
-            <img src={images[2]} alt="P3" className={`absolute w-[50%] aspect-square -right-4 bottom-16 z-0 rotate-[10deg] opacity-60 ${baseImgStyle}`} />
-          </div>
-        );
-      }
-    }
+          );
+        })}
+      </div>
+    );
   };
 
-  const samples = Array.from({ length: options.sampleCount }, (_, i) => i + 1);
   const conceptStyles = {
-    premium: "bg-gradient-to-br from-slate-950 via-slate-800 to-slate-950 text-white",
-    retro: "bg-[#FDF6E3] border border-[#EAE0C9] text-[#5F4B32]",
-    modern: "bg-white border border-slate-100 text-slate-900",
-    vivid: "bg-gradient-to-tr from-[#FF4757] to-[#FF6B81] text-white",
+    premium: "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950",
+    retro: "bg-[#FDF6E3] border border-[#EAE0C9]",
+    modern: "bg-white border border-slate-100",
+    vivid: "bg-gradient-to-tr from-[#FF4757] to-[#FF6B81]",
   };
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans">
-      <aside className="w-[420px] bg-white border-r border-slate-200 flex flex-col shadow-2xl z-20 overflow-hidden text-white">
-        <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
-          <h1 className="text-xl font-bold flex items-center gap-2 italic">
-            <Zap className="text-yellow-400 fill-yellow-400" size={20} /> AD-GEN <span className="text-blue-400">PRO</span>
-          </h1>
-          <button className="p-2 hover:bg-slate-800 rounded-full transition-colors"><RotateCcw size={18} className="text-slate-400" /></button>
+      
+      {/* --- 사이드바 (900px 확장형) --- */}
+      <aside className={`transition-all duration-500 bg-white border-r border-slate-200 flex flex-col shadow-2xl z-30 shrink-0 ${isExpanded ? 'w-[900px]' : 'w-[420px]'}`}>
+        <div className="p-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
+          <h1 className="text-xl font-bold italic flex items-center gap-2"><Zap className="text-yellow-400 fill-yellow-400" size={20} /> AD-GEN <span className="text-blue-400">PRO</span></h1>
+          <button onClick={() => setIsExpanded(!isExpanded)} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center gap-2 text-xs transition-all">{isExpanded ? <><ChevronLeft size={16}/> 축소</> : <><Edit3 size={16}/> 상세 확장</>}</button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar text-white">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+          {/* 1. 디자인 컨셉 & 컬러 */}
           <section className="space-y-4">
-            <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-2"><Sparkles size={14}/> 컨셉 및 시안 개수</label>
+            <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-2"><Sparkles size={14}/> 디자인 컨셉</label>
             <div className="grid grid-cols-4 gap-2">
               {['premium', 'retro', 'modern', 'vivid'].map(c => (
-                <button key={c} onClick={() => setOptions({...options, concept: c})}
-                  className={`py-2 text-[10px] font-bold rounded-lg border-2 capitalize transition-all ${options.concept === c ? 'border-blue-600 bg-blue-50 text-blue-700' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}>
-                  {c}
-                </button>
+                <button key={c} onClick={() => setOptions({...options, concept: c})} className={`py-3 text-[10px] font-bold rounded-xl border-2 capitalize transition-all ${options.concept === c ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md' : 'bg-white border-slate-100 text-slate-400'}`}>{c}</button>
               ))}
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-[10px] font-bold text-slate-500"><span>시안 개수 (X)</span><span>{options.sampleCount}개</span></div>
-              <input type="range" min="1" max="6" value={options.sampleCount} onChange={(e) => setOptions({...options, sampleCount: parseInt(e.target.value)})} className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+            <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border">
+               <input type="color" value={options.brandColor} onChange={(e) => setOptions({...options, brandColor: e.target.value})} className="w-10 h-8 rounded border-none bg-transparent cursor-pointer"/>
+               <span className="text-xs font-mono font-bold text-slate-400">컬러: {options.brandColor}</span>
+               <input type="range" min="1" max="6" value={options.sampleCount} onChange={(e) => setOptions({...options, sampleCount: parseInt(e.target.value)})} className="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
             </div>
           </section>
 
-          <section className="space-y-3">
-            <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-2"><Upload size={14}/> 상품 이미지 (최대 3장)</label>
-            <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 hover:bg-slate-50 transition-colors cursor-pointer relative">
-              <input type="file" multiple accept="image/*" id="img-upload" className="hidden" onChange={handleFileChange} />
-              <label htmlFor="img-upload" className="flex flex-col items-center justify-center gap-1 min-h-[60px] cursor-pointer">
-                <Upload className="text-slate-400 mb-1" size={20} />
-                <span className="text-[10px] text-slate-500 mt-1 font-medium text-white">클릭하여 이미지 업로드</span>
-              </label>
+          {/* 2. 광고 텍스트 정보 */}
+          <section className="space-y-4">
+            <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-2"><FileText size={14}/> 광고 정보</label>
+            <input placeholder="가게 이름을 입력하세요" className="w-full p-3 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none" value={inputData.storeName} onChange={(e) => setInputData({...inputData, storeName: e.target.value})}/>
+            
+            <div className="relative group">
+              <input placeholder="전체 광고 문구 (미입력 시 AI 생성)" className="w-full p-3 pr-24 bg-blue-50/30 border border-blue-100 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none" value={inputData.mainSlogan} onChange={(e) => setInputData({...inputData, mainSlogan: e.target.value})}/>
+              <button onClick={generateAiSlogan} disabled={isGeneratingSlogan} className="absolute right-2 top-2 p-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-blue-700 disabled:bg-slate-300 transition-all">
+                {isGeneratingSlogan ? <RotateCcw size={12} className="animate-spin"/> : <Sparkle size={12}/>} AI 문구
+              </button>
             </div>
-            {imagePreviews.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 mt-4">
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-100">
-                    <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-                    <button onClick={() => removeImage(index)} className="absolute top-1 right-1 bg-white/70 p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      <X size={10} className="text-slate-600" />
-                    </button>
+            <textarea placeholder="AI 상세 지시사항 (이미지 구도나 분위기)" rows="2" className="w-full p-3 bg-slate-50 border rounded-xl text-sm" value={inputData.details} onChange={(e) => setInputData({...inputData, details: e.target.value})} />
+          </section>
+
+          {/* 3. [확장 모드] 제품 리스트 상세 */}
+          {isExpanded && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="flex justify-between items-center border-b pb-2">
+                <label className="text-xs font-bold text-blue-600 uppercase flex items-center gap-2"><Plus size={14}/> 상세 제품 리스트</label>
+                <button onClick={addProduct} className="text-[10px] bg-blue-600 text-white px-4 py-1.5 rounded-full font-black shadow-lg">제품 추가 +</button>
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                {products.map((product, idx) => (
+                  <div key={product.id} className="p-5 border border-slate-100 rounded-[2rem] bg-slate-50/50 space-y-4 relative group hover:bg-white hover:shadow-xl transition-all">
+                    <div className="absolute -top-3 left-6 bg-slate-900 text-white text-[10px] font-black px-4 py-1 rounded-full shadow-md">ITEM {idx + 1}</div>
+                    <div className="aspect-video bg-white border-2 border-dashed border-slate-200 rounded-2xl overflow-hidden relative">
+                      {product.image ? ( <img src={product.image} className="w-full h-full object-contain p-3" alt=""/> ) : (
+                        <label className="flex h-full flex-col items-center justify-center cursor-pointer hover:bg-blue-50 text-slate-400">
+                          <Upload size={20}/><span className="mt-2 text-[9px] font-bold uppercase text-center text-slate-500">이미지 업로드<br/>(비워둘 시 AI생성)</span>
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleProductImage(product.id, e)}/>
+                        </label>
+                      )}
+                      {product.image && <button onClick={() => updateProduct(product.id, 'image', null)} className="absolute top-2 right-2 bg-white shadow rounded-full p-1.5 hover:text-red-500 transition-all"><X size={14}/></button>}
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <input placeholder="제품명" className="flex-1 p-2.5 bg-white border rounded-xl text-sm" value={product.name} onChange={(e) => updateProduct(product.id, 'name', e.target.value)}/>
+                        <input placeholder="가격" className="w-24 p-2.5 bg-white border rounded-xl text-sm" value={product.price} onChange={(e) => updateProduct(product.id, 'price', e.target.value)}/>
+                      </div>
+                      <textarea placeholder="제품 설명" className="w-full p-2.5 bg-white border rounded-xl text-[12px] min-h-[60px] resize-none" value={product.description} onChange={(e) => updateProduct(product.id, 'description', e.target.value)} />
+                      <div className="flex flex-wrap gap-1 items-center text-[9px] font-black">
+                         <button onClick={() => updateProduct(product.id, 'showName', !product.showName)} className={`px-2 py-1 rounded border transition-all ${product.showName ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-300'}`}>이름 {product.showName ? 'ON' : 'OFF'}</button>
+                         <button onClick={() => updateProduct(product.id, 'showPrice', !product.showPrice)} className={`px-2 py-1 rounded border transition-all ${product.showPrice ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-300'}`}>가격 {product.showPrice ? 'ON' : 'OFF'}</button>
+                         <button onClick={() => updateProduct(product.id, 'showDesc', !product.showDesc)} className={`px-2 py-1 rounded border transition-all ${product.showDesc ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-300'}`}>설명 {product.showDesc ? 'ON' : 'OFF'}</button>
+                         {products.length > 1 && <button onClick={() => removeProduct(product.id)} className="ml-auto text-red-400 hover:text-red-600 p-1"><Trash2 size={16}/></button>}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
-            )}
-          </section>
-
-          <section className="space-y-4">
-            <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-2"><FileText size={14}/> 정보 입력 및 노출 설정</label>
-            
-            {/* 가게 이름 */}
-            <input placeholder="가게 이름 (필수)" className="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-900" 
-              onChange={(e) => setInputData({...inputData, storeName: e.target.value})}/>
-            
-            {/* 가격 정보 + 토글 */}
-            <div className="flex items-center gap-2">
-              <input placeholder="가격 정보" className="flex-1 p-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-900" 
-                onChange={(e) => setInputData({...inputData, price: e.target.value})}/>
-              <button onClick={() => setOptions({...options, showPrice: !options.showPrice})} 
-                className={`p-2.5 rounded-lg border transition-colors ${options.showPrice ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-300 border-slate-100'}`}>
-                <Check size={16} />
-              </button>
             </div>
-
-            {/* 영업 시간 + 토글 (추가된 부분) */}
-            <div className="flex items-center gap-2">
-              <input placeholder="영업 시간 (예: 10:00 - 22:00)" className="flex-1 p-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-900" 
-                onChange={(e) => setInputData({...inputData, businessHours: e.target.value})}/>
-              <button onClick={() => setOptions({...options, showBusinessHours: !options.showBusinessHours})} 
-                className={`p-2.5 rounded-lg border transition-colors ${options.showBusinessHours ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-300 border-slate-100'}`}>
-                <Clock size={16} />
-              </button>
-            </div>
-
-            <div className="space-y-2">
-               <textarea placeholder="AI 세부 지시사항 (예: '수박을 메인으로 강조해줘')" rows="3" 
-                className="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-900" 
-                onChange={(e) => setInputData({...inputData, details: e.target.value})} />
-            </div>
-          </section>
+          )}
         </div>
 
-        <div className="p-6 bg-slate-50 border-t border-slate-200">
-          <button className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-widest">
-             Generate Drafts <ChevronRight size={18}/>
-          </button>
+        <div className="p-6 bg-slate-50 border-t shrink-0">
+          <button className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl hover:bg-blue-700 transition-all uppercase tracking-widest text-sm">Generate AI Drafts</button>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto p-12 bg-slate-100/30 custom-scrollbar">
-        <header className="flex justify-between items-center mb-10 text-white">
-          <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">AI Generated Templates</h2>
-            <p className="text-sm text-slate-500 mt-1">업로드된 이미지: <span className="font-bold text-blue-600">{imagePreviews.length}장</span></p>
-          </div>
-          <div className="flex gap-2">
-             {['1:1', '4:5', '9:16'].map(r => (
-               <button key={r} onClick={() => setOptions({...options, ratio: r})} className={`px-4 py-1.5 text-xs font-bold rounded-full border ${options.ratio === r ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-200 shadow-sm'}`}>{r}</button>
-             ))}
+      {/* --- 우측 프리뷰 영역: 실시간 반영 --- */}
+      <main className="flex-1 overflow-y-auto p-12 bg-slate-100/50 transition-all duration-500">
+        <header className="flex justify-between items-end mb-10">
+          <h2 className="text-4xl font-black text-slate-900 tracking-tighter italic uppercase">Draft Preview</h2>
+          <div className="flex gap-2 bg-white p-1.5 rounded-2xl shadow-xl border border-slate-200">
+             {['1:1', '4:5', '9:16'].map(r => <button key={r} onClick={() => setOptions({...options, ratio: r})} className={`px-5 py-2 text-xs font-black rounded-xl ${options.ratio === r ? 'bg-slate-900 text-white' : 'text-slate-400 hover:bg-slate-50'}`}>{r}</button>)}
           </div>
         </header>
 
-        <div className={`grid gap-10 ${options.sampleCount <= 4 ? 'grid-cols-2' : 'grid-cols-3'} max-w-[1200px] mx-auto`}>
-          {samples.map((s, index) => (
-            <div key={s} className="group cursor-pointer">
-              <div className={`rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 border-4 border-transparent group-hover:border-blue-500/30 relative
-                ${options.ratio === '1:1' ? 'aspect-square' : options.ratio === '4:5' ? 'aspect-[4/5]' : 'aspect-[9/16]'}
-                ${conceptStyles[options.concept]}
-              `}>
-                <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none bg-black/20 text-white"></div>
-                <div className="w-full h-full flex flex-col p-8 relative min-h-0 z-10 text-white">
-                  <div className="flex justify-between items-center mb-4 text-white">
-                    <span className="text-[10px] font-black uppercase opacity-60 tracking-tighter">Draft 0{s}</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/10 border border-white/10 uppercase tracking-widest">{options.concept}</span>
-                  </div>
-                  
-                  {getDraftLayout(options.concept, imagePreviews, index)}
-                  
-                  <div className={`mt-6 space-y-2 ${options.concept === 'premium' ? 'text-center items-center' : 'text-left'}`}>
-                    <h3 className={`font-black tracking-tight truncate
-                      ${options.concept === 'vivid' ? 'text-4xl' : 'text-3xl'}
-                    `} style={{color: options.concept === 'premium' ? '#fff' : options.brandColor}}>
-                      {inputData.storeName || '가게 이름'}
-                    </h3>
-                    
-                    <div className={`flex flex-col gap-1 ${options.concept === 'premium' ? 'items-center' : 'items-start'}`}>
-                      {options.showPrice && inputData.price && (
-                        <p className={`font-bold ${options.concept === 'vivid' ? 'text-2xl' : 'text-xl'}`}>{inputData.price}</p>
-                      )}
-                      {/* 시안에 영업시간 표시 (추가된 부분) */}
-                      {options.showBusinessHours && inputData.businessHours && (
-                        <p className="text-xs opacity-70 flex items-center gap-1 font-medium italic">
-                          <Clock size={12}/> {inputData.businessHours}
+        <div className={`grid gap-12 ${options.sampleCount <= 4 ? 'grid-cols-2' : 'grid-cols-3'} max-w-[1200px] mx-auto pb-20`}>
+          {Array.from({ length: options.sampleCount }).map((_, idx) => (
+            <div key={idx} className="group relative">
+              <div className={`rounded-[3.5rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] transition-all duration-700 border-4 border-transparent group-hover:border-blue-500/30 relative ${options.ratio === '1:1' ? 'aspect-square' : options.ratio === '4:5' ? 'aspect-[4/5]' : 'aspect-[9/16]'} ${conceptStyles[options.concept]}`}>
+                <div className="w-full h-full flex flex-col p-10 relative z-10 text-white">
+                   {/* 1. 상단 광고 슬로건 (입력값이 있을 때만 표시) */}
+                   <div className="text-center mb-4 min-h-[30px]">
+                      {inputData.mainSlogan && (
+                        <p className="text-[12px] font-black tracking-[0.2em] uppercase drop-shadow-md bg-black/20 py-1 rounded animate-in fade-in duration-300 px-3">
+                          {inputData.mainSlogan}
                         </p>
                       )}
-                    </div>
-                  </div>
-                </div>
+                   </div>
 
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20 backdrop-blur-sm">
-                  <button className="px-6 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1.5 hover:bg-blue-700 transition-colors">
-                    <LayoutGrid size={14} /> 상세 편집하기
-                  </button>
+                   {/* 2. 다중 제품 통합 렌더링 (Item 1, 2, 3이 모여서 렌더링됨) */}
+                   {renderAllProductsInOneDraft(idx)}
+
+                   {/* 3. 하단 가게명 (브랜드 포인트 컬러 적용) */}
+                   <div className="mt-6 text-center border-t border-white/10 pt-6 min-h-[40px]">
+                      <h3 className="text-2xl font-black italic tracking-widest uppercase transition-all" style={{ color: options.brandColor }}>
+                         {inputData.storeName || ''}
+                      </h3>
+                   </div>
                 </div>
               </div>
             </div>
