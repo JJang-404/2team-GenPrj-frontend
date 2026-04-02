@@ -19,6 +19,7 @@ import React, { useState, useCallback } from 'react';
 import Canvas from './components/Editor/Canvas';
 import ControlPanel from './components/Editor/ControlPanel';
 import SlotList from './components/Editor/SlotList';
+import type { GeneratedTemplate } from './api/generate';
 
 export interface MenuItem {
   id: string;
@@ -69,11 +70,17 @@ const IMAGE_SLOT_DEFS: ImageSlotDef[] = [
   { id: 'dessert_img', label: '디저트 이미지' },
 ];
 
-export default function App() {
+interface AppProps {
+  initialData?: GeneratedTemplate;
+  onBack?: () => void;
+  warning?: string;
+}
+
+export default function App({ initialData, onBack, warning }: AppProps = {}) {
   // 배경 (위/아래 각각)
-  const [bgTopColor, setBgTopColor] = useState('#ffffff');
-  const [bgBottomColor, setBgBottomColor] = useState('#fce8e8');
-  const [checkWave, setCheckWave] = useState<CheckWave>({
+  const [bgTopColor, setBgTopColor] = useState(initialData?.bgTopColor ?? '#ffffff');
+  const [bgBottomColor, setBgBottomColor] = useState(initialData?.bgBottomColor ?? '#fce8e8');
+  const [checkWave, setCheckWave] = useState<CheckWave>(initialData?.checkWave ?? {
     enabled: false,
     color1: '#f5c5c5',
     color2: '#ffffff',
@@ -83,11 +90,11 @@ export default function App() {
   });
 
   // 카페 이름 + 위치
-  const [cafeName, setCafeName] = useState('카페 이름');
+  const [cafeName, setCafeName] = useState(initialData?.cafeName ?? '카페 이름');
   const [cafeNamePos, setCafeNamePos] = useState({ x: 50, y: 5 });
 
   // 메뉴 섹션 (위치 포함)
-  const [sections, setSections] = useState<MenuSection[]>([
+  const [sections, setSections] = useState<MenuSection[]>(initialData?.sections ?? [
     {
       id: 'coffee',
       title: '에스프레소',
@@ -114,10 +121,12 @@ export default function App() {
   ]);
 
   // 이미지 슬롯 (위치 포함)
-  const [imageSlots, setImageSlots] = useState<Record<string, ImageSlotState>>({
-    coffee_img:  { url: null, x: 5,  y: 22, width: 22, height: 22, opacity: 100 },
-    dessert_img: { url: null, x: 73, y: 60, width: 22, height: 22, opacity: 100 },
-  });
+  const [imageSlots, setImageSlots] = useState<Record<string, ImageSlotState>>(
+    initialData?.imageSlots ?? {
+      coffee_img:  { url: null, x: 5,  y: 22, width: 22, height: 22, opacity: 100 },
+      dessert_img: { url: null, x: 73, y: 60, width: 22, height: 22, opacity: 100 },
+    }
+  );
 
   // 굵은 선
   const [borders, setBorders] = useState<BorderLine[]>([]);
@@ -188,7 +197,27 @@ export default function App() {
     setBorders(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#0d0d1a' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d1a' }}>
+      {/* 상단 네비게이션 바 */}
+      {onBack && (
+        <header style={{ flexShrink: 0, borderBottom: '1px solid #1e2a4a' }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '10px 20px' }}>
+            <button
+              onClick={onBack}
+              style={{ background: 'none', border: '1px solid #1e2a4a', borderRadius: '6px', color: '#7986cb', fontSize: '13px', cursor: 'pointer', padding: '6px 14px' }}
+            >
+              ← 처음으로
+            </button>
+            <span style={{ marginLeft: '16px', fontSize: '13px', color: '#424870' }}>메뉴판 편집기</span>
+          </div>
+          {warning && (
+            <div style={{ background: '#2a1a00', borderTop: '1px solid #7c4a00', padding: '8px 20px', fontSize: '12px', color: '#fbbf24' }}>
+              ⚠ {warning}
+            </div>
+          )}
+        </header>
+      )}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
       {/* 왼쪽 패널 */}
       <aside style={{ width: '350px', display: 'flex', flexDirection: 'column', borderRight: '1px solid #0f3460', overflowY: 'auto' }}>
         <ControlPanel
@@ -240,6 +269,7 @@ export default function App() {
           </p>
         </div>
       </main>
+      </div>
     </div>
   );
 }
