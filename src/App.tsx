@@ -1,0 +1,245 @@
+/*
+ * ── 실행 명령어 ──────────────────────────────────────────────────
+ *
+ * 1) 패키지 설치 (최초 1회)
+ *      npm install
+ *
+ * 2) 개발 서버 실행 (http://localhost:5173)
+ *      npm run dev
+ *
+ * 3) 프로덕션 빌드 (dist/ 폴더 생성)
+ *      npm run build
+ *
+ * 4) 빌드 결과 미리보기
+ *      npm run preview
+ *
+ * ─────────────────────────────────────────────────────────────────
+ */
+import React, { useState, useCallback } from 'react';
+import Canvas from './components/Editor/Canvas';
+import ControlPanel from './components/Editor/ControlPanel';
+import SlotList from './components/Editor/SlotList';
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  price: string;
+}
+
+export interface MenuSection {
+  id: string;
+  title: string;
+  items: MenuItem[];
+  x: number;
+  y: number;
+}
+
+export interface ImageSlotDef {
+  id: string;
+  label: string;
+}
+
+export interface ImageSlotState {
+  url: string | null;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number; // 0~100
+}
+
+export interface BorderLine {
+  id: string;
+  y: number;
+  thickness: number;
+  color: string;
+}
+
+export interface CheckWave {
+  enabled: boolean;
+  color1: string;
+  color2: string;
+  cellSize: number;
+  offsetY: number;
+  amplitude: number;
+}
+
+const IMAGE_SLOT_DEFS: ImageSlotDef[] = [
+  { id: 'coffee_img', label: '커피 이미지' },
+  { id: 'dessert_img', label: '디저트 이미지' },
+];
+
+export default function App() {
+  // 배경 (위/아래 각각)
+  const [bgTopColor, setBgTopColor] = useState('#ffffff');
+  const [bgBottomColor, setBgBottomColor] = useState('#fce8e8');
+  const [checkWave, setCheckWave] = useState<CheckWave>({
+    enabled: false,
+    color1: '#f5c5c5',
+    color2: '#ffffff',
+    cellSize: 20,
+    offsetY: 78,
+    amplitude: 20,
+  });
+
+  // 카페 이름 + 위치
+  const [cafeName, setCafeName] = useState('카페 이름');
+  const [cafeNamePos, setCafeNamePos] = useState({ x: 50, y: 5 });
+
+  // 메뉴 섹션 (위치 포함)
+  const [sections, setSections] = useState<MenuSection[]>([
+    {
+      id: 'coffee',
+      title: '에스프레소',
+      x: 30,
+      y: 22,
+      items: [
+        { id: 'c1', name: '아메리카노', price: '4000원' },
+        { id: 'c2', name: '라떼', price: '4500원' },
+        { id: 'c3', name: '카페모카', price: '4500원' },
+        { id: 'c4', name: '카라멜 마끼아또', price: '4800원' },
+      ],
+    },
+    {
+      id: 'dessert',
+      title: '디저트',
+      x: 5,
+      y: 62,
+      items: [
+        { id: 'd1', name: '휘낭시에', price: '5500원' },
+        { id: 'd2', name: '두바이 쫀득 쿠키', price: '6000원' },
+        { id: 'd3', name: '버터떡', price: '5500원' },
+      ],
+    },
+  ]);
+
+  // 이미지 슬롯 (위치 포함)
+  const [imageSlots, setImageSlots] = useState<Record<string, ImageSlotState>>({
+    coffee_img:  { url: null, x: 5,  y: 22, width: 22, height: 22, opacity: 100 },
+    dessert_img: { url: null, x: 73, y: 60, width: 22, height: 22, opacity: 100 },
+  });
+
+  // 굵은 선
+  const [borders, setBorders] = useState<BorderLine[]>([]);
+
+  // 선택된 요소
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // ── 위치 업데이트 (Canvas 드래그 → App) ───────────────────────
+  const handleUpdatePos = useCallback((type: string, id: string, x: number, y: number) => {
+    if (type === 'cafeName') {
+      setCafeNamePos({ x, y });
+    } else if (type === 'section') {
+      setSections(prev => prev.map(s => s.id === id ? { ...s, x, y } : s));
+    } else if (type === 'image') {
+      setImageSlots(prev => ({ ...prev, [id]: { ...prev[id], x, y } }));
+    } else if (type === 'border') {
+      setBorders(prev => prev.map(b => b.id === id ? { ...b, y } : b));
+    }
+  }, []);
+
+  // ── 이미지 업로드 ─────────────────────────────────────────────
+  const handleImageUpload = (slotId: string, url: string) =>
+    setImageSlots(prev => ({ ...prev, [slotId]: { ...prev[slotId], url } }));
+
+  const handleUpdateSlotOpacity = (slotId: string, opacity: number) =>
+    setImageSlots(prev => ({ ...prev, [slotId]: { ...prev[slotId], opacity } }));
+
+  const handleUpdateSize = useCallback((slotId: string, width: number, height: number) =>
+    setImageSlots(prev => ({ ...prev, [slotId]: { ...prev[slotId], width, height } }))
+  , []);
+
+  // ── 메뉴 아이템 CRUD ──────────────────────────────────────────
+  const updateItem = (sectionId: string, itemId: string, field: 'name' | 'price', value: string) =>
+    setSections(prev =>
+      prev.map(sec =>
+        sec.id === sectionId
+          ? { ...sec, items: sec.items.map(it => it.id === itemId ? { ...it, [field]: value } : it) }
+          : sec
+      )
+    );
+
+  const addItem = (sectionId: string) =>
+    setSections(prev =>
+      prev.map(sec =>
+        sec.id === sectionId
+          ? { ...sec, items: [...sec.items, { id: `${sectionId}_${Date.now()}`, name: '새 메뉴', price: '0원' }] }
+          : sec
+      )
+    );
+
+  const removeItem = (sectionId: string, itemId: string) =>
+    setSections(prev =>
+      prev.map(sec =>
+        sec.id === sectionId
+          ? { ...sec, items: sec.items.filter(it => it.id !== itemId) }
+          : sec
+      )
+    );
+
+  // ── 굵은 선 CRUD ──────────────────────────────────────────────
+  const addBorder = () =>
+    setBorders(prev => [...prev, { id: `border_${Date.now()}`, y: 50, thickness: 6, color: '#e06060' }]);
+
+  const removeBorder = (id: string) =>
+    setBorders(prev => prev.filter(b => b.id !== id));
+
+  const updateBorder = (id: string, field: keyof BorderLine, value: string | number) =>
+    setBorders(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+
+  return (
+    <div style={{ display: 'flex', height: '100vh', background: '#0d0d1a' }}>
+      {/* 왼쪽 패널 */}
+      <aside style={{ width: '350px', display: 'flex', flexDirection: 'column', borderRight: '1px solid #0f3460', overflowY: 'auto' }}>
+        <ControlPanel
+          cafeName={cafeName}
+          sections={sections}
+          bgTopColor={bgTopColor}
+          bgBottomColor={bgBottomColor}
+          checkWave={checkWave}
+          borders={borders}
+          onUpdateCafeName={setCafeName}
+          onUpdateBgTopColor={setBgTopColor}
+          onUpdateBgBottomColor={setBgBottomColor}
+          onUpdateCheckWave={setCheckWave}
+          onUpdateItem={updateItem}
+          onAddItem={addItem}
+          onRemoveItem={removeItem}
+          onAddBorder={addBorder}
+          onRemoveBorder={removeBorder}
+          onUpdateBorder={updateBorder}
+        />
+        <SlotList
+          slotDefs={IMAGE_SLOT_DEFS}
+          imageSlots={imageSlots}
+          onImageUpload={handleImageUpload}
+          onUpdateSlotOpacity={handleUpdateSlotOpacity}
+          onUpdateSlotSize={handleUpdateSize}
+        />
+      </aside>
+
+      {/* 오른쪽: 미리보기 */}
+      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+        <div style={{ width: '380px' }}>
+          <Canvas
+            bgTopColor={bgTopColor}
+            bgBottomColor={bgBottomColor}
+            checkWave={checkWave}
+            cafeName={cafeName}
+            cafeNamePos={cafeNamePos}
+            sections={sections}
+            imageSlots={imageSlots}
+            borders={borders}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onUpdatePos={handleUpdatePos}
+            onUpdateSize={handleUpdateSize}
+          />
+          <p style={{ textAlign: 'center', fontSize: '11px', color: '#444', marginTop: '10px' }}>
+            드래그: 요소 이동 &nbsp;|&nbsp; 클릭: 선택
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
