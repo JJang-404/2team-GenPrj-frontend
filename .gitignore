@@ -1,0 +1,25 @@
+# 의존성
+node_modules/
+
+# 빌드 결과물
+dist/
+build/
+
+# 환경변수
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 에디터
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
