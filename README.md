@@ -12,8 +12,7 @@ AI 기반 광고 이미지 초안(Draft)을 실시간으로 생성·미리보기
 - [프로젝트 구조](#프로젝트-구조)
 - [시작하기](#시작하기)
   - [사전 요구사항](#사전-요구사항)
-  - [프론트엔드 실행](#프론트엔드-실행)
-  - [백엔드(배경-제거-서버)-실행](#백엔드배경-제거-서버-실행)
+  - [실행](#실행)
 - [화면 구성](#화면-구성)
   - [좌측 사이드바](#좌측-사이드바)
   - [우측 프리뷰 영역](#우측-프리뷰-영역)
@@ -24,7 +23,6 @@ AI 기반 광고 이미지 초안(Draft)을 실시간으로 생성·미리보기
   - [제품 리스트 관리](#제품-리스트-관리)
   - [배경 제거](#배경-제거)
   - [디자인 선택](#디자인-선택)
-- [환경 변수 및 설정](#환경-변수-및-설정)
 - [알려진 제한 사항](#알려진-제한-사항)
 
 ---
@@ -38,7 +36,7 @@ AI 기반 광고 이미지 초안(Draft)을 실시간으로 생성·미리보기
 | **3가지 비율** | 1:1 · 4:5 · 9:16 인스타그램 피드/정방형/스토리 규격 지원 |
 | **최대 6개 프레임 생성** | 슬라이더로 동시에 볼 초안 수 조절 (1~6개) |
 | **제품 이미지 업로드** | 여러 제품 이미지를 업로드해 포스터에 자동 배치 |
-| **배경 제거** | Python 서버(`rembg`)를 통해 이미지 배경 원클릭 제거 |
+| **배경 제거** | 브라우저 내 AI(`@imgly/background-removal`)로 이미지 배경 원클릭 제거 |
 | **AI 슬로건 생성** | 가게 이름·제품명 기반으로 광고 문구 자동 생성 |
 | **디자인 선택** | 마음에 드는 초안을 선택하면 상단에 고정 표시 |
 
@@ -46,44 +44,31 @@ AI 기반 광고 이미지 초안(Draft)을 실시간으로 생성·미리보기
 
 ## 기술 스택
 
-### 프론트엔드
-
 | 라이브러리 | 버전 | 용도 |
 |---|---|---|
 | React | 19 | UI 컴포넌트 |
 | Vite | 8 | 개발 서버 및 번들러 |
 | Tailwind CSS | 4 | 유틸리티 기반 스타일링 |
 | lucide-react | latest | 아이콘 |
-
-### 백엔드 (배경 제거 서버)
-
-| 라이브러리 | 용도 |
-|---|---|
-| FastAPI | REST API 서버 |
-| rembg | AI 기반 배경 제거 (U2Net 모델) |
-| onnxruntime | 모델 추론 엔진 (기본: CPU / GPU 설정 가능) |
-| uvicorn | ASGI 서버 |
+| @imgly/background-removal | latest | 브라우저 내 AI 배경 제거 (ONNX/WASM) |
 
 ---
 
 ## 프로젝트 구조
 
 ```
-sample_ver5/
-├── frontend/                   # React 프론트엔드
-│   ├── src/
-│   │   ├── App.jsx             # 메인 컴포넌트 (전체 UI 및 로직)
-│   │   ├── main.jsx            # 엔트리포인트
-│   │   ├── App.css             # 전역 스타일
-│   │   └── index.css           # Tailwind 기본 스타일
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   └── README.md               # 이 파일
-│
-└── (프로젝트 루트)
-    └── server.py               # FastAPI 배경 제거 서버
+2team-GenPrj-frontend/
+└── frontend/                   # React 프론트엔드
+    ├── src/
+    │   ├── App.jsx             # 메인 컴포넌트 (전체 UI 및 로직)
+    │   ├── main.jsx            # 엔트리포인트
+    │   ├── App.css             # 전역 스타일
+    │   └── index.css           # Tailwind 기본 스타일
+    ├── package.json
+    ├── vite.config.js
+    ├── tailwind.config.js
+    ├── postcss.config.js
+    └── README.md               # 이 파일
 ```
 
 ---
@@ -93,16 +78,14 @@ sample_ver5/
 ### 사전 요구사항
 
 - **Node.js** 18 이상
-- **Python** 3.9 이상
-- **pip** (Python 패키지 관리자)
 
 ---
 
-### 프론트엔드 실행
+### 실행
 
 ```bash
 # 1. 디렉토리 이동
-cd sample_ver5/frontend
+cd 2team-GenPrj-frontend/frontend
 
 # 2. 의존성 설치
 npm install
@@ -120,43 +103,7 @@ npm run build
 npm run preview
 ```
 
----
-
-### 백엔드(배경 제거 서버) 실행
-
-배경 제거 기능을 사용하려면 Python 서버를 **별도 터미널**에서 실행해야 합니다.
-
-```bash
-# 1. 의존성 설치
-pip install fastapi uvicorn rembg onnxruntime
-
-# 2. 서버 실행 (프로젝트 루트에서)
-python server.py
-```
-
-서버는 `http://localhost:8000` 에서 실행되며, 프론트엔드와 동시에 켜져 있어야 배경 제거 버튼이 작동합니다.
-
-#### GPU 가속 설정 (선택 사항)
-
-배경 제거 처리 속도를 높이려면 `onnxruntime-gpu`를 설치합니다.  
-**NVIDIA GPU + CUDA** 환경이 필요합니다.
-
-```bash
-# 기존 CPU 버전 제거 후 GPU 버전 설치
-pip uninstall onnxruntime
-pip install onnxruntime-gpu
-```
-
-GPU 사용 가능 여부 확인:
-
-```bash
-python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
-# 출력 결과에 CUDAExecutionProvider 가 포함되면 GPU 사용 가능
-```
-
-> **참고:** `onnxruntime-gpu`가 설치되어 있더라도 `server.py`의 `remove()` 호출 시  
-> provider를 명시하지 않으면 CPU로 동작합니다.  
-> GPU를 명시적으로 활성화하려면 `rembg.new_session()`의 `providers` 파라미터를 설정해야 합니다.
+> **참고:** 배경 제거 기능은 별도 서버 없이 브라우저에서 직접 동작합니다. 첫 사용 시 AI 모델(~40MB)이 자동으로 다운로드되며, 이후에는 브라우저 캐시에서 로드됩니다.
 
 ---
 
@@ -253,13 +200,10 @@ python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
 **동작 과정:**
 1. 제품 이미지 업로드
 2. `배경 제거` 버튼 클릭
-3. 이미지를 Python 서버(`http://localhost:8000/remove-bg`)로 전송
-4. `rembg` (U2Net 모델)로 배경 제거 처리
-5. 배경이 투명하게 제거된 PNG 이미지로 교체
+3. 브라우저 내에서 `@imgly/background-removal` 라이브러리가 ONNX/WASM 기반 AI 모델로 배경 제거 처리
+4. 배경이 투명하게 제거된 PNG 이미지로 교체
 
-> **주의:** Python 서버(`server.py`)가 실행 중이어야 합니다. 서버가 꺼져 있으면 경고 메시지가 표시됩니다.
-
-**사용 모델:** `rembg` 라이브러리의 `u2net` — 딥러닝 기반 Salient Object Detection 모델
+> **참고:** 첫 사용 시 AI 모델(~40MB)이 자동 다운로드됩니다. 이후에는 브라우저 캐시에서 로드되어 빠르게 처리됩니다. 별도 서버 실행은 필요하지 않습니다.
 
 ---
 
@@ -273,23 +217,9 @@ python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
 
 ---
 
-## 환경 변수 및 설정
-
-별도의 `.env` 파일은 필요하지 않습니다.  
-백엔드 서버 URL은 [src/App.jsx](src/App.jsx) 파일 내에 직접 작성되어 있습니다.
-
-```js
-// src/App.jsx - 38번째 줄
-const res = await fetch('http://localhost:8000/remove-bg', { method: 'POST', body: formData });
-```
-
-서버 포트나 호스트를 변경하려면 이 URL과 `server.py`의 `uvicorn.run()` 포트 설정을 함께 수정하세요.
-
----
-
 ## 알려진 제한 사항
 
 - **AI 슬로건 생성**은 현재 목업(mock) 데이터로 동작합니다. 실제 OpenAI API 연동은 미구현 상태입니다.
-- **배경 제거 서버**는 기본적으로 CPU로 동작합니다. GPU 가속이 필요한 경우 위의 [GPU 가속 설정](#gpu-가속-설정-선택-사항) 항목을 참고하세요.
+- **배경 제거**는 브라우저 내에서 처리되므로 기기 성능에 따라 처리 시간이 다를 수 있습니다. 데스크톱 브라우저에서 최적 성능을 발휘합니다.
 - **Generate AI Drafts** 버튼은 현재 UI 데모 상태이며 실제 이미지 생성 API와 연동되어 있지 않습니다.
 - 제품 이미지를 업로드하지 않은 경우 포스터 내 이미지 영역은 비어있거나 플레이스홀더로 표시됩니다.

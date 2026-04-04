@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { 
+import { removeBackground } from '@imgly/background-removal';
+import {
   Zap, Star, Upload, ChevronRight, X, Sparkles, Clock, Check, ChevronLeft, Edit3, Plus, Trash2, Wand2, Layers, Palette, FileText, AlignLeft, MessageSquare, Sparkle, RotateCcw
 } from 'lucide-react';
 
@@ -33,11 +34,7 @@ const App = () => {
     try {
       const response = await fetch(imageSrc);
       const blob = await response.blob();
-      const formData = new FormData();
-      formData.append('file', blob);
-      const res = await fetch('http://localhost:8000/remove-bg', { method: 'POST', body: formData });
-      if (!res.ok) throw new Error('Failed');
-      const resultBlob = await res.blob();
+      const resultBlob = await removeBackground(blob);
       const resultUrl = await new Promise((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
@@ -45,7 +42,7 @@ const App = () => {
       });
       setProducts(products.map(p => p.id === id ? { ...p, image: resultUrl } : p));
     } catch (error) {
-      alert("배경 제거 실패. server.py 실행을 확인하세요.");
+      alert("배경 제거에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsRemovingBg(prev => ({ ...prev, [id]: false }));
     }

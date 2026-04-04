@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /home/codeitDev/project && git status\",\"description\":\"Check git status for all changes\"}",
+  "error": "Exit code 128\nfatal: detected dubious ownership in repository at '/home/codeitDev/project'\nTo add an exception for this directory, call:\n\n\tgit config --global --add safe.directory /home/codeitDev/project",
+  "timestamp": "2026-04-03T15:28:13.887Z",
+  "retry_count": 1
+}
