@@ -4,11 +4,13 @@ import type { MenuSection, BorderLine, CheckWave } from '../../App';
 interface ControlPanelProps {
   cafeName: string;
   sections: MenuSection[];
-  bgColor: string;
+  bgTopColor: string;
+  bgBottomColor: string;
   checkWave: CheckWave;
   borders: BorderLine[];
   onUpdateCafeName: (name: string) => void;
-  onUpdateBgColor: (color: string) => void;
+  onUpdateBgTopColor: (color: string) => void;
+  onUpdateBgBottomColor: (color: string) => void;
   onUpdateCheckWave: (wave: CheckWave) => void;
   onUpdateItem: (sectionId: string, itemId: string, field: 'name' | 'price', value: string) => void;
   onAddItem: (sectionId: string) => void;
@@ -45,8 +47,8 @@ const addBtn: React.CSSProperties = {
 };
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
-  cafeName, sections, bgColor, checkWave, borders,
-  onUpdateCafeName, onUpdateBgColor, onUpdateCheckWave,
+  cafeName, sections, bgTopColor, bgBottomColor, checkWave, borders,
+  onUpdateCafeName, onUpdateBgTopColor, onUpdateBgBottomColor, onUpdateCheckWave,
   onUpdateItem, onAddItem, onRemoveItem,
   onAddBorder, onRemoveBorder, onUpdateBorder,
 }) => {
@@ -60,10 +62,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       <div style={{ marginBottom: '28px' }}>
         <div style={secTitle}>배경 설정</div>
 
-        {/* 배경색 (스포이드 색상 선택) */}
-        <div style={{ marginBottom: '14px' }}>
-          <label style={lbl}>배경 색상 (스포이드로 선택)</label>
-          <input type="color" value={bgColor} onChange={e => onUpdateBgColor(e.target.value)} style={colorInput} />
+        {/* 배경색 — 상단 / 하단 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
+          <div>
+            <label style={lbl}>배경 상단색</label>
+            <input type="color" value={bgTopColor} onChange={e => onUpdateBgTopColor(e.target.value)} style={colorInput} />
+          </div>
+          <div>
+            <label style={lbl}>배경 하단색</label>
+            <input type="color" value={bgBottomColor} onChange={e => onUpdateBgBottomColor(e.target.value)} style={colorInput} />
+          </div>
         </div>
 
         {/* 체커보드 물결 */}

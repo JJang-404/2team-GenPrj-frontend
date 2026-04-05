@@ -10,10 +10,6 @@ interface SlotListProps {
   onUpdateSlotSize: (slotId: string, width: number, height: number) => void;
 }
 
-/**
- * AI 배경 제거 — @imgly/background-removal (U2Net 모델, Python rembg 동급)
- * 최초 실행 시 CDN에서 모델을 자동 다운로드합니다 (~170 MB, 이후 브라우저 캐시).
- */
 async function removeBgFromImage(imgUrl: string): Promise<string> {
   const blob = await removeBackground(imgUrl);
   return URL.createObjectURL(blob);
@@ -43,7 +39,11 @@ const SlotList: React.FC<SlotListProps> = ({
     setLoadingSlots(prev => ({ ...prev, [slotId]: true }));
     try {
       const result = await removeBgFromImage(url);
+      const prevUrl = imageSlots[slotId]?.url;
       onImageUpload(slotId, result);
+      if (prevUrl?.startsWith('blob:')) URL.revokeObjectURL(prevUrl);
+    } catch (e) {
+      console.error('배경 제거 실패:', e);
     } finally {
       setLoadingSlots(prev => ({ ...prev, [slotId]: false }));
     }

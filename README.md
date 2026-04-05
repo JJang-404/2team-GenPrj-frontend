@@ -90,15 +90,22 @@ python remove_bg.py
 ├── src/                         # React 소스코드
 │   ├── App.tsx                  # 앱 최상위 컴포넌트, 전체 상태 관리
 │   ├── main.tsx                 # 앱 진입점
+│   ├── api/
+│   │   ├── generate.ts          # 템플릿 생성 API 클라이언트
+│   │   └── backgroundApi.ts     # 배경 생성 API 클라이언트 (객체 PNG 전송)
 │   ├── components/
 │   │   └── Editor/
-│   │       ├── Canvas.tsx       # 캔버스 영역 (드래그, 리사이즈)
+│   │       ├── Canvas.tsx       # 캔버스 영역 (드래그, 리사이즈, 4:5 비율)
 │   │       ├── ControlPanel.tsx # 왼쪽 컨트롤 패널 (배경, 테두리, 메뉴 등)
 │   │       └── SlotList.tsx     # 이미지 슬롯 (업로드, 배경제거, 크기/불투명도)
 │   ├── hooks/
 │   │   └── useTemplate.ts       # 템플릿 관련 훅
 │   └── utils/
+│       ├── exportCanvas.ts      # 이미지 합성·다운로드 유틸 (Canvas 2D API)
 │       └── transform.ts         # 변환 유틸리티
+│
+├── docs/                        # 기술 문서
+│   └── canvas-export.md         # 캔버스 내보내기 기능 보고서
 │
 ├── img/                         # 샘플 이미지
 │   └── picture/                 # 실제 사진 이미지
@@ -166,6 +173,14 @@ A. `pip install rembg onnxruntime` 를 먼저 실행하세요. 가상환경(`.ve
 
 **Q. JPG 이미지 배경제거 결과가 이상해요.**  
 A. 단색·일러스트 이미지는 `remove_bg_floodfill`, 실제 사진은 `remove_bg_rembg`를 사용하세요. `remove_bg_auto`를 쓰면 자동으로 판별합니다.
+
+---
+
+## 기술 문서
+
+| 문서 | 위치 | 내용 |
+|------|------|------|
+| 캔버스 내보내기 | [`docs/canvas-export.md`](docs/canvas-export.md) | 이미지 합성·다운로드·API 전송 기능 구조, 사용법, 확장 방법 |
 
 ---
 

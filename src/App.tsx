@@ -20,6 +20,8 @@ import Canvas from './components/Editor/Canvas';
 import ControlPanel from './components/Editor/ControlPanel';
 import SlotList from './components/Editor/SlotList';
 import type { GeneratedTemplate } from './api/generate';
+import { exportFull, exportObjects, downloadBlob, type ExportState } from './utils/exportCanvas';
+import { sendObjectsToBackend } from './api/backgroundApi';
 
 export interface MenuItem {
   id: string;
@@ -134,6 +136,9 @@ export default function App({ initialData, onBack, warning }: AppProps = {}) {
   // 선택된 요소
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // 내보내기 로딩 상태
+  const [exporting, setExporting] = useState(false);
+
   // ── 위치 업데이트 (Canvas 드래그 → App) ───────────────────────
   const handleUpdatePos = useCallback((type: string, id: string, x: number, y: number) => {
     if (type === 'cafeName') {
@@ -195,6 +200,48 @@ export default function App({ initialData, onBack, warning }: AppProps = {}) {
 
   const updateBorder = (id: string, field: keyof BorderLine, value: string | number) =>
     setBorders(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+
+  // ── 내보내기 ──────────────────────────────────────────────────
+  const getExportState = useCallback((): ExportState => ({
+    bgTopColor, bgBottomColor, checkWave,
+    cafeName, cafeNamePos, sections, imageSlots, borders,
+  }), [bgTopColor, bgBottomColor, checkWave, cafeName, cafeNamePos, sections, imageSlots, borders]);
+
+  const handleExportFull = useCallback(async () => {
+    setExporting(true);
+    try {
+      const blob = await exportFull(getExportState());
+      downloadBlob(blob, 'ad_full.png');
+    } catch (e) {
+      console.error('전체 저장 실패:', e);
+    } finally {
+      setExporting(false);
+    }
+  }, [getExportState]);
+
+  const handleExportObjects = useCallback(async () => {
+    setExporting(true);
+    try {
+      const blob = await exportObjects(getExportState());
+      downloadBlob(blob, 'ad_objects.png');
+    } catch (e) {
+      console.error('객체 저장 실패:', e);
+    } finally {
+      setExporting(false);
+    }
+  }, [getExportState]);
+
+  const handleSendToBackend = useCallback(async () => {
+    setExporting(true);
+    try {
+      const blob = await exportObjects(getExportState());
+      await sendObjectsToBackend(blob);
+    } catch (e) {
+      console.error('백엔드 전송 실패:', e);
+    } finally {
+      setExporting(false);
+    }
+  }, [getExportState]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d1a' }}>
@@ -267,6 +314,43 @@ export default function App({ initialData, onBack, warning }: AppProps = {}) {
           <p style={{ textAlign: 'center', fontSize: '11px', color: '#444', marginTop: '10px' }}>
             드래그: 요소 이동 &nbsp;|&nbsp; 클릭: 선택
           </p>
+
+          {/* 내보내기 버튼 */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleExportFull}
+              disabled={exporting}
+              style={{
+                padding: '8px 16px', fontSize: '12px', borderRadius: '6px', border: 'none',
+                background: exporting ? '#333' : '#1a4a8a', color: exporting ? '#666' : '#fff',
+                cursor: exporting ? 'not-allowed' : 'pointer', fontWeight: 600,
+              }}
+            >
+              {exporting ? '처리 중...' : '전체 저장'}
+            </button>
+            <button
+              onClick={handleExportObjects}
+              disabled={exporting}
+              style={{
+                padding: '8px 16px', fontSize: '12px', borderRadius: '6px', border: 'none',
+                background: exporting ? '#333' : '#0f3460', color: exporting ? '#666' : '#fff',
+                cursor: exporting ? 'not-allowed' : 'pointer', fontWeight: 600,
+              }}
+            >
+              {exporting ? '처리 중...' : '객체 저장 (테스트)'}
+            </button>
+            <button
+              onClick={handleSendToBackend}
+              disabled={exporting}
+              style={{
+                padding: '8px 16px', fontSize: '12px', borderRadius: '6px', border: 'none',
+                background: exporting ? '#333' : '#e94560', color: exporting ? '#666' : '#fff',
+                cursor: exporting ? 'not-allowed' : 'pointer', fontWeight: 600,
+              }}
+            >
+              {exporting ? '처리 중...' : '백엔드 전송'}
+            </button>
+          </div>
         </div>
       </main>
       </div>

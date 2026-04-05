@@ -16,9 +16,11 @@ interface CanvasProps {
   onUpdateSize: (slotId: string, width: number, height: number) => void;
 }
 
-// SVG viewBox 기준 캔버스 크기 (비율 3:4)
+// SVG viewBox 기준 캔버스 크기 (비율 4:5)
 const CW = 400;
-const CH = Math.round(CW * 4 / 3); // 533
+const RATIO_W = 4;
+const RATIO_H = 5;
+const CH = Math.round(CW * RATIO_H / RATIO_W); // 500 (4:5)
 
 function buildWavePath(amplitude: number, offsetY: number): string {
   const startY = (offsetY / 100) * CH;
