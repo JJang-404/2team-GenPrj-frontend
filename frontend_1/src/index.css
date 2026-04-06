@@ -1,0 +1,7 @@
+@import "tailwindcss";
+/* 배경과 높이를 꽉 채우기 위한 설정 */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
