@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
-import { fetchBootstrap, generateBackgrounds } from './api/client';
+import { fetchBootstrap, generateBackgrounds, removeBackgroundImage } from './api/client';
 import BackgroundCard from './components/BackgroundCard';
 import EditorCanvas from './components/EditorCanvas';
 import InitialHome from './components/InitialHome';
@@ -16,12 +16,132 @@ import type {
   HomeProjectData,
   TemplateDefinition,
 } from './types/editor';
+import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './utils/additionalInfo';
 import { cloneTemplateElements, updateElement } from './utils/editor';
 
 const initialBootstrap: BootstrapResponse = {
   templates: [],
   sidebarRecommendations: [],
 };
+
+const additionalInfoLabels = [
+  '주차 공간 수',
+  '애견 동반 가능 여부',
+  '노키즈존',
+  '흡연 구역 존재 여부',
+  '엘리베이터 존재 여부',
+  '전화번호',
+  '주소',
+] as const;
+
+const additionalInfoPresets: Record<string, { text: { x: number; y: number; width: number; height: number }; image: { x: number; y: number; width: number; height: number } }> = {
+  '주차 공간 수': { text: { x: 10, y: 78, width: 24, height: 6 }, image: { x: 34, y: 76, width: 12, height: 12 } },
+  '애견 동반 가능 여부': { text: { x: 58, y: 78, width: 26, height: 6 }, image: { x: 80, y: 76, width: 12, height: 12 } },
+  '노키즈존': { text: { x: 10, y: 66, width: 20, height: 6 }, image: { x: 34, y: 64, width: 12, height: 12 } },
+  '흡연 구역 존재 여부': { text: { x: 58, y: 66, width: 26, height: 6 }, image: { x: 80, y: 64, width: 12, height: 12 } },
+  '엘리베이터 존재 여부': { text: { x: 10, y: 90, width: 26, height: 6 }, image: { x: 34, y: 88, width: 12, height: 12 } },
+  '전화번호': { text: { x: 56, y: 90, width: 28, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
+  주소: { text: { x: 8, y: 56, width: 34, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
+};
+
+const homeDraftLayouts = [
+  [
+    { x: 34, y: 14, width: 52, rotation: 0 },
+    { x: 8, y: 50, width: 22, rotation: -12 },
+    { x: 10, y: 12, width: 20, rotation: 10 },
+  ],
+  [
+    { x: 6, y: 26, width: 38, rotation: -4 },
+    { x: 53, y: 22, width: 38, rotation: 5 },
+    { x: 36, y: 62, width: 22, rotation: 0 },
+  ],
+  [
+    { x: 7, y: 43, width: 34, rotation: -9 },
+    { x: 58, y: 18, width: 34, rotation: 7 },
+    { x: 40, y: 12, width: 16, rotation: -4 },
+  ],
+  [
+    { x: 27, y: 28, width: 45, rotation: 0 },
+    { x: 8, y: 55, width: 24, rotation: -8 },
+    { x: 68, y: 55, width: 24, rotation: 8 },
+  ],
+] as const;
+
+function slugInfoLabel(label: string) {
+  return String(additionalInfoLabels.indexOf(label as (typeof additionalInfoLabels)[number]) + 1);
+}
+
+function shouldShowAdditionalInfoIcon(projectData: HomeProjectData | null, label: string) {
+  const info = projectData?.additionalInfo;
+  if (!info) return false;
+
+  switch (label) {
+    case '주차 공간 수':
+      return Boolean(info.parkingSpaces.trim());
+    case '애견 동반 가능 여부':
+      return true;
+    case '노키즈존':
+      return true;
+    case '흡연 구역 존재 여부':
+      return true;
+    case '엘리베이터 존재 여부':
+      return true;
+    default:
+      return false;
+  }
+}
+
+function shouldShowAdditionalInfoText(projectData: HomeProjectData | null, label: string) {
+  const info = projectData?.additionalInfo;
+  if (!info) return false;
+
+  switch (label) {
+    case '전화번호':
+      return Boolean(info.phoneNumber.trim());
+    case '주소':
+      return Boolean(info.address.trim());
+    default:
+      return false;
+  }
+}
+
+function applyDraftLayoutVariant(elements: EditorElement[], draftIndex: number) {
+  const layout = homeDraftLayouts[draftIndex % homeDraftLayouts.length];
+  const productElements = elements.filter(isPrimaryImageElement).slice(0, layout.length);
+  const productIds = new Set(productElements.map((element) => element.id));
+
+  let productCursor = 0;
+  return elements.map((element) => {
+    if (productIds.has(element.id)) {
+      const slot = layout[productCursor] ?? layout[0];
+      productCursor += 1;
+      return {
+        ...element,
+        x: slot.x,
+        y: slot.y,
+        width: slot.width,
+        rotation: slot.rotation,
+      };
+    }
+
+    if (element.id === 'fallback-main-slogan') {
+      const positions = [
+        { x: 8, y: 8, width: 62 },
+        { x: 8, y: 8, width: 62 },
+        { x: 10, y: 10, width: 58 },
+        { x: 8, y: 10, width: 60 },
+      ];
+      const slot = positions[draftIndex % positions.length];
+      return { ...element, x: slot.x, y: slot.y, width: slot.width };
+    }
+
+    if (element.id === 'fallback-store-name') {
+      return { ...element, x: 12, y: 88, width: 56 };
+    }
+
+    return element;
+  });
+}
 
 function isPrimaryImageElement(element: EditorElement) {
   if (element.kind !== 'image') return false;
@@ -40,39 +160,10 @@ function shouldShowDecorativeElement(
   backgroundMode: BackgroundMode,
   projectData: HomeProjectData | null
 ) {
+  void templateId;
+  void backgroundMode;
+  void projectData;
   if (!isDecorativeElement(element)) return true;
-
-  const activeProducts = projectData?.products.filter(
-    (product) => product.image || product.name || product.price || product.description || product.isAiGen
-  ) ?? [];
-  const productCount = activeProducts.length;
-  const concept = projectData?.options.concept ?? 'vivid';
-
-  if (backgroundMode === 'ai-image') {
-    return false;
-  }
-
-  if (templateId === 'template-dual-drink') {
-    if (element.id.includes('splash')) {
-      return productCount >= 2 && backgroundMode !== 'solid' && (concept === 'vivid' || concept === 'retro');
-    }
-    return false;
-  }
-
-  if (templateId === 'template-split-hero') {
-    if (element.id === 'splash') {
-      return productCount >= 1 && backgroundMode !== 'solid' && concept !== 'premium';
-    }
-    return false;
-  }
-
-  if (templateId === 'template-pop-board') {
-    if (element.id === 'badge') {
-      return backgroundMode !== 'solid';
-    }
-    return false;
-  }
-
   return false;
 }
 
@@ -355,6 +446,50 @@ function buildGuideSummary(projectData: HomeProjectData | null, template: Templa
     .join(' | ');
 }
 
+function updateProjectTextElements(
+  elements: EditorElement[],
+  projectData: HomeProjectData | null,
+  field: 'storeName' | 'mainSlogan'
+) {
+  if (!projectData) return elements;
+
+  const nextValue = field === 'storeName' ? projectData.storeName : projectData.mainSlogan;
+  const fallbackId = field === 'storeName' ? 'fallback-store-name' : 'fallback-main-slogan';
+
+  return elements.map((element) => {
+    const normalizedLabel = `${element.id} ${element.label}`.toLowerCase();
+
+    if (element.id === fallbackId) {
+      return { ...element, text: nextValue };
+    }
+
+    if (
+      field === 'storeName' &&
+      element.kind === 'text' &&
+      /(store|brand|가게명|브랜드명)/.test(normalizedLabel)
+    ) {
+      return {
+        ...element,
+        text: nextValue,
+        color: projectData.options.brandColor,
+      };
+    }
+
+    if (
+      field === 'mainSlogan' &&
+      element.kind === 'text' &&
+      (/(headline|title|타이틀)/.test(normalizedLabel) || /(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel))
+    ) {
+      return {
+        ...element,
+        text: nextValue,
+      };
+    }
+
+    return element;
+  });
+}
+
 export default function App() {
   const [bootstrap, setBootstrap] = useState<BootstrapResponse>(initialBootstrap);
   const [step, setStep] = useState<EditorStep>('home');
@@ -370,7 +505,9 @@ export default function App() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projectData, setProjectData] = useState<HomeProjectData | null>(null);
+  const [additionalInfoVisibility, setAdditionalInfoVisibility] = useState<Record<string, boolean>>({});
   const [queuedBackgroundGeneration, setQueuedBackgroundGeneration] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
 
@@ -444,11 +581,12 @@ export default function App() {
 
   const handleStartFromHome = (data: HomeProjectData, draftIndex = 0) => {
     setProjectData(data);
+    setAdditionalInfoVisibility({});
     setBackgroundMode('ai-image');
     const nextTemplate = bootstrap.templates[draftIndex] ?? selectedTemplate ?? bootstrap.templates[0] ?? null;
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
-      setElements(mapProjectDataToTemplate(nextTemplate, data));
+      setElements(applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, data), draftIndex));
       setPromptKo(data.details ? `${nextTemplate.defaultPromptKo}, ${data.details}` : nextTemplate.defaultPromptKo);
     }
     setStep(nextTemplate ? 'background' : 'template');
@@ -540,6 +678,149 @@ export default function App() {
     setSelectedElementId(null);
   };
 
+  const handleStoreNameChange = (value: string) => {
+    setProjectData((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, storeName: value };
+      setElements((current) => updateProjectTextElements(current, next, 'storeName'));
+      return next;
+    });
+  };
+
+  const handleMainSloganChange = (value: string) => {
+    setProjectData((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, mainSlogan: value };
+      setElements((current) => updateProjectTextElements(current, next, 'mainSlogan'));
+      return next;
+    });
+  };
+
+  const handleGenerateSlogan = () => {
+    const firstNamedProduct = projectData?.products.find((product) => product.name.trim());
+    const store = projectData?.storeName.trim() || '우리 가게';
+    const product = firstNamedProduct?.name.trim() || '시그니처 메뉴';
+    const candidates = [
+      `${store}의 ${product}, 지금 가장 선명한 한 잔`,
+      `${product}의 매력을 ${store} 감성으로 완성하다`,
+      `${store}에서 만나는 오늘의 ${product}`,
+      `${product} 한 잔으로 기억되는 ${store}`,
+    ];
+    const nextSlogan = candidates[Math.floor(Math.random() * candidates.length)];
+    handleMainSloganChange(nextSlogan);
+  };
+
+  const handleToggleInfoItem = (label: string) => {
+    const ids = {
+      text: `info-text-${slugInfoLabel(label)}`,
+      image: `info-image-${slugInfoLabel(label)}`,
+    };
+    const preset = additionalInfoPresets[label];
+    if (!preset) return;
+
+    setAdditionalInfoVisibility((prev) => {
+      const nextVisible = !prev[label];
+      const shouldUseText = shouldShowAdditionalInfoText(projectData, label);
+      const shouldUseIcon = shouldShowAdditionalInfoIcon(projectData, label);
+
+      setElements((current) => {
+        const hasText = current.some((element) => element.id === ids.text);
+        const hasImage = current.some((element) => element.id === ids.image);
+        let next = current.map((element) => {
+          if (element.id === ids.text) {
+            return {
+              ...element,
+              text: getAdditionalInfoDisplayText(projectData, label),
+              hidden: !nextVisible || !shouldUseText,
+            };
+          }
+          if (element.id === ids.image) {
+            return {
+              ...element,
+              imageUrl: getAdditionalInfoIcon(projectData, label),
+              hidden: !nextVisible || !shouldUseIcon,
+            };
+          }
+          return element;
+        });
+
+        if (nextVisible && shouldUseText && !hasText) {
+          next = [
+            ...next,
+            {
+              id: ids.text,
+              kind: 'text',
+              label,
+              text: getAdditionalInfoDisplayText(projectData, label),
+              x: preset.text.x,
+              y: preset.text.y,
+              width: preset.text.width,
+              height: preset.text.height,
+              rotation: 0,
+              zIndex: 20,
+              fontSize: 12,
+              fontWeight: 800,
+              lineHeight: 1.1,
+              letterSpacing: 0,
+              color: '#ffffff',
+              align: 'left',
+              opacity: 1,
+            },
+          ];
+        }
+
+        if (nextVisible && shouldUseIcon && !hasImage) {
+          next = [
+            ...next,
+            {
+              id: ids.image,
+              kind: 'image',
+              label: `${label} 아이콘`,
+              x: preset.image.x,
+              y: preset.image.y,
+              width: preset.image.width,
+              height: preset.image.height,
+              rotation: 0,
+              zIndex: 21,
+              imageUrl: getAdditionalInfoIcon(projectData, label),
+              imageFit: 'contain',
+              opacity: 1,
+              hidden: false,
+            },
+          ];
+        }
+
+        return next;
+      });
+
+      return { ...prev, [label]: nextVisible };
+    });
+  };
+
+  const handleReplaceSelectedImage = (file: File) => {
+    if (!selectedElement || selectedElement.kind !== 'image') return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      onChangeSelectedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onChangeSelectedImage = (imageUrl: string) => {
+    if (!selectedElement || selectedElement.kind !== 'image') return;
+    setElements((prev) => updateElement(prev, selectedElement.id, { imageUrl, hidden: false }));
+  };
+
+  const handleRemoveSelectedImageBackground = async () => {
+    if (!selectedElement || selectedElement.kind !== 'image' || !selectedElement.imageUrl) return;
+    try {
+      const result = await removeBackgroundImage(selectedElement.imageUrl);
+      setElements((prev) => updateElement(prev, selectedElement.id, { imageUrl: result.imageDataUrl, hidden: false }));
+    } catch (backgroundError) {
+      setError(backgroundError instanceof Error ? backgroundError.message : '배경 제거에 실패했습니다.');
+    }
+  };
+
   const handleSaveImage = async () => {
     if (!exportRef.current) return;
     const previousSelectedId = selectedElementId;
@@ -572,15 +853,24 @@ export default function App() {
     <div className="app-shell">
       <Sidebar
         step={step}
+        expanded={sidebarExpanded}
+        onToggleExpanded={() => setSidebarExpanded((prev) => !prev)}
         template={selectedTemplate}
         elements={renderElements}
         selectedElement={selectedElement}
+        infoItems={additionalInfoLabels.map((label) => ({ label, visible: additionalInfoVisibility[label] ?? false }))}
+        storeName={projectData?.storeName ?? ''}
+        mainSlogan={projectData?.mainSlogan ?? ''}
         promptKo={promptKo}
         promptHint={promptHint}
         backgroundMode={backgroundMode}
         recommendations={bootstrap.sidebarRecommendations}
         onPromptChange={setPromptKo}
         onPromptHintChange={setPromptHint}
+        onStoreNameChange={handleStoreNameChange}
+        onMainSloganChange={handleMainSloganChange}
+        onGenerateSlogan={handleGenerateSlogan}
+        onToggleInfoItem={handleToggleInfoItem}
         onBackgroundModeChange={setBackgroundMode}
         onGenerateBackgrounds={handleGenerateBackgrounds}
         onBackToInitialPage={handleBackToInitialPage}
@@ -595,6 +885,8 @@ export default function App() {
         }
         onAlignSelected={handleAlignSelected}
         onSaveImage={handleSaveImage}
+        onReplaceSelectedImage={handleReplaceSelectedImage}
+        onRemoveSelectedImageBackground={handleRemoveSelectedImageBackground}
       />
 
       <main className="workspace">

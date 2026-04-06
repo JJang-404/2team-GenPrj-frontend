@@ -27,6 +27,7 @@ export default function EditorCanvas({
 }: EditorCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<DragState | null>(null);
+  const showGeneratedImage = background?.mode === 'ai-image' && Boolean(background.imageUrl);
 
   useEffect(() => {
     const onMove = (event: MouseEvent) => {
@@ -112,7 +113,7 @@ export default function EditorCanvas({
             style={{ background: background?.cssBackground ?? '#f3f4f6' }}
           />
         )}
-        {!captureMode && background?.imageUrl && (
+        {!captureMode && showGeneratedImage && (
           <img
             src={background.imageUrl}
             alt={background.name}
@@ -192,6 +193,7 @@ export default function EditorCanvas({
                     src={element.imageUrl}
                     alt={element.label}
                     className="canvas-element__image"
+                    draggable={false}
                     style={{ objectFit: element.imageFit ?? 'contain' }}
                   />
                 )}

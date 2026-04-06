@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { removeBackgroundImage } from '../api/client';
-import type { HomeProjectData, HomeProductInput } from '../types/editor';
+import type { HomeAdditionalInfo, HomeProjectData, HomeProductInput } from '../types/editor';
 
 interface InitialHomeProps {
   onStart: (data: HomeProjectData, draftIndex?: number) => void;
@@ -19,6 +19,15 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
     storeName: '',
     mainSlogan: '',
     details: '',
+  });
+  const [additionalInfo, setAdditionalInfo] = useState<HomeAdditionalInfo>({
+    parkingSpaces: '',
+    petFriendly: false,
+    noKidsZone: false,
+    smokingArea: false,
+    elevator: false,
+    phoneNumber: '',
+    address: '',
   });
   const [products, setProducts] = useState<HomeProductInput[]>([
     { id: 1, name: '', price: '', description: '', image: null as string | null, isAiGen: true, showName: true, showPrice: true, showDesc: true },
@@ -95,6 +104,7 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
       mainSlogan: inputData.mainSlogan.trim(),
       details: inputData.details.trim(),
       products,
+      additionalInfo,
     };
   };
 
@@ -229,6 +239,60 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
               value={inputData.details}
               onChange={(event) => setInputData((prev) => ({ ...prev, details: event.target.value }))}
             />
+          </section>
+
+          <section className="home-panel">
+            <label className="home-panel__label">추가 정보</label>
+            <div className="home-info-grid">
+              <input
+                className="home-panel__input"
+                placeholder="주차 가능 수"
+                value={additionalInfo.parkingSpaces}
+                onChange={(event) => setAdditionalInfo((prev) => ({ ...prev, parkingSpaces: event.target.value }))}
+              />
+              <input
+                className="home-panel__input"
+                placeholder="전화번호"
+                value={additionalInfo.phoneNumber}
+                onChange={(event) => setAdditionalInfo((prev) => ({ ...prev, phoneNumber: event.target.value }))}
+              />
+              <input
+                className="home-panel__input home-info-grid__address"
+                placeholder="주소"
+                value={additionalInfo.address}
+                onChange={(event) => setAdditionalInfo((prev) => ({ ...prev, address: event.target.value }))}
+              />
+            </div>
+            <div className="home-info-toggles">
+              <button
+                type="button"
+                className={`home-info-toggle ${additionalInfo.petFriendly ? 'home-info-toggle--active' : ''}`}
+                onClick={() => setAdditionalInfo((prev) => ({ ...prev, petFriendly: !prev.petFriendly }))}
+              >
+                애견 동반 {additionalInfo.petFriendly ? '가능' : '불가'}
+              </button>
+              <button
+                type="button"
+                className={`home-info-toggle ${additionalInfo.noKidsZone ? 'home-info-toggle--active' : ''}`}
+                onClick={() => setAdditionalInfo((prev) => ({ ...prev, noKidsZone: !prev.noKidsZone }))}
+              >
+                노키즈존 {additionalInfo.noKidsZone ? '예' : '아니오'}
+              </button>
+              <button
+                type="button"
+                className={`home-info-toggle ${additionalInfo.smokingArea ? 'home-info-toggle--active' : ''}`}
+                onClick={() => setAdditionalInfo((prev) => ({ ...prev, smokingArea: !prev.smokingArea }))}
+              >
+                흡연 구역 {additionalInfo.smokingArea ? '있음' : '없음'}
+              </button>
+              <button
+                type="button"
+                className={`home-info-toggle ${additionalInfo.elevator ? 'home-info-toggle--active' : ''}`}
+                onClick={() => setAdditionalInfo((prev) => ({ ...prev, elevator: !prev.elevator }))}
+              >
+                엘리베이터 {additionalInfo.elevator ? '있음' : '없음'}
+              </button>
+            </div>
           </section>
 
           {isExpanded && (

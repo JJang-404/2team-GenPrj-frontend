@@ -79,6 +79,16 @@ export interface HomeProductInput {
   showDesc: boolean;
 }
 
+export interface HomeAdditionalInfo {
+  parkingSpaces: string;
+  petFriendly: boolean;
+  noKidsZone: boolean;
+  smokingArea: boolean;
+  elevator: boolean;
+  phoneNumber: string;
+  address: string;
+}
+
 export interface HomeProjectData {
   options: {
     ratio: string;
@@ -90,6 +100,7 @@ export interface HomeProjectData {
   mainSlogan: string;
   details: string;
   products: HomeProductInput[];
+  additionalInfo: HomeAdditionalInfo;
 }
 
 export interface GenerateBackgroundRequest {

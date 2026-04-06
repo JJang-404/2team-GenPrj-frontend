@@ -9,11 +9,13 @@ interface BackgroundCardProps {
 }
 
 export default function BackgroundCard({ background, elements, selected, onSelect }: BackgroundCardProps) {
+  const showGeneratedImage = background.mode === 'ai-image' && Boolean(background.imageUrl);
+
   return (
     <button className={`choice-card ${selected ? 'active' : ''}`} onClick={onSelect}>
       <div className="choice-card__canvas">
         <div className="background-swatch" style={{ background: background.cssBackground }}>
-          {background.imageUrl && (
+          {showGeneratedImage && (
             <img
               src={background.imageUrl}
               alt={background.name}
