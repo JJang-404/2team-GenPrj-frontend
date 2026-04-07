@@ -1,20 +1,6 @@
 import { useState } from 'react';
-import { removeBackground } from '@imgly/background-removal';
 import { createProduct } from '../constants/design';
-
-/**
- * 배경 제거 유틸 — @imgly/background-removal (브라우저 내장 WASM, 서버 불필요)
- *
- * 최초 실행 시 AI 모델 파일(~40 MB)을 CDN에서 다운로드합니다.
- * 이후 실행은 캐시된 모델을 사용해 빠르게 처리됩니다.
- *
- * @param {string} imageSrc - data URL 또는 blob URL
- * @returns {Promise<string>} 투명 배경 처리된 blob URL
- */
-async function removeBgClientSide(imageSrc) {
-  const blob = await removeBackground(imageSrc);
-  return URL.createObjectURL(blob);
-}
+import { removeBgPipeline } from '../utils/removeBackground';
 
 export const useProducts = () => {
   const [products, setProducts] = useState([createProduct()]);
@@ -55,8 +41,8 @@ export const useProducts = () => {
     const prevSrc = imageSrc;
 
     try {
-      const resultUrl = await removeBgClientSide(imageSrc);
-      updateProduct(id, 'image', resultUrl);
+      const result = await removeBgPipeline(imageSrc);
+      updateProduct(id, 'image', result.url);
 
       // 이전 blob URL 메모리 해제
       if (prevSrc?.startsWith('blob:')) {
