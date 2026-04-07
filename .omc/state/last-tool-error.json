@@ -1,7 +1,7 @@
 {
   "tool_name": "mcp__plugin_oh-my-claudecode_t__lsp_diagnostics",
-  "tool_input_preview": "{\"file\":\"/home/codeitDev/project/2team-GenPrj-frontend/src/components/Editor/Canvas.tsx\"}",
+  "tool_input_preview": "{\"file\":\"/home/codeitDev/project/2team-GenPrj-frontend/src/components/Editor/SlotList.tsx\"}",
   "error": "Language server 'typescript-language-server' not found.\nInstall with: npm install -g typescript-language-server typescript",
-  "timestamp": "2026-04-05T07:07:11.719Z",
+  "timestamp": "2026-04-07T01:38:38.571Z",
   "retry_count": 4
 }

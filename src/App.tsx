@@ -49,6 +49,7 @@ export interface ImageSlotState {
   width: number;
   height: number;
   opacity: number; // 0~100
+  bgRemoved: boolean; // true after background removal — controls objectFit (contain vs cover)
 }
 
 export interface BorderLine {
@@ -125,8 +126,8 @@ export default function App({ initialData, onBack, warning }: AppProps = {}) {
   // 이미지 슬롯 (위치 포함)
   const [imageSlots, setImageSlots] = useState<Record<string, ImageSlotState>>(
     initialData?.imageSlots ?? {
-      coffee_img:  { url: null, x: 5,  y: 22, width: 22, height: 22, opacity: 100 },
-      dessert_img: { url: null, x: 73, y: 60, width: 22, height: 22, opacity: 100 },
+      coffee_img:  { url: null, x: 5,  y: 22, width: 22, height: 22, opacity: 100, bgRemoved: false },
+      dessert_img: { url: null, x: 73, y: 60, width: 22, height: 22, opacity: 100, bgRemoved: false },
     }
   );
 
