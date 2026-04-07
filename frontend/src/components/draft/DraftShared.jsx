@@ -66,12 +66,12 @@ export const ImageFrame = ({
   else if (count === 4) gridClass = 'grid grid-cols-2 gap-3 w-full';
   else if (count >= 6) gridClass = 'grid grid-cols-3 gap-2 w-full';
 
-  const containerHeight = isSquare ? 'max-h-[45%]' : isFiveFour ? 'max-h-[55%]' : 'max-h-none';
+  const containerHeight = isSquare ? 'h-[45%]' : isFiveFour ? 'h-[55%]' : '';
   const scaleFactor = isSquare || isFiveFour ? 'scale-[0.85]' : 'scale-100';
 
   return (
     <div
-      className={`${gridClass} ${containerHeight} overflow-hidden z-0 ${className} ${
+      className={`${gridClass} ${containerHeight} z-0 ${className} ${
         isFull ? 'w-full h-full' : 'w-full'
       }`}
     >
@@ -85,7 +85,7 @@ export const ImageFrame = ({
             : 'none';
 
         return (
-          <div key={p.id} className={`flex items-center justify-center ${scaleFactor}`}>
+          <div key={p.id} className={`flex items-center justify-center h-full min-h-0 ${scaleFactor}`}>
             <img
               src={p.image}
               className={`${itemWidth} max-h-full object-contain drop-shadow-2xl transition-all`}
