@@ -485,9 +485,71 @@ const handleRemoveBg = async (slotId: string, url: string) => {
 
 ---
 
-## 7. 후속 작업
+## 7. 모듈화 리팩터링
+
+### 7.1 배경
+
+기존에는 배경 제거 파이프라인(배경 제거 → 크롭 → blob 정리 → 슬롯 크기 재계산)이 `SlotList.tsx` 컴포넌트 내부에 인라인으로 작성되어 있었음. 이로 인해:
+- UI 컴포넌트와 비즈니스 로직이 결합되어 다른 브랜치(`feature/initPage` 등)에 재사용 불가
+- `@imgly/background-removal`, `cropToBoundingBox`, `BG_REMOVAL_CONFIG` 등 여러 모듈을 UI 컴포넌트가 직접 import
+- 슬롯 크기 재계산 공식이 컴포넌트 핸들러에 매몰되어 테스트·재사용 불가
+
+### 7.2 변경 내용
+
+#### 신규: `src/utils/removeBackground.ts`
+
+파이프라인과 슬롯 크기 계산을 하나의 모듈로 통합.
+
+| Export | 역할 |
+|--------|------|
+| `removeBgPipeline(imageSrc)` | 배경 제거 → 크롭 → 중간 blob 해제를 순차 실행, `{ url, cropWidth, cropHeight }` 반환 |
+| `calcSlotResize(slotW%, slotH%, cropW, cropH, CW?, CH?)` | 크롭 비율에 맞춘 슬롯 크기 재계산, `{ width, height }` 반환 (캔버스 크기 기본값 400×500) |
+
+**파이프라인 내부 흐름:**
+```
+removeBgPipeline(imageSrc)
+  ├─ removeBackground(imageSrc, BG_REMOVAL_CONFIG) → bgBlob
+  ├─ URL.createObjectURL(bgBlob) → bgRemovedUrl
+  ├─ cropToBoundingBox(bgRemovedUrl) → { url, width, height }
+  ├─ crop.url !== bgRemovedUrl → revoke bgRemovedUrl
+  └─ return { url: crop.url, cropWidth, cropHeight }
+
+에러 시: bgRemovedUrl이 존재하면 revoke 후 throw
+```
+
+#### 변경: `src/components/Editor/SlotList.tsx`
+
+- `@imgly/background-removal`, `BG_REMOVAL_CONFIG`, `cropToBoundingBox` import 제거
+- 인라인 `removeBgFromImage()` 함수 제거
+- `handleRemoveBg` 핸들러: 30줄 → 15줄 (파이프라인 호출 + 결과 적용만 담당)
+
+### 7.3 최종 모듈 구조
+
+```
+src/
+├─ config/
+│   └─ backgroundRemoval.ts   ← WebGPU 설정 싱글톤 (Config 객체)
+├─ utils/
+│   ├─ cropToBoundingBox.ts   ← 바운딩 박스 크롭 (순수 Canvas 유틸)
+│   └─ removeBackground.ts    ← 파이프라인 오케스트레이션 + 슬롯 크기 계산
+├─ main.tsx                    ← preload(BG_REMOVAL_CONFIG) 호출
+└─ components/Editor/
+    └─ SlotList.tsx            ← UI 전담, 로직은 import하여 사용
+```
+
+### 7.4 재사용성
+
+모듈화에 의해 `feature/initPage` 등 다른 브랜치에서는:
+- `removeBgPipeline()`을 호출하면 배경 제거 + 크롭이 한 번에 완료
+- `calcSlotResize()`는 캔버스 크기를 파라미터로 받으므로 다른 좌표계에서도 사용 가능
+- UI 프레임워크(TSX/JSX)나 컴포넌트 구조에 의존하지 않음
+
+---
+
+## 8. 후속 작업
 
 1. **정렬 기능**: 크롭 후 슬롯 내 객체 정렬 (현재는 `objectFit: 'cover'`로 자동 맞춤)
 2. **WebGPU 성능 측정**: GPU 가속 적용 전후 실제 속도 비교 데이터 수집
 3. **알파 임계값 설정 UI**: 이미지 특성에 따라 사용자가 임계값을 조정할 수 있는 옵션 검토
 4. **bgRemoved 플래그 활용**: `ImageSlotState.bgRemoved` 필드가 추가되었으나 현재 미사용. 향후 배경 제거된 슬롯에 대해 `objectFit: 'contain'` 등 차별화된 렌더링 적용 가능
+5. **`feature/initPage` 적용**: 모듈화된 `removeBackground.ts` + `cropToBoundingBox.ts` + `backgroundRemoval.ts`를 JSX 기반 `useProducts.js`에 통합

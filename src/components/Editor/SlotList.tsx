@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { removeBackground } from '@imgly/background-removal';
 import type { ImageSlotDef, ImageSlotState } from '../../App';
-import { BG_REMOVAL_CONFIG } from '../../config/backgroundRemoval';
-import { cropToBoundingBox } from '../../utils/cropToBoundingBox';
-import type { CropResult } from '../../utils/cropToBoundingBox';
+import { removeBgPipeline, calcSlotResize } from '../../utils/removeBackground';
 
 interface SlotListProps {
   slotDefs: ImageSlotDef[];
@@ -11,11 +8,6 @@ interface SlotListProps {
   onImageUpload: (slotId: string, imageUrl: string) => void;
   onUpdateSlotOpacity: (slotId: string, opacity: number) => void;
   onUpdateSlotSize: (slotId: string, width: number, height: number) => void;
-}
-
-async function removeBgFromImage(imgUrl: string): Promise<string> {
-  const blob = await removeBackground(imgUrl, BG_REMOVAL_CONFIG);
-  return URL.createObjectURL(blob);
 }
 
 const lbl: React.CSSProperties = { fontSize: '10px', color: '#aaa', display: 'block', marginBottom: '3px' };
@@ -40,37 +32,21 @@ const SlotList: React.FC<SlotListProps> = ({
 
   const handleRemoveBg = async (slotId: string, url: string) => {
     setLoadingSlots(prev => ({ ...prev, [slotId]: true }));
-    // Capture prevUrl from the parameter (call-time value) to avoid stale closure
-    // over imageSlots which may update during the async operation.
     const prevUrl = url;
-    let bgRemovedUrl: string | null = null;
     try {
-      bgRemovedUrl = await removeBgFromImage(url);
-      const crop: CropResult = await cropToBoundingBox(bgRemovedUrl);
-      // Release the uncropped intermediate blob if a new one was created
-      if (crop.url !== bgRemovedUrl) URL.revokeObjectURL(bgRemovedUrl);
-      onImageUpload(slotId, crop.url);
+      const result = await removeBgPipeline(url);
+      onImageUpload(slotId, result.url);
       if (prevUrl.startsWith('blob:')) URL.revokeObjectURL(prevUrl);
-      // Resize the slot so the cropped object fills one full dimension of
-      // the original slot (contain logic). slot.width% is relative to canvas
-      // width (400), slot.height% is relative to canvas height (500).
-      const CW = 400, CH = 500;
+
       const currentSlot = imageSlots[slotId];
       if (currentSlot) {
-        // Convert slot % to canvas logical units
-        const slotWcu = currentSlot.width * CW / 100;
-        const slotHcu = currentSlot.height * CH / 100;
-        // One dimension stays at original slot size, the other GROWS to
-        // match the bounding box ratio. Use the larger scale factor.
-        const scale = Math.max(slotWcu / crop.width, slotHcu / crop.height);
-        // Convert back to %
-        const newWidth = (scale * crop.width) * 100 / CW;
-        const newHeight = (scale * crop.height) * 100 / CH;
-        onUpdateSlotSize(slotId, newWidth, newHeight);
+        const { width, height } = calcSlotResize(
+          currentSlot.width, currentSlot.height,
+          result.cropWidth, result.cropHeight,
+        );
+        onUpdateSlotSize(slotId, width, height);
       }
     } catch (e) {
-      // Clean up intermediate blob URL if background removal succeeded but crop failed
-      if (bgRemovedUrl) URL.revokeObjectURL(bgRemovedUrl);
       console.error('배경 제거 실패:', e);
     } finally {
       setLoadingSlots(prev => ({ ...prev, [slotId]: false }));
