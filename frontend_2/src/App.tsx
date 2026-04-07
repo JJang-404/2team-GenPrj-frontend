@@ -1,38 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import html2canvas from 'html2canvas';
 import { fetchBootstrap, generateBackgrounds, removeBackgroundImage } from './api/client';
 import BackgroundCard from './components/BackgroundCard';
 import EditorCanvas from './components/EditorCanvas';
 import InitialHome from './components/InitialHome';
 import Sidebar from './components/Sidebar';
 import TemplateCard from './components/TemplateCard';
-import type {
-  BackgroundCandidate,
-  BackgroundMode,
-  BootstrapResponse,
-  EditorElement,
-  EditorStep,
-  HomeProjectData,
-  TemplateDefinition,
-} from './types/editor';
+import type { BackgroundCandidate, BootstrapResponse } from './types/api';
+import type { BackgroundMode, EditorElement, EditorStep, TemplateDefinition } from './types/editor-core';
+import type { HomeProjectData } from './types/home';
 import { cloneTemplateElements, updateElement } from './utils/editor';
 import {
   additionalInfoLabels,
   applyDraftLayoutVariant,
   applyElementVisibilityRules,
   buildGuideSummary,
-  createAdditionalInfoElements,
   createCustomImageElement,
   createCustomTextElement,
   mapProjectDataToTemplate,
-  updateProjectTextElements,
 } from './utils/editorFlow';
+import { captureElementAsDataUrl } from './utils/canvas';
+import { readFileAsDataUrl } from './utils/file';
+import {
+  applyProjectTextField,
+  buildBackgroundPrompt,
+  createAutoSlogan,
+  getTemplatePreviewElements,
+  toggleAdditionalInfoElements,
+} from './utils/projectEditor';
 
 const initialBootstrap: BootstrapResponse = {
   templates: [],
   sidebarRecommendations: [],
 };
-
 
 export default function App() {
   const [bootstrap, setBootstrap] = useState<BootstrapResponse>(initialBootstrap);
@@ -105,27 +104,17 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [queuedBackgroundGeneration, step]);
 
-  const waitForImages = async (root: HTMLElement) => {
-    const images = Array.from(root.querySelectorAll('img'));
-    await Promise.all(
-      images.map(
-        (image) =>
-          new Promise<void>((resolve) => {
-            if (image.complete) {
-              resolve();
-              return;
-            }
-            image.addEventListener('load', () => resolve(), { once: true });
-            image.addEventListener('error', () => resolve(), { once: true });
-          })
-      )
-    );
-  };
-
   const handleStartFromHome = (data: HomeProjectData, draftIndex = 0) => {
     setProjectData(data);
     setAdditionalInfoVisibility({});
-    setBackgroundMode('ai-image');
+    setBackgroundMode(
+      data.options.concept === 'solid' ||
+        data.options.concept === 'gradient' ||
+        data.options.concept === 'pastel' ||
+        data.options.concept === 'ai-image'
+        ? data.options.concept
+        : 'ai-image'
+    );
     const nextTemplate = bootstrap.templates[draftIndex] ?? selectedTemplate ?? bootstrap.templates[0] ?? null;
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
@@ -158,27 +147,13 @@ export default function App() {
     setSelectedElementId(null);
 
     try {
-      await waitForImages(captureRef.current);
-      await new Promise((resolve) => window.requestAnimationFrame(() => resolve(null)));
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: null,
-        scale: 1.5,
-        useCORS: true,
-      });
-      const guideImage = canvas.toDataURL('image/png');
+      const guideImage = await captureElementAsDataUrl(captureRef.current, 1.5);
       const guideSummary = buildGuideSummary(projectData, selectedTemplate);
-      const promptParts = [
-        `색상 테마: ${projectData?.options.brandColor ?? selectedTemplate?.accent ?? '#ffffff'}`,
-        promptKo,
-        promptHint.trim(),
-        '객체와 텍스트 위치는 유지하고 배경과 조명만 생성하세요',
-        '컵, 손, 사람, 과일, 로고, 추가 제품은 생성하지 마세요',
-      ].filter(Boolean);
 
       const data = await generateBackgrounds({
         templateId: selectedTemplateId,
         backgroundMode,
-        promptKo: promptParts.join('. '),
+        promptKo: buildBackgroundPrompt(projectData, selectedTemplate, promptKo, promptHint),
         guideImage,
         guideSummary,
       });
@@ -209,64 +184,46 @@ export default function App() {
   const handleStoreNameChange = (value: string) => {
     setProjectData((prev) => {
       if (!prev) return prev;
-      const next = { ...prev, storeName: value };
-      setElements((current) => updateProjectTextElements(current, next, 'storeName'));
-      return next;
+      setElements((current) => {
+        const { nextElements } = applyProjectTextField(current, prev, 'storeName', value);
+        return nextElements;
+      });
+      return { ...prev, storeName: value };
     });
   };
 
   const handleMainSloganChange = (value: string) => {
     setProjectData((prev) => {
       if (!prev) return prev;
-      const next = { ...prev, mainSlogan: value };
-      setElements((current) => updateProjectTextElements(current, next, 'mainSlogan'));
-      return next;
+      setElements((current) => {
+        const { nextElements } = applyProjectTextField(current, prev, 'mainSlogan', value);
+        return nextElements;
+      });
+      return { ...prev, mainSlogan: value };
     });
   };
 
   const handleGenerateSlogan = () => {
-    const firstNamedProduct = projectData?.products.find((product) => product.name.trim());
-    const store = projectData?.storeName.trim() || '우리 가게';
-    const product = firstNamedProduct?.name.trim() || '시그니처 메뉴';
-    const candidates = [
-      `${store}의 ${product}, 지금 가장 선명한 한 잔`,
-      `${product}의 매력을 ${store} 감성으로 완성하다`,
-      `${store}에서 만나는 오늘의 ${product}`,
-      `${product} 한 잔으로 기억되는 ${store}`,
-    ];
-    const nextSlogan = candidates[Math.floor(Math.random() * candidates.length)];
-    handleMainSloganChange(nextSlogan);
+    handleMainSloganChange(createAutoSlogan(projectData));
   };
 
   const handleToggleInfoItem = (label: string) => {
     setAdditionalInfoVisibility((prev) => {
       const nextVisible = !prev[label];
-      const nextInfoElements = createAdditionalInfoElements(projectData, label);
-      const nextIds = new Set(nextInfoElements.map((element) => element.id));
-
-      setElements((current) => {
-        const withoutCurrentInfo = current.filter(
-          (element) => element.label !== label && element.label !== `${label} 아이콘`
-        );
-
-        if (!nextVisible) {
-          return withoutCurrentInfo;
-        }
-
-        return [...withoutCurrentInfo.filter((element) => !nextIds.has(element.id)), ...nextInfoElements];
-      });
+      setElements((current) => toggleAdditionalInfoElements(current, projectData, label, nextVisible));
 
       return { ...prev, [label]: nextVisible };
     });
   };
 
-  const handleReplaceSelectedImage = (file: File) => {
+  const handleReplaceSelectedImage = async (file: File) => {
     if (!selectedElement || selectedElement.kind !== 'image') return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      onChangeSelectedImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const imageUrl = await readFileAsDataUrl(file);
+      onChangeSelectedImage(imageUrl);
+    } catch (replaceError) {
+      setError(replaceError instanceof Error ? replaceError.message : '이미지 변경에 실패했습니다.');
+    }
   };
 
   const onChangeSelectedImage = (imageUrl: string) => {
@@ -290,14 +247,15 @@ export default function App() {
     setSelectedElementId(nextElement.id);
   };
 
-  const handleAddImageElement = (file: File, label: string) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const nextElement = createCustomImageElement(reader.result as string, label);
+  const handleAddImageElement = async (file: File, label: string) => {
+    try {
+      const imageUrl = await readFileAsDataUrl(file);
+      const nextElement = createCustomImageElement(imageUrl, label);
       setElements((prev) => [...prev, nextElement]);
       setSelectedElementId(nextElement.id);
-    };
-    reader.readAsDataURL(file);
+    } catch (addImageError) {
+      setError(addImageError instanceof Error ? addImageError.message : '이미지 요소 추가에 실패했습니다.');
+    }
   };
 
   if (step === 'home') {
@@ -374,7 +332,13 @@ export default function App() {
                     <TemplateCard
                       key={template.id}
                       template={template}
-                      elements={applyElementVisibilityRules(template.id, mapProjectDataToTemplate(template, projectData), backgroundMode, projectData)}
+                      elements={getTemplatePreviewElements(
+                        template,
+                        projectData,
+                        backgroundMode,
+                        applyElementVisibilityRules,
+                        mapProjectDataToTemplate
+                      )}
                       selected={template.id === selectedTemplateId}
                       onSelect={() => handleTemplateSelect(template)}
                     />

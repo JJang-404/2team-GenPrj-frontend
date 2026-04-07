@@ -20,9 +20,18 @@ export default function HomePreviewCard({
   sampleIndex,
   onSelect,
 }: HomePreviewCardProps) {
+  const previewTheme =
+    concept === 'solid'
+      ? 'modern'
+      : concept === 'gradient'
+        ? 'vivid'
+        : concept === 'pastel'
+          ? 'retro'
+          : 'premium';
+
   return (
     <button type="button" className="home-preview__card home-preview__card-button" onClick={onSelect}>
-      <div className={`home-preview__poster home-preview__poster--${concept}`}>
+      <div className={`home-preview__poster home-preview__poster--${previewTheme}`}>
         <div className="home-preview__badge">{slogan || 'AI SLOGAN'}</div>
         {products.slice(0, 3).map((product, productIndex) => (
           <div

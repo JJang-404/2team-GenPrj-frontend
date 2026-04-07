@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { HomeAdditionalInfo, HomeProductInput } from '../types/editor';
+import type { HomeAdditionalInfo, HomeProductInput } from '../types/home';
 
 export interface HomeEditorOptions {
   ratio: string;
@@ -11,7 +11,7 @@ export interface HomeEditorOptions {
 export const initialHomeOptions: HomeEditorOptions = {
   ratio: '4:5',
   sampleCount: 4,
-  concept: 'vivid',
+  concept: 'ai-image',
   brandColor: '#FF4757',
 };
 

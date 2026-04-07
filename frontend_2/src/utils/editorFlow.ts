@@ -1,10 +1,9 @@
 import type {
   BackgroundMode,
   EditorElement,
-  HomeProjectData,
-  HomeProductInput,
   TemplateDefinition,
-} from '../types/editor';
+} from '../types/editor-core';
+import type { HomeProjectData, HomeProductInput } from '../types/home';
 import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './additionalInfo';
 import { cloneTemplateElements } from './editor';
 

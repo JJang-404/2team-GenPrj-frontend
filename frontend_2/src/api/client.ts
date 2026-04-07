@@ -4,7 +4,7 @@ import type {
   GenerateBackgroundRequest,
   GenerateBackgroundResponse,
   RemoveBackgroundResponse,
-} from '../types/editor';
+} from '../types/api';
 
 async function readJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const response = await fetch(input, init);

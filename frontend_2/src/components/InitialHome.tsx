@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { removeBackgroundImage } from '../api/client';
-import type { HomeAdditionalInfo, HomeProjectData, HomeProductInput } from '../types/editor';
+import type { HomeAdditionalInfo, HomeProjectData, HomeProductInput } from '../types/home';
 import HomePreviewCard from './home/HomePreviewCard';
 import {
   createEmptyProduct,
@@ -14,6 +14,13 @@ interface InitialHomeProps {
 }
 
 export default function InitialHome({ onStart }: InitialHomeProps) {
+  const conceptOptions = [
+    { value: 'solid', label: '단색' },
+    { value: 'gradient', label: '그라데이션' },
+    { value: 'pastel', label: '다중색' },
+    { value: 'ai-image', label: 'AI 이미지 생성' },
+  ] as const;
+
   const [isExpanded, setIsExpanded] = useState(true);
   const [isGeneratingSlogan, setIsGeneratingSlogan] = useState(false);
   const [options, setOptions] = useState({ ...initialHomeOptions });
@@ -112,14 +119,14 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
           <section className="home-panel">
             <label className="home-panel__label">디자인 컨셉</label>
             <div className="home-panel__concepts">
-              {['premium', 'retro', 'modern', 'vivid'].map((concept) => (
+              {conceptOptions.map((concept) => (
                 <button
-                  key={concept}
+                  key={concept.value}
                   type="button"
-                  className={`home-panel__concept ${options.concept === concept ? 'home-panel__concept--active' : ''}`}
-                  onClick={() => setOptions((prev) => ({ ...prev, concept }))}
+                  className={`home-panel__concept ${options.concept === concept.value ? 'home-panel__concept--active' : ''}`}
+                  onClick={() => setOptions((prev) => ({ ...prev, concept: concept.value }))}
                 >
-                  {concept}
+                  {concept.label}
                 </button>
               ))}
             </div>

@@ -27,7 +27,8 @@ export default function EditorCanvas({
 }: EditorCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<DragState | null>(null);
-  const showGeneratedImage = background?.mode === 'ai-image' && Boolean(background.imageUrl);
+  const showGeneratedImage =
+    Boolean(background?.imageUrl) && (background?.mode === 'ai-image' || background?.mode === 'pastel');
 
   useEffect(() => {
     const onMove = (event: MouseEvent) => {

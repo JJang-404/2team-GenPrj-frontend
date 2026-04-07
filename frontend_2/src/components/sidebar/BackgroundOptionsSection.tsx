@@ -1,7 +1,7 @@
 import type { BackgroundMode } from '../../types/editor';
 import SidebarBlock from './SidebarBlock';
 import SidebarMiniButton from './SidebarMiniButton';
-import { extractHexColor, parseBackgroundToken, withBackgroundToken } from './backgroundTokens';
+import { extractHexColor, parseBackgroundToken, stripBackgroundTokens, withBackgroundToken } from './backgroundTokens';
 
 const modes: { id: BackgroundMode; label: string }[] = [
   { id: 'solid', label: '단색' },
@@ -29,24 +29,37 @@ export default function BackgroundOptionsSection({
   onGenerateBackgrounds,
   onBackToBackgrounds,
 }: BackgroundOptionsSectionProps) {
-  const startColor = extractHexColor(promptHint.split('시작색:')[1]?.split(/\s|,|\./)[0] ?? '', '#93c5fd');
-  const endColor = extractHexColor(promptHint.split('종료색:')[1]?.split(/\s|,|\./)[0] ?? '', '#1d4ed8');
+  const freePrompt = stripBackgroundTokens(promptHint);
   const solidColor = extractHexColor(parseBackgroundToken(promptHint, 'SOLID')?.[0] ?? '', '#60a5fa');
-  const gradientColors = parseBackgroundToken(promptHint, 'GRADIENT') ?? [startColor, endColor];
+  const gradientColors = (parseBackgroundToken(promptHint, 'GRADIENT') ?? ['#93c5fd', '#1d4ed8']).map((color) =>
+    extractHexColor(color, '#93c5fd')
+  );
   const multiColors = (parseBackgroundToken(promptHint, 'MULTI') ?? ['#c4b5fd', '#93c5fd']).map((color) =>
     extractHexColor(color, '#93c5fd')
   );
 
-  const setSolidToken = (color: string) => {
-    onPromptHintChange(withBackgroundToken(promptHint, `BG_SOLID(${color})`));
+  const buildPromptForMode = (mode: BackgroundMode, basePrompt: string, overrides?: string[]) => {
+    if (mode === 'solid') {
+      return withBackgroundToken(basePrompt, `BG_SOLID(${overrides?.[0] ?? solidColor})`);
+    }
+    if (mode === 'gradient') {
+      const colors = overrides?.length ? overrides : gradientColors;
+      return withBackgroundToken(basePrompt, `BG_GRADIENT(${colors.join(',')})`);
+    }
+    if (mode === 'pastel') {
+      const colors = overrides?.length ? overrides : multiColors;
+      return withBackgroundToken(basePrompt, `BG_MULTI(${colors.join(',')})`);
+    }
+    return basePrompt;
   };
 
-  const setGradientToken = (nextStart: string, nextEnd: string) => {
-    onPromptHintChange(withBackgroundToken(promptHint, `BG_GRADIENT(${nextStart},${nextEnd})`));
+  const setPromptWithToken = (mode: BackgroundMode, basePrompt: string, colors?: string[]) => {
+    onPromptHintChange(buildPromptForMode(mode, basePrompt, colors));
   };
 
-  const setMultiToken = (colors: string[]) => {
-    onPromptHintChange(withBackgroundToken(promptHint, `BG_MULTI(${colors.join(',')})`));
+  const handleModeSelect = (mode: BackgroundMode) => {
+    onBackgroundModeChange(mode);
+    setPromptWithToken(mode, freePrompt);
   };
 
   const generationButtonLabel = {
@@ -60,7 +73,7 @@ export default function BackgroundOptionsSection({
     <SidebarBlock title="배경 생성 옵션">
       <div className="sidebar-mode-grid">
         {modes.map((mode) => (
-          <SidebarMiniButton key={mode.id} active={backgroundMode === mode.id} onClick={() => onBackgroundModeChange(mode.id)}>
+          <SidebarMiniButton key={mode.id} active={backgroundMode === mode.id} onClick={() => handleModeSelect(mode.id)}>
             {mode.label}
           </SidebarMiniButton>
         ))}
@@ -68,65 +81,75 @@ export default function BackgroundOptionsSection({
       {backgroundMode === 'solid' ? (
         <label className="sidebar-form-row">
           <span>단색</span>
-          <input type="color" value={solidColor} onChange={(event) => setSolidToken(event.target.value)} />
+          <input type="color" value={solidColor} onChange={(event) => setPromptWithToken('solid', freePrompt, [event.target.value])} />
         </label>
       ) : null}
       {backgroundMode === 'gradient' ? (
-        <div className={`sidebar-color-grid ${expanded ? 'sidebar-color-grid--expanded' : ''}`}>
-          <label className="sidebar-form-row">
-            <span>시작 색</span>
-            <input
-              type="color"
-              value={extractHexColor(gradientColors[0] ?? startColor, '#93c5fd')}
-              onChange={(event) =>
-                setGradientToken(event.target.value, extractHexColor(gradientColors[1] ?? endColor, '#1d4ed8'))
-              }
-            />
-          </label>
-          <label className="sidebar-form-row">
-            <span>종료 색</span>
-            <input
-              type="color"
-              value={extractHexColor(gradientColors[1] ?? endColor, '#1d4ed8')}
-              onChange={(event) =>
-                setGradientToken(extractHexColor(gradientColors[0] ?? startColor, '#93c5fd'), event.target.value)
-              }
-            />
-          </label>
-        </div>
-      ) : null}
-      {backgroundMode === 'pastel' ? (
         <div className="sidebar-multi-color-list">
-          {multiColors.map((color, index) => (
-            <div key={`${color}-${index}`} className="sidebar-multi-color-row">
+          {gradientColors.map((color, index) => (
+            <div key={`gradient-${index}`} className="sidebar-multi-color-row">
               <input
                 type="color"
                 value={color}
                 onChange={(event) => {
-                  const next = [...multiColors];
+                  const next = [...gradientColors];
                   next[index] = event.target.value;
-                  setMultiToken(next);
+                  setPromptWithToken('gradient', freePrompt, next);
                 }}
               />
               <SidebarMiniButton
                 onClick={() => {
-                  if (multiColors.length <= 2) return;
-                  setMultiToken(multiColors.filter((_, colorIndex) => colorIndex !== index));
+                  if (gradientColors.length <= 2) return;
+                  setPromptWithToken('gradient', freePrompt, gradientColors.filter((_, colorIndex) => colorIndex !== index));
                 }}
               >
                 색 제거
               </SidebarMiniButton>
             </div>
           ))}
-          <SidebarMiniButton className="sidebar-mini-btn--wide" onClick={() => setMultiToken([...multiColors, '#f9a8d4'])}>
+          <SidebarMiniButton
+            className="sidebar-mini-btn--wide"
+            onClick={() => {
+              if (gradientColors.length >= 4) return;
+              setPromptWithToken('gradient', freePrompt, [...gradientColors, '#f9a8d4']);
+            }}
+          >
+            색 추가
+          </SidebarMiniButton>
+        </div>
+      ) : null}
+      {backgroundMode === 'pastel' ? (
+        <div className="sidebar-multi-color-list">
+          {multiColors.map((color, index) => (
+            <div key={`multi-${index}`} className="sidebar-multi-color-row">
+              <input
+                type="color"
+                value={color}
+                onChange={(event) => {
+                  const next = [...multiColors];
+                  next[index] = event.target.value;
+                  setPromptWithToken('pastel', freePrompt, next);
+                }}
+              />
+              <SidebarMiniButton
+                onClick={() => {
+                  if (multiColors.length <= 2) return;
+                  setPromptWithToken('pastel', freePrompt, multiColors.filter((_, colorIndex) => colorIndex !== index));
+                }}
+              >
+                색 제거
+              </SidebarMiniButton>
+            </div>
+          ))}
+          <SidebarMiniButton className="sidebar-mini-btn--wide" onClick={() => setPromptWithToken('pastel', freePrompt, [...multiColors, '#f9a8d4'])}>
             색 추가
           </SidebarMiniButton>
         </div>
       ) : null}
       <textarea
         className="sidebar__textarea"
-        value={promptHint}
-        onChange={(event) => onPromptHintChange(event.target.value)}
+        value={freePrompt}
+        onChange={(event) => setPromptWithToken(backgroundMode, event.target.value)}
         placeholder="AI 이미지 생성 프롬프트"
       />
       <SidebarMiniButton className="sidebar-mini-btn--wide" onClick={onGenerateBackgrounds}>

@@ -9,7 +9,7 @@ interface BackgroundCardProps {
 }
 
 export default function BackgroundCard({ background, elements, selected, onSelect }: BackgroundCardProps) {
-  const showGeneratedImage = background.mode === 'ai-image' && Boolean(background.imageUrl);
+  const showGeneratedImage = (background.mode === 'ai-image' || background.mode === 'pastel') && Boolean(background.imageUrl);
 
   return (
     <button className={`choice-card ${selected ? 'active' : ''}`} onClick={onSelect}>
