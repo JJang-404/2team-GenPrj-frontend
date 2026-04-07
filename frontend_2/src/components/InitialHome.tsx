@@ -1,6 +1,13 @@
 import { useMemo, useState } from 'react';
 import { removeBackgroundImage } from '../api/client';
 import type { HomeAdditionalInfo, HomeProjectData, HomeProductInput } from '../types/editor';
+import HomePreviewCard from './home/HomePreviewCard';
+import {
+  createEmptyProduct,
+  createSloganCandidates,
+  initialAdditionalInfo,
+  initialHomeOptions,
+} from '../utils/homeEditor';
 
 interface InitialHomeProps {
   onStart: (data: HomeProjectData, draftIndex?: number) => void;
@@ -9,29 +16,14 @@ interface InitialHomeProps {
 export default function InitialHome({ onStart }: InitialHomeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isGeneratingSlogan, setIsGeneratingSlogan] = useState(false);
-  const [options, setOptions] = useState({
-    ratio: '4:5',
-    sampleCount: 4,
-    concept: 'vivid',
-    brandColor: '#FF4757',
-  });
+  const [options, setOptions] = useState({ ...initialHomeOptions });
   const [inputData, setInputData] = useState({
     storeName: '',
     mainSlogan: '',
     details: '',
   });
-  const [additionalInfo, setAdditionalInfo] = useState<HomeAdditionalInfo>({
-    parkingSpaces: '',
-    petFriendly: false,
-    noKidsZone: false,
-    smokingArea: false,
-    elevator: false,
-    phoneNumber: '',
-    address: '',
-  });
-  const [products, setProducts] = useState<HomeProductInput[]>([
-    { id: 1, name: '', price: '', description: '', image: null as string | null, isAiGen: true, showName: true, showPrice: true, showDesc: true },
-  ]);
+  const [additionalInfo, setAdditionalInfo] = useState<HomeAdditionalInfo>(initialAdditionalInfo);
+  const [products, setProducts] = useState<HomeProductInput[]>([createEmptyProduct(1)]);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   const activeProducts = useMemo(
@@ -40,10 +32,7 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
   );
 
   const addProduct = () => {
-    setProducts((prev) => [
-      ...prev,
-      { id: Date.now(), name: '', price: '', description: '', image: null, isAiGen: true, showName: true, showPrice: true, showDesc: true },
-    ]);
+    setProducts((prev) => [...prev, createEmptyProduct()]);
   };
 
   const removeProduct = (id: number) => {
@@ -85,12 +74,7 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
     window.setTimeout(() => {
       const store = inputData.storeName || '우리 가게';
       const product = products[0]?.name || '시그니처 메뉴';
-      const candidates = [
-        `${store}의 ${product}, 지금 가장 선명한 한 잔`,
-        `${product}의 매력을 ${store} 감성으로 완성하다`,
-        `${store}에서 만나는 오늘의 ${product}`,
-        `${options.concept.toUpperCase()} 무드로 풀어낸 ${product}`,
-      ];
+      const candidates = createSloganCandidates(store, product, options.concept);
       const next = candidates[Math.floor(Math.random() * candidates.length)];
       setInputData((prev) => ({ ...prev, mainSlogan: next }));
       setIsGeneratingSlogan(false);
@@ -110,62 +94,6 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
 
   const handleStart = (draftIndex?: number) => {
     onStart(buildStartPayload(), draftIndex);
-  };
-
-  const renderDraftProducts = (sampleIdx: number) => {
-    const layouts = [
-      [
-        { top: '14%', left: '34%', width: '52%', rotate: '0deg' },
-        { top: '50%', left: '8%', width: '22%', rotate: '-12deg' },
-        { top: '12%', left: '10%', width: '20%', rotate: '10deg' },
-      ],
-      [
-        { top: '26%', left: '6%', width: '38%', rotate: '-4deg' },
-        { top: '22%', left: '53%', width: '38%', rotate: '5deg' },
-        { top: '62%', left: '36%', width: '22%', rotate: '0deg' },
-      ],
-      [
-        { top: '43%', left: '7%', width: '34%', rotate: '-9deg' },
-        { top: '18%', left: '58%', width: '34%', rotate: '7deg' },
-        { top: '12%', left: '40%', width: '16%', rotate: '-4deg' },
-      ],
-      [
-        { top: '28%', left: '27%', width: '45%', rotate: '0deg' },
-        { top: '55%', left: '8%', width: '24%', rotate: '-8deg' },
-        { top: '55%', left: '68%', width: '24%', rotate: '8deg' },
-      ],
-    ];
-
-    const layout = layouts[sampleIdx % layouts.length];
-
-    return activeProducts.slice(0, 3).map((product, productIndex) => {
-      const position = layout[productIndex] ?? layout[0];
-      return (
-        <div
-          key={product.id}
-          className={`home-preview__product home-preview__product--layout-${sampleIdx}-${productIndex}`}
-          style={{
-            top: position.top,
-            left: position.left,
-            width: position.width,
-            height: '42%',
-            transform: `rotate(${position.rotate})`,
-          }}
-        >
-          {product.image ? (
-            <img src={product.image} alt="" className="home-preview__product-image" />
-          ) : (
-            <div className="home-preview__product-placeholder">AUTO GEN</div>
-          )}
-          {(product.showName && product.name) || (product.showPrice && product.price) ? (
-            <div className="home-preview__product-caption">
-              {product.showName && product.name && <strong>{product.name}</strong>}
-              {product.showPrice && product.price && <span>{product.price}</span>}
-            </div>
-          ) : null}
-        </div>
-      );
-    });
   };
 
   return (
@@ -390,15 +318,16 @@ export default function InitialHome({ onStart }: InitialHomeProps) {
 
         <div className="home-preview__grid">
           {Array.from({ length: options.sampleCount }).map((_, index) => (
-            <button key={index} type="button" className="home-preview__card home-preview__card-button" onClick={() => handleStart(index)}>
-              <div className={`home-preview__poster home-preview__poster--${options.concept}`}>
-                <div className="home-preview__badge">{inputData.mainSlogan || 'AI SLOGAN'}</div>
-                {renderDraftProducts(index)}
-                <div className="home-preview__store" style={{ color: options.brandColor }}>
-                  {inputData.storeName || 'STORE NAME'}
-                </div>
-              </div>
-            </button>
+            <HomePreviewCard
+              key={index}
+              concept={options.concept}
+              brandColor={options.brandColor}
+              slogan={inputData.mainSlogan}
+              storeName={inputData.storeName}
+              products={activeProducts}
+              sampleIndex={index}
+              onSelect={() => handleStart(index)}
+            />
           ))}
         </div>
       </main>
