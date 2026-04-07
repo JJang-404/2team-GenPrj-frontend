@@ -1,7 +1,26 @@
 @import "tailwindcss";
-/* 배경과 높이를 꽉 채우기 위한 설정 */
+
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+/* 사이드바 커스텀 스크롤바 (라이트 테마) */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
