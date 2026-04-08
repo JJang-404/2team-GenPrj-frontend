@@ -22,6 +22,7 @@ export interface HomeAdditionalInfo {
 }
 
 export interface HomeProjectOptions {
+  draftIndex?: number;
   ratio: string;
   sampleCount: number;
   concept: string;

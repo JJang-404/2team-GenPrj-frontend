@@ -47,6 +47,7 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
     draftIndex,
     projectData: {
       options: {
+        draftIndex,
         ratio: options.ratio,
         sampleCount: options.sampleCount,
         concept: BG_TYPE_TO_EDITING_MODE[options.bgType] ?? 'ai-image',
@@ -60,11 +61,11 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
       },
       storeName: basicInfo.storeName?.trim() ?? '',
       mainSlogan: basicInfo.storeDesc?.trim() ?? '',
-      details: basicInfo.industry?.trim() ? `업종: ${basicInfo.industry.trim()}` : '',
+      details: '',
       products: normalizedProducts.map((product) => ({
         id: product.id,
         name: product.name ?? '',
-        price: [product.currency ?? '', product.price ?? ''].join('').trim(),
+        price: `${product.price ?? ''}`.trim(),
         currency: product.currency ?? '원',
         description: product.description ?? '',
         image: product.image ?? null,

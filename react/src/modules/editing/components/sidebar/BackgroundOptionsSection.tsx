@@ -31,10 +31,14 @@ export default function BackgroundOptionsSection({
 }: BackgroundOptionsSectionProps) {
   const freePrompt = stripBackgroundTokens(promptHint);
   const solidColor = extractHexColor(parseBackgroundToken(promptHint, 'SOLID')?.[0] ?? '', '#60a5fa');
-  const gradientColors = (parseBackgroundToken(promptHint, 'GRADIENT') ?? ['#93c5fd', '#1d4ed8']).map((color) =>
+  const gradientColors = (parseBackgroundToken(promptHint, 'GRADIENT') ?? ['#93c5fd', '#1d4ed8'])
+    .slice(0, 2)
+    .map((color) =>
     extractHexColor(color, '#93c5fd')
   );
-  const multiColors = (parseBackgroundToken(promptHint, 'MULTI') ?? ['#c4b5fd', '#93c5fd']).map((color) =>
+  const multiColors = (parseBackgroundToken(promptHint, 'MULTI') ?? ['#c4b5fd', '#93c5fd'])
+    .slice(0, 2)
+    .map((color) =>
     extractHexColor(color, '#93c5fd')
   );
 
@@ -97,25 +101,8 @@ export default function BackgroundOptionsSection({
                   setPromptWithToken('gradient', freePrompt, next);
                 }}
               />
-              <SidebarMiniButton
-                onClick={() => {
-                  if (gradientColors.length <= 2) return;
-                  setPromptWithToken('gradient', freePrompt, gradientColors.filter((_, colorIndex) => colorIndex !== index));
-                }}
-              >
-                색 제거
-              </SidebarMiniButton>
             </div>
           ))}
-          <SidebarMiniButton
-            className="sidebar-mini-btn--wide"
-            onClick={() => {
-              if (gradientColors.length >= 4) return;
-              setPromptWithToken('gradient', freePrompt, [...gradientColors, '#f9a8d4']);
-            }}
-          >
-            색 추가
-          </SidebarMiniButton>
         </div>
       ) : null}
       {backgroundMode === 'pastel' ? (
@@ -131,19 +118,8 @@ export default function BackgroundOptionsSection({
                   setPromptWithToken('pastel', freePrompt, next);
                 }}
               />
-              <SidebarMiniButton
-                onClick={() => {
-                  if (multiColors.length <= 2) return;
-                  setPromptWithToken('pastel', freePrompt, multiColors.filter((_, colorIndex) => colorIndex !== index));
-                }}
-              >
-                색 제거
-              </SidebarMiniButton>
             </div>
           ))}
-          <SidebarMiniButton className="sidebar-mini-btn--wide" onClick={() => setPromptWithToken('pastel', freePrompt, [...multiColors, '#f9a8d4'])}>
-            색 추가
-          </SidebarMiniButton>
         </div>
       ) : null}
       <textarea
@@ -156,7 +132,7 @@ export default function BackgroundOptionsSection({
         {generationButtonLabel}
       </SidebarMiniButton>
       <div className="sidebar-inline-actions">
-        <SidebarMiniButton onClick={onBackToBackgrounds}>배경 후보 보기</SidebarMiniButton>
+        {backgroundMode !== 'solid' && <SidebarMiniButton onClick={onBackToBackgrounds}>배경 후보 보기</SidebarMiniButton>}
         <SidebarMiniButton>템플릿 저장</SidebarMiniButton>
         <SidebarMiniButton>프로젝트 저장</SidebarMiniButton>
       </div>

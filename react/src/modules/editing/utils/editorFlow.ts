@@ -4,6 +4,8 @@ import type {
   TemplateDefinition,
 } from '../types/editor-core';
 import type { HomeProjectData, HomeProductInput } from '../types/home';
+import { getDraftProductSlots, getDraftTextPlacements } from '../../../shared/draftLayout';
+import { getDraftTypography } from '../../../shared/draftTypography';
 import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './additionalInfo';
 import { cloneTemplateElements } from './editor';
 
@@ -33,36 +35,6 @@ export const additionalInfoPresets: Record<
   주소: { text: { x: 8, y: 56, width: 34, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
 };
 
-const homeDraftLayouts = [
-  [
-    { x: 34, y: 14, width: 52, rotation: 0 },
-    { x: 8, y: 50, width: 22, rotation: -12 },
-    { x: 10, y: 12, width: 20, rotation: 10 },
-  ],
-  [
-    { x: 6, y: 26, width: 38, rotation: -4 },
-    { x: 53, y: 22, width: 38, rotation: 5 },
-    { x: 36, y: 62, width: 22, rotation: 0 },
-  ],
-  [
-    { x: 7, y: 43, width: 34, rotation: -9 },
-    { x: 58, y: 18, width: 34, rotation: 7 },
-    { x: 40, y: 12, width: 16, rotation: -4 },
-  ],
-  [
-    { x: 27, y: 28, width: 45, rotation: 0 },
-    { x: 8, y: 55, width: 24, rotation: -8 },
-    { x: 68, y: 55, width: 24, rotation: 8 },
-  ],
-] as const;
-
-const fallbackSloganPositions = [
-  { x: 8, y: 8, width: 62 },
-  { x: 8, y: 8, width: 62 },
-  { x: 10, y: 10, width: 58 },
-  { x: 8, y: 10, width: 60 },
-] as const;
-
 const extraLayoutPresets: Record<
   string,
   Array<{ x: number; y: number; width: number; height: number; rotation: number }>
@@ -82,6 +54,8 @@ const extraLayoutPresets: Record<
   ],
 };
 
+const DEFAULT_TITLE_FONT = '"ZenSerif", serif';
+
 function normalizePriceCurrency(currency?: string): '원' | '$' {
   return currency === '$' || currency === '달러' ? '$' : '원';
 }
@@ -97,8 +71,15 @@ export function isPrimaryImageElement(element: EditorElement) {
 }
 
 function isDecorativeElement(element: EditorElement) {
-  if (element.kind !== 'image') return false;
-  return /(splash|badge|decoration|ornament)/i.test(element.id) || /(스플래시|배지|장식)/.test(element.label);
+  if (element.kind === 'image') {
+    return /(splash|badge|decoration|ornament)/i.test(element.id) || /(스플래시|배지|장식)/.test(element.label);
+  }
+
+  if (element.kind === 'shape') {
+    return /(arch-panel|diagonal|panel|overlay|shape)/i.test(element.id) || /(아치|대각선|면|패널|장식)/.test(element.label);
+  }
+
+  return false;
 }
 
 export function shouldShowAdditionalInfoIcon(projectData: HomeProjectData | null, label: string) {
@@ -133,7 +114,8 @@ export function shouldShowAdditionalInfoText(projectData: HomeProjectData | null
 }
 
 export function applyDraftLayoutVariant(elements: EditorElement[], draftIndex: number) {
-  const layout = homeDraftLayouts[draftIndex % homeDraftLayouts.length];
+  const layout = getDraftProductSlots(draftIndex, elements.filter(isPrimaryImageElement).length);
+  const textPlacements = getDraftTextPlacements(draftIndex);
   const productElements = elements.filter(isPrimaryImageElement).slice(0, layout.length);
   const productIds = new Set(productElements.map((element) => element.id));
 
@@ -142,16 +124,114 @@ export function applyDraftLayoutVariant(elements: EditorElement[], draftIndex: n
     if (productIds.has(element.id)) {
       const slot = layout[productCursor] ?? layout[0];
       productCursor += 1;
-      return { ...element, x: slot.x, y: slot.y, width: slot.width, rotation: slot.rotation };
+      return {
+        ...element,
+        x: slot.x,
+        y: slot.y,
+        width: slot.width,
+        height: slot.height,
+        rotation: slot.rotation,
+      };
     }
 
     if (element.id === 'fallback-main-slogan') {
-      const slot = fallbackSloganPositions[draftIndex % fallbackSloganPositions.length];
-      return { ...element, x: slot.x, y: slot.y, width: slot.width };
+      return {
+        ...element,
+        x: textPlacements.slogan.x,
+        y: textPlacements.slogan.y,
+        width: textPlacements.slogan.width,
+        rotation: textPlacements.slogan.rotation ?? element.rotation,
+        zIndex: textPlacements.slogan.zIndex ?? element.zIndex,
+        align: textPlacements.slogan.align ?? element.align,
+      };
     }
 
     if (element.id === 'fallback-store-name') {
-      return { ...element, x: 12, y: 88, width: 56 };
+      return {
+        ...element,
+        x: textPlacements.store.x,
+        y: textPlacements.store.y,
+        width: textPlacements.store.width,
+        rotation: textPlacements.store.rotation ?? element.rotation,
+        zIndex: textPlacements.store.zIndex ?? element.zIndex,
+        align: textPlacements.store.align ?? element.align,
+      };
+    }
+
+    if (element.id === 'fallback-details') {
+      return {
+        ...element,
+        x: textPlacements.details.x,
+        y: textPlacements.details.y,
+        width: textPlacements.details.width,
+        rotation: textPlacements.details.rotation ?? element.rotation,
+        zIndex: textPlacements.details.zIndex ?? element.zIndex,
+        align: textPlacements.details.align ?? element.align,
+      };
+    }
+
+    if (element.id === 'fallback-product-summary') {
+      return {
+        ...element,
+        x: textPlacements.summary.x,
+        y: textPlacements.summary.y,
+        width: textPlacements.summary.width,
+        rotation: textPlacements.summary.rotation ?? element.rotation,
+        zIndex: textPlacements.summary.zIndex ?? element.zIndex,
+        align: textPlacements.summary.align ?? element.align,
+      };
+    }
+
+    if (element.kind === 'text') {
+      const normalizedLabel = `${element.id} ${element.label}`.toLowerCase();
+
+      if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel)) {
+        return {
+          ...element,
+          x: textPlacements.store.x,
+          y: textPlacements.store.y,
+          width: textPlacements.store.width,
+          rotation: textPlacements.store.rotation ?? element.rotation,
+          zIndex: textPlacements.store.zIndex ?? element.zIndex,
+          align: textPlacements.store.align ?? element.align,
+        };
+      }
+
+      if (/(headline|title|타이틀|subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel)) {
+        return {
+          ...element,
+          x: textPlacements.slogan.x,
+          y: textPlacements.slogan.y,
+          width: textPlacements.slogan.width,
+          rotation: textPlacements.slogan.rotation ?? element.rotation,
+          zIndex: textPlacements.slogan.zIndex ?? element.zIndex,
+          align: textPlacements.slogan.align ?? element.align,
+        };
+      }
+
+      if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel)) {
+        return {
+          ...element,
+          x: textPlacements.details.x,
+          y: textPlacements.details.y,
+          width: textPlacements.details.width,
+          rotation: textPlacements.details.rotation ?? element.rotation,
+          zIndex: textPlacements.details.zIndex ?? element.zIndex,
+          align: textPlacements.details.align ?? element.align,
+        };
+      }
+
+      if (/(price|가격)/.test(normalizedLabel)) {
+        return {
+          ...element,
+          x: textPlacements.summary.x,
+          y: textPlacements.summary.y,
+          width: textPlacements.summary.width,
+          rotation: textPlacements.summary.rotation ?? element.rotation,
+          zIndex: textPlacements.summary.zIndex ?? element.zIndex,
+          align: textPlacements.summary.align ?? element.align,
+        };
+      }
     }
 
     return element;
@@ -184,6 +264,21 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
   const usedProductIds = new Set<number>();
   const extras: EditorElement[] = [];
   const matchedFields = { store: false, slogan: false, details: false, price: false };
+  const visiblePriceText = activeProducts
+    .filter((product) => product.showPrice && product.price?.trim())
+    .map((product) => `${product.price}${normalizePriceCurrency(product.currency)}`)
+    .join(' / ');
+  const visibleProductSummaryText = activeProducts
+    .map((product) =>
+      [
+        product.showName && product.name?.trim() ? product.name : '',
+        product.showPrice && product.price?.trim() ? `${product.price}${normalizePriceCurrency(product.currency)}` : '',
+      ]
+        .filter(Boolean)
+        .join(' ')
+    )
+    .filter(Boolean)
+    .join('  /  ');
 
   const mapped = baseElements.map((element) => {
     if (element.kind === 'image') {
@@ -192,15 +287,15 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
 
       if (product?.image) {
         usedProductIds.add(product.id);
-        return {
-          ...element,
-          imageUrl: product.image,
-          hidden: false,
-          productName: product.name ?? '',
-          productPrice: product.price ?? '',
-          productDescription: product.description ?? '',
-          priceCurrency: normalizePriceCurrency(product.currency),
-        };
+      return {
+        ...element,
+        imageUrl: product.image,
+        hidden: false,
+        productName: product.name ?? '',
+        productPrice: product.price ?? '',
+        productDescription: product.description ?? '',
+        priceCurrency: normalizePriceCurrency(product.currency),
+      };
       }
       if (imageIndex >= 0) {
         return { ...element, hidden: true };
@@ -212,45 +307,53 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
 
     if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel) && projectData.storeName) {
       matchedFields.store = true;
-      return { ...element, text: projectData.storeName, color: projectData.options.brandColor };
+      return {
+        ...element,
+        text: projectData.storeName,
+        color: projectData.options.brandColor,
+        hidden: false,
+        fontFamily: DEFAULT_TITLE_FONT,
+      };
+    }
+    if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel) && !projectData.storeName) {
+      return { ...element, text: '', hidden: true };
     }
 
     if (/(headline|title|타이틀)/.test(normalizedLabel)) {
       if (projectData.mainSlogan) {
         matchedFields.slogan = true;
-        return { ...element, text: projectData.mainSlogan };
+        return { ...element, text: projectData.mainSlogan, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
       }
-      if (firstProduct?.name) {
-        matchedFields.slogan = true;
-        return { ...element, text: firstProduct.name.toUpperCase() };
-      }
+      return { ...element, text: '', hidden: true };
     }
 
     if (/(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel)) {
       if (projectData.mainSlogan) {
         matchedFields.slogan = true;
-        return { ...element, text: projectData.mainSlogan };
+        return { ...element, text: projectData.mainSlogan, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
       }
-      if (firstProduct?.name) {
-        matchedFields.slogan = true;
-        return { ...element, text: firstProduct.name };
-      }
+      return { ...element, text: '', hidden: true };
+    }
+
+    if (/(vertical|세로문구)/.test(normalizedLabel)) {
+      return { ...element, text: '', hidden: true };
     }
 
     if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel)) {
       if (projectData.details) {
         matchedFields.details = true;
-        return { ...element, text: projectData.details };
+        return { ...element, text: projectData.details, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
       }
-      if (firstProduct?.description) {
-        matchedFields.details = true;
-        return { ...element, text: firstProduct.description };
-      }
+      return { ...element, text: '', hidden: true };
     }
 
-    if (/(price|가격)/.test(normalizedLabel) && firstProduct?.price) {
+    if (/(price|가격)/.test(normalizedLabel) && visiblePriceText) {
       matchedFields.price = true;
-      return { ...element, text: firstProduct.price };
+      return { ...element, text: visiblePriceText, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
+    }
+
+    if (/(price|가격)/.test(normalizedLabel) && !visiblePriceText) {
+      return { ...element, text: '', hidden: true };
     }
 
     return element;
@@ -293,22 +396,27 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
         height: 8,
         rotation: 0,
         zIndex: 12 + index,
-        text: [product.showName ? product.name : '', product.showPrice ? product.price : ''].filter(Boolean).join('\n'),
+        text: [
+          product.showName && product.name?.trim() ? product.name : '',
+          product.showPrice && product.price?.trim()
+            ? `${product.price}${normalizePriceCurrency(product.currency)}`
+            : '',
+        ]
+          .filter(Boolean)
+          .join('\n'),
         fontSize: 11,
         fontWeight: 800,
         lineHeight: 1.15,
         letterSpacing: 0,
         color: '#ffffff',
         align: 'center',
+        fontFamily: DEFAULT_TITLE_FONT,
         opacity: 1,
       });
     }
   });
 
-  const productSummaryText = activeProducts
-    .map((product) => [product.showName ? product.name : '', product.showPrice ? product.price : ''].filter(Boolean).join(' '))
-    .filter(Boolean)
-    .join('  /  ');
+  const productSummaryText = visibleProductSummaryText;
 
   if (projectData.storeName && !matchedFields.store) {
     extras.push({
@@ -328,11 +436,12 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       letterSpacing: 1,
       color: projectData.options.brandColor,
       align: 'left',
+      fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
     });
   }
 
-  if ((projectData.mainSlogan || firstProduct?.name) && !matchedFields.slogan) {
+  if (projectData.mainSlogan && !matchedFields.slogan) {
     extras.push({
       id: 'fallback-main-slogan',
       kind: 'text',
@@ -343,13 +452,14 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       height: 12,
       rotation: 0,
       zIndex: 13,
-      text: projectData.mainSlogan || firstProduct?.name || '',
+      text: projectData.mainSlogan,
       fontSize: 24,
       fontWeight: 900,
       lineHeight: 1.05,
       letterSpacing: 0,
       color: '#ffffff',
       align: 'left',
+      fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
     });
   }
@@ -372,11 +482,12 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       letterSpacing: 0,
       color: '#f8fafc',
       align: 'left',
+      fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
     });
   }
 
-  if ((firstProduct?.price || productSummaryText) && !matchedFields.price) {
+  if (productSummaryText && !matchedFields.price) {
     extras.push({
       id: 'fallback-product-summary',
       kind: 'text',
@@ -387,13 +498,14 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       height: 7,
       rotation: 0,
       zIndex: 13,
-      text: productSummaryText || firstProduct?.price || '',
+      text: productSummaryText,
       fontSize: 12,
       fontWeight: 800,
       lineHeight: 1.15,
       letterSpacing: 0,
       color: '#fde68a',
       align: 'left',
+      fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
     });
   }
@@ -434,16 +546,28 @@ export function updateProjectTextElements(
 
   const nextValue = field === 'storeName' ? projectData.storeName : projectData.mainSlogan;
   const fallbackId = field === 'storeName' ? 'fallback-store-name' : 'fallback-main-slogan';
+  const typography = getDraftTypography(projectData.options.draftIndex ?? 0, projectData.options.ratio);
 
   return elements.map((element) => {
     const normalizedLabel = `${element.id} ${element.label}`.toLowerCase();
 
     if (element.id === fallbackId) {
-      return { ...element, text: nextValue };
+      return {
+        ...element,
+        text: nextValue,
+        fontSize: field === 'storeName' ? typography.storeSize : typography.sloganSize,
+        lineHeight: field === 'storeName' ? typography.storeLineHeight : typography.sloganLineHeight,
+      };
     }
 
     if (field === 'storeName' && element.kind === 'text' && /(store|brand|가게명|브랜드명)/.test(normalizedLabel)) {
-      return { ...element, text: nextValue, color: projectData.options.brandColor };
+      return {
+        ...element,
+        text: nextValue,
+        color: projectData.options.brandColor,
+        fontSize: typography.storeSize,
+        lineHeight: typography.storeLineHeight,
+      };
     }
 
     if (
@@ -451,7 +575,12 @@ export function updateProjectTextElements(
       element.kind === 'text' &&
       (/(headline|title|타이틀)/.test(normalizedLabel) || /(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel))
     ) {
-      return { ...element, text: nextValue };
+      return {
+        ...element,
+        text: nextValue,
+        fontSize: typography.sloganSize,
+        lineHeight: typography.sloganLineHeight,
+      };
     }
 
     return element;
@@ -527,8 +656,59 @@ export function createCustomTextElement(label: string): EditorElement {
     letterSpacing: 0,
     color: '#ffffff',
     align: 'center',
+    fontFamily: DEFAULT_TITLE_FONT,
     opacity: 1,
   };
+}
+
+export function applyDraftTypographyVariant(elements: EditorElement[], projectData: HomeProjectData | null) {
+  if (!projectData) return elements;
+
+  const typography = getDraftTypography(projectData.options.draftIndex ?? 0, projectData.options.ratio);
+
+  return elements.map((element) => {
+    if (element.kind !== 'text') return element;
+    const normalizedLabel = `${element.id} ${element.label}`.toLowerCase();
+
+    if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel) || element.id === 'fallback-store-name') {
+      return {
+        ...element,
+        fontSize: typography.storeSize,
+        lineHeight: typography.storeLineHeight,
+        fontFamily: DEFAULT_TITLE_FONT,
+      };
+    }
+
+    if (
+      /(headline|title|타이틀|subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel) ||
+      element.id === 'fallback-main-slogan'
+    ) {
+      return {
+        ...element,
+        fontSize: typography.sloganSize,
+        lineHeight: typography.sloganLineHeight,
+        fontFamily: DEFAULT_TITLE_FONT,
+      };
+    }
+
+    if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel) || element.id === 'fallback-details') {
+      return {
+        ...element,
+        fontSize: typography.detailsSize,
+        fontFamily: DEFAULT_TITLE_FONT,
+      };
+    }
+
+    if (/(price|가격)/.test(normalizedLabel) || element.id === 'fallback-product-summary') {
+      return {
+        ...element,
+        fontSize: typography.summarySize,
+        fontFamily: DEFAULT_TITLE_FONT,
+      };
+    }
+
+    return element;
+  });
 }
 
 export function createCustomImageElement(imageUrl: string, label: string): EditorElement {

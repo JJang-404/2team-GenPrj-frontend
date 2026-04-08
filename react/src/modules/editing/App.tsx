@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { fetchBootstrap, generateBackgrounds, removeBackgroundImage } from './api/client';
+import { fetchBootstrap, generateBackgrounds } from './api/client';
 import BackgroundCard from './components/BackgroundCard';
 import EditorCanvas from './components/EditorCanvas';
 import Sidebar from './components/Sidebar';
@@ -11,6 +11,7 @@ import { cloneTemplateElements, updateElement } from './utils/editor';
 import {
   additionalInfoLabels,
   applyDraftLayoutVariant,
+  applyDraftTypographyVariant,
   applyElementVisibilityRules,
   buildGuideSummary,
   createCustomImageElement,
@@ -19,6 +20,7 @@ import {
 } from './utils/editorFlow';
 import { captureElementAsDataUrl } from './utils/canvas';
 import { readFileAsDataUrl } from './utils/file';
+import { removeBgPipeline } from '../initPage/utils/removeBackground';
 import {
   applyProjectTextField,
   buildBackgroundPrompt,
@@ -151,13 +153,18 @@ export default function App() {
         ? data.options.concept
         : 'ai-image';
     setBackgroundMode(nextBackgroundMode);
-    const initialBackground = buildInitialBackgroundCandidate(data);
+    const initialBackground = buildInitialBackgroundCandidate(data, nextBackgroundMode, promptHint);
     setBackgroundCandidates([initialBackground]);
     setSelectedBackgroundId(initialBackground.id);
     const nextTemplate = bootstrap.templates[draftIndex] ?? selectedTemplate ?? bootstrap.templates[0] ?? null;
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
-      setElements(applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, data), draftIndex));
+      setElements(
+        applyDraftTypographyVariant(
+          applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, data), draftIndex),
+          data
+        )
+      );
       setPromptKo(data.details ? `${nextTemplate.defaultPromptKo}, ${data.details}` : nextTemplate.defaultPromptKo);
     }
     setStep(nextTemplate ? 'background' : 'template');
@@ -167,7 +174,9 @@ export default function App() {
 
   const handleTemplateSelect = (template: TemplateDefinition) => {
     setSelectedTemplateId(template.id);
-    setElements(mapProjectDataToTemplate(template, projectData));
+    const mapped = mapProjectDataToTemplate(template, projectData);
+    const withLayout = applyDraftLayoutVariant(mapped, projectData?.options.draftIndex ?? 0);
+    setElements(applyDraftTypographyVariant(withLayout, projectData));
     setSelectedElementId(null);
     setPromptKo(
       projectData?.details
@@ -197,7 +206,15 @@ export default function App() {
         guideSummary,
       });
 
-      const initialBackground = projectData ? buildInitialBackgroundCandidate(projectData) : null;
+      const initialBackground = projectData ? buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint) : null;
+      if (backgroundMode === 'solid') {
+        if (initialBackground) {
+          setBackgroundCandidates([initialBackground]);
+          setSelectedBackgroundId(initialBackground.id);
+        }
+        setStep('editor');
+        return;
+      }
       const mergedCandidates = initialBackground
         ? [initialBackground, ...data.candidates.filter((candidate) => candidate.id !== initialBackground.id)]
         : data.candidates;
@@ -280,8 +297,8 @@ export default function App() {
   const handleRemoveSelectedImageBackground = async () => {
     if (!selectedElement || selectedElement.kind !== 'image' || !selectedElement.imageUrl) return;
     try {
-      const result = await removeBackgroundImage(selectedElement.imageUrl);
-      setElements((prev) => updateElement(prev, selectedElement.id, { imageUrl: result.imageDataUrl, hidden: false }));
+      const result = await removeBgPipeline(selectedElement.imageUrl);
+      setElements((prev) => updateElement(prev, selectedElement.id, { imageUrl: result.url, hidden: false }));
     } catch (backgroundError) {
       setError(backgroundError instanceof Error ? backgroundError.message : '배경 제거에 실패했습니다.');
     }
@@ -304,6 +321,20 @@ export default function App() {
     }
   };
 
+  const handleSendBackward = (id: string) => {
+    setElements((prev) => {
+      const minZ = Math.min(...prev.map((element) => element.zIndex));
+      return updateElement(prev, id, { zIndex: minZ - 1 });
+    });
+  };
+
+  const handleBringForward = (id: string) => {
+    setElements((prev) => {
+      const maxZ = Math.max(...prev.map((element) => element.zIndex));
+      return updateElement(prev, id, { zIndex: maxZ + 1 });
+    });
+  };
+
   if (!bridgeResolved) {
     return <div className="empty-panel">초기 연결 데이터를 확인하는 중입니다.</div>;
   }
@@ -317,6 +348,7 @@ export default function App() {
       <Sidebar
         expanded={sidebarExpanded}
         onToggleExpanded={() => setSidebarExpanded((prev) => !prev)}
+        templateId={selectedTemplateId}
         selectedElement={selectedElement}
         infoItems={additionalInfoLabels.map((label) => ({ label, visible: additionalInfoVisibility[label] ?? false }))}
         storeName={projectData?.storeName ?? ''}
@@ -336,6 +368,8 @@ export default function App() {
         onBackToInitialPage={handleBackToInitialPage}
         onBackToBackgrounds={() => setStep('background')}
         onChangeElement={(id, patch) => setElements((prev) => updateElement(prev, id, patch))}
+        onSendBackward={handleSendBackward}
+        onBringForward={handleBringForward}
         onReplaceSelectedImage={handleReplaceSelectedImage}
         onRemoveSelectedImageBackground={handleRemoveSelectedImageBackground}
       />

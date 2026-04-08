@@ -13,40 +13,6 @@
  * @returns {React.CSSProperties|null}
  */
 export const getBgStyle = (bgType, startColor, endColor, opts = {}) => {
-  const {
-    gradientAngle = 135,
-    splitPosition = 50,
-    splitDirection = 'horizontal',
-  } = opts;
-
-  switch (bgType) {
-    case '단색':
-      // 순수 단색 — 다른 효과 없음
-      return { background: startColor };
-
-    case '그라데이션':
-      // 조절 가능한 선형 그라데이션 (gradientAngle 반영)
-      return {
-        background: `linear-gradient(${gradientAngle}deg, ${startColor}, ${endColor})`,
-      };
-
-    case '다중색': {
-      // 하드 스톱: 블렌딩 없이 명확한 분할선
-      const pos = `${splitPosition}%`;
-      if (splitDirection === 'vertical') {
-        // 상하 분할 (가로선)
-        return {
-          background: `linear-gradient(180deg, ${startColor} ${pos}, ${endColor} ${pos})`,
-        };
-      }
-      // 좌우 분할 (세로선) — 기본
-      return {
-        background: `linear-gradient(90deg, ${startColor} ${pos}, ${endColor} ${pos})`,
-      };
-    }
-
-    case 'AI 생성':
-    default:
-      return null; // null → CONCEPT_STYLES 클래스 그대로 사용
-  }
+  return getSharedBgStyle(bgType, startColor, endColor, opts);
 };
+import { getSharedBgStyle } from '../../../shared/backgroundStyle';

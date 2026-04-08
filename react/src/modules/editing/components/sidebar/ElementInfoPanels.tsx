@@ -1,14 +1,27 @@
 import { useRef } from 'react';
 import type { EditorElement } from '../../types/editor';
+import type { BackgroundMode } from '../../types/editor-core';
 import SidebarBlock from './SidebarBlock';
 import SidebarMiniButton from './SidebarMiniButton';
+import { FONT_OPTIONS, getRecommendedFontFamily } from '../../utils/fontRecommendations';
 
 interface TextInfoPanelProps {
   selectedElement: EditorElement;
+  backgroundMode: BackgroundMode;
+  templateId?: string | null;
   onChangeElement: (id: string, patch: Partial<EditorElement>) => void;
+  onSendBackward: (id: string) => void;
+  onBringForward: (id: string) => void;
 }
 
-export function TextInfoPanel({ selectedElement, onChangeElement }: TextInfoPanelProps) {
+export function TextInfoPanel({
+  selectedElement,
+  backgroundMode,
+  templateId,
+  onChangeElement,
+  onSendBackward,
+  onBringForward,
+}: TextInfoPanelProps) {
   return (
     <SidebarBlock title="텍스트 정보">
       <div className="sidebar-edit-row">
@@ -22,6 +35,14 @@ export function TextInfoPanel({ selectedElement, onChangeElement }: TextInfoPane
           onChange={(event) => onChangeElement(selectedElement.id, { opacity: Number(event.target.value) })}
         />
         <SidebarMiniButton onClick={() => onChangeElement(selectedElement.id, { hidden: true })}>제거</SidebarMiniButton>
+      </div>
+      <div className="sidebar-inline-actions">
+        <SidebarMiniButton onClick={() => onSendBackward(selectedElement.id)}>
+          뒤로
+        </SidebarMiniButton>
+        <SidebarMiniButton onClick={() => onBringForward(selectedElement.id)}>
+          앞으로
+        </SidebarMiniButton>
       </div>
       <div className="sidebar-edit-grid">
         <span>정렬</span>
@@ -39,6 +60,35 @@ export function TextInfoPanel({ selectedElement, onChangeElement }: TextInfoPane
           onChange={(event) => onChangeElement(selectedElement.id, { color: event.target.value })}
         />
       </label>
+      <div className="field-grid">
+        <label>
+          <span>글씨체</span>
+          <select
+            className="sidebar__select"
+            value={selectedElement.fontFamily ?? FONT_OPTIONS[0].value}
+            onChange={(event) => onChangeElement(selectedElement.id, { fontFamily: event.target.value })}
+          >
+            {FONT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div>
+          <span>추천</span>
+          <SidebarMiniButton
+            className="sidebar-mini-btn--wide"
+            onClick={() =>
+              onChangeElement(selectedElement.id, {
+                fontFamily: getRecommendedFontFamily(selectedElement, backgroundMode, templateId),
+              })
+            }
+          >
+            추천 폰트 적용
+          </SidebarMiniButton>
+        </div>
+      </div>
       <label className="sidebar-form-row">
         <span>텍스트 내용</span>
         <textarea
@@ -56,6 +106,8 @@ interface ImageInfoPanelProps {
   onChangeElement: (id: string, patch: Partial<EditorElement>) => void;
   onReplaceSelectedImage: (file: File) => void;
   onRemoveSelectedImageBackground: () => void;
+  onSendBackward: (id: string) => void;
+  onBringForward: (id: string) => void;
 }
 
 export function ImageInfoPanel({
@@ -63,9 +115,12 @@ export function ImageInfoPanel({
   onChangeElement,
   onReplaceSelectedImage,
   onRemoveSelectedImageBackground,
+  onSendBackward,
+  onBringForward,
 }: ImageInfoPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedCurrency = selectedElement.priceCurrency ?? '원';
+  const hasPrice = Boolean(selectedElement.productPrice?.trim());
 
   return (
     <SidebarBlock title="상품 사진 정보">
@@ -74,9 +129,17 @@ export function ImageInfoPanel({
           {selectedElement.imageUrl ? <img src={selectedElement.imageUrl} alt={selectedElement.label} /> : <span>사진</span>}
         </div>
         <div className="sidebar-image-controls">
+        <div className="sidebar-inline-actions">
+          <SidebarMiniButton onClick={onRemoveSelectedImageBackground}>배경 제거</SidebarMiniButton>
+          <SidebarMiniButton onClick={() => onChangeElement(selectedElement.id, { hidden: true })}>객체 제거</SidebarMiniButton>
+        </div>
           <div className="sidebar-inline-actions">
-            <SidebarMiniButton onClick={onRemoveSelectedImageBackground}>배경 제거</SidebarMiniButton>
-            <SidebarMiniButton onClick={() => onChangeElement(selectedElement.id, { hidden: true })}>객체 제거</SidebarMiniButton>
+            <SidebarMiniButton onClick={() => onSendBackward(selectedElement.id)}>
+              뒤로
+            </SidebarMiniButton>
+            <SidebarMiniButton onClick={() => onBringForward(selectedElement.id)}>
+              앞으로
+            </SidebarMiniButton>
           </div>
           <div className="sidebar-edit-row">
             <span>투명도</span>
@@ -106,21 +169,23 @@ export function ImageInfoPanel({
                 onChange={(event) => onChangeElement(selectedElement.id, { productPrice: event.target.value })}
               />
             </label>
-            <label>
-              <span>통화</span>
-              <select
-                className="sidebar__select"
-                value={selectedCurrency}
-                onChange={(event) =>
-                  onChangeElement(selectedElement.id, {
-                    priceCurrency: event.target.value === '$' ? '$' : '원',
-                  })
-                }
-              >
-                <option value="원">원</option>
-                <option value="$">$</option>
-              </select>
-            </label>
+            {hasPrice && (
+              <label>
+                <span>통화</span>
+                <select
+                  className="sidebar__select"
+                  value={selectedCurrency}
+                  onChange={(event) =>
+                    onChangeElement(selectedElement.id, {
+                      priceCurrency: event.target.value === '$' ? '$' : '원',
+                    })
+                  }
+                >
+                  <option value="원">원</option>
+                  <option value="$">$</option>
+                </select>
+              </label>
+            )}
           </div>
           <label className="sidebar-form-row">
             <span>소개문구</span>

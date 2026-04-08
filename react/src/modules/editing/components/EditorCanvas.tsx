@@ -145,7 +145,8 @@ export default function EditorCanvas({
             const base: CSSProperties = {
               left: `${element.x}%`,
               top: `${element.y}%`,
-              width: `${element.width}%`,
+              width: element.kind === 'text' ? 'fit-content' : `${element.width}%`,
+              maxWidth: element.kind === 'text' ? `${element.width}%` : undefined,
               height: element.kind === 'text' ? 'auto' : `${element.height}%`,
               transform: `rotate(${element.rotation}deg)`,
               zIndex: element.zIndex,
@@ -167,7 +168,7 @@ export default function EditorCanvas({
               >
                 {element.kind === 'text' && (
                   <div
-                    className="canvas-element__text"
+                    className={`canvas-element__text ${selected ? 'canvas-element__text--selected' : ''}`}
                     style={{
                       color: element.color,
                       fontSize: `${element.fontSize ?? 24}px`,
@@ -201,7 +202,7 @@ export default function EditorCanvas({
                   <img
                     src={element.imageUrl}
                     alt={element.label}
-                    className="canvas-element__image"
+                    className={`canvas-element__image ${selected ? 'canvas-element__image--selected' : ''}`}
                     draggable={false}
                     style={{ objectFit: element.imageFit ?? 'contain' }}
                   />

@@ -10,6 +10,7 @@ import RecommendationsSection from './sidebar/RecommendationsSection';
 interface SidebarProps {
   expanded: boolean;
   onToggleExpanded: () => void;
+  templateId?: string | null;
   selectedElement: EditorElement | null;
   infoItems: Array<{ label: string; visible: boolean }>;
   storeName: string;
@@ -29,6 +30,8 @@ interface SidebarProps {
   onBackToInitialPage: () => void;
   onBackToBackgrounds: () => void;
   onChangeElement: (id: string, patch: Partial<EditorElement>) => void;
+  onSendBackward: (id: string) => void;
+  onBringForward: (id: string) => void;
   onReplaceSelectedImage: (file: File) => void;
   onRemoveSelectedImageBackground: () => void;
 }
@@ -36,6 +39,7 @@ interface SidebarProps {
 export default function Sidebar({
   expanded,
   onToggleExpanded,
+  templateId,
   selectedElement,
   infoItems,
   storeName,
@@ -55,6 +59,8 @@ export default function Sidebar({
   onBackToInitialPage,
   onBackToBackgrounds,
   onChangeElement,
+  onSendBackward,
+  onBringForward,
   onReplaceSelectedImage,
   onRemoveSelectedImageBackground,
 }: SidebarProps) {
@@ -104,7 +110,11 @@ export default function Sidebar({
         {selectedElement?.kind === 'text' ? (
           <TextInfoPanel
             selectedElement={selectedElement}
+            backgroundMode={backgroundMode}
+            templateId={templateId}
             onChangeElement={onChangeElement}
+            onSendBackward={onSendBackward}
+            onBringForward={onBringForward}
           />
         ) : null}
 
@@ -114,6 +124,8 @@ export default function Sidebar({
             onChangeElement={onChangeElement}
             onReplaceSelectedImage={onReplaceSelectedImage}
             onRemoveSelectedImageBackground={onRemoveSelectedImageBackground}
+            onSendBackward={onSendBackward}
+            onBringForward={onBringForward}
           />
         ) : null}
 

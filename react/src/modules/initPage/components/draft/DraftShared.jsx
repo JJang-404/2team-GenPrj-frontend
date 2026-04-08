@@ -52,7 +52,7 @@ export const ProductInfo = ({ p, isSquare }) => {
 // ─── ImageFrame ────────────────────────────────────────────────────────────
 export const ImageFrame = ({
   activeProducts,
-  styleIdx,
+  draftIndex,
   isSquare,
   isFiveFour,
   isFull = false,
@@ -60,36 +60,32 @@ export const ImageFrame = ({
 }) => {
   const count = activeProducts.length;
   if (count === 0) return null;
-
-  let gridClass = 'flex flex-row flex-wrap justify-center items-center gap-2';
-  if (count <= 3) gridClass = 'flex flex-row justify-center items-center gap-4 w-full';
-  else if (count === 4) gridClass = 'grid grid-cols-2 gap-3 w-full';
-  else if (count >= 6) gridClass = 'grid grid-cols-3 gap-2 w-full';
-
-  const containerHeight = isSquare ? 'h-[45%]' : isFiveFour ? 'h-[55%]' : '';
-  const scaleFactor = isSquare || isFiveFour ? 'scale-[0.85]' : 'scale-100';
+  const slots = getDraftProductSlots(draftIndex, count);
 
   return (
     <div
-      className={`${gridClass} ${containerHeight} z-0 ${className} ${
-        isFull ? 'w-full h-full' : 'w-full'
-      }`}
+      className={`relative z-0 ${className} ${isFull ? 'w-full h-full' : 'w-full h-full'}`}
     >
       {activeProducts.map((p, pIdx) => {
-        const itemWidth = count === 5 ? (pIdx < 2 ? 'w-[45%]' : 'w-[30%]') : 'max-w-full';
-        const rotateStyle =
-          styleIdx === 1
-            ? `rotate(${pIdx % 2 === 0 ? '-5deg' : '5deg'}) translateY(${pIdx % 2 === 0 ? '-10px' : '10px'})`
-            : isFull
-            ? 'scale(1.15)'
-            : 'none';
+        const slot = slots[pIdx] ?? slots[slots.length - 1];
+        if (!slot) return null;
 
         return (
-          <div key={p.id} className={`flex items-center justify-center h-full min-h-0 ${scaleFactor}`}>
+          <div
+            key={p.id}
+            className="absolute flex items-center justify-center"
+            style={{
+              left: `${slot.x}%`,
+              top: `${slot.y}%`,
+              width: `${slot.width}%`,
+              height: `${slot.height}%`,
+              transform: `rotate(${slot.rotation}deg)`,
+            }}
+          >
             <img
               src={p.image}
-              className={`${itemWidth} max-h-full object-contain drop-shadow-2xl transition-all`}
-              style={{ animationDelay: `${pIdx * 0.1}s`, transform: rotateStyle }}
+              className="w-full h-full object-contain drop-shadow-2xl transition-all"
+              style={{ animationDelay: `${pIdx * 0.1}s` }}
               alt=""
             />
           </div>
@@ -134,3 +130,4 @@ export const ExtraInfoStrip = ({ extraInfo, isSquare }) => {
     </div>
   );
 };
+import { getDraftProductSlots } from '../../../../shared/draftLayout';

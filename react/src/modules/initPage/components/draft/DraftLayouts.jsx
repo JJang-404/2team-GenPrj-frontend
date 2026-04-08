@@ -32,7 +32,7 @@ export const ClassicLayout = ({ activeProducts, options, inputData, ratioStyles 
       </div>
       <ImageFrame
         activeProducts={activeProducts}
-        styleIdx={0}
+        draftIndex={0}
         isSquare={isSquare}
         isFiveFour={isFiveFour}
         className="flex-1 w-full flex items-center justify-center py-4"
@@ -74,7 +74,7 @@ export const DynamicLayout = ({ activeProducts, options, inputData, ratioStyles 
       <div className="flex-1 flex items-center justify-center mt-20">
         <ImageFrame
           activeProducts={activeProducts}
-          styleIdx={1}
+          draftIndex={1}
           isSquare={isSquare}
           isFiveFour={isFiveFour}
           className="w-[98%] h-[75%] scale-110"
@@ -127,7 +127,7 @@ export const FocusedLayout = ({ activeProducts, options, inputData, ratioStyles 
       <div className="flex-1 w-full flex items-center justify-center z-10 min-h-0">
         <ImageFrame
           activeProducts={activeProducts}
-          styleIdx={2}
+          draftIndex={2}
           isSquare={isSquare}
           isFiveFour={isFiveFour}
           className="scale-110"
@@ -167,7 +167,7 @@ export const ImmersiveLayout = ({ activeProducts, options, inputData, ratioStyle
       <div className={`absolute inset-0 z-0 flex items-center justify-center p-4 ${showOverlays ? 'opacity-80 scale-115' : ''}`}>
         <ImageFrame
           activeProducts={activeProducts}
-          styleIdx={3}
+          draftIndex={3}
           isSquare={isSquare}
           isFiveFour={isFiveFour}
           isFull
