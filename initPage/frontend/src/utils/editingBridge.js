@@ -65,6 +65,7 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
         id: product.id,
         name: product.name ?? '',
         price: [product.currency ?? '', product.price ?? ''].join('').trim(),
+        currency: product.currency ?? '원',
         description: product.description ?? '',
         image: product.image ?? null,
         isAiGen: Boolean(product.isAiGen),
@@ -75,7 +76,6 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
       additionalInfo: {
         parkingSpaces: String(extraInfo.seatCount ?? ''),
         petFriendly: false,
-        deliveryPlatform: Boolean(extraInfo.hasDelivery),
         noKidsZone: Boolean(extraInfo.isNoKids),
         smokingArea: Boolean(extraInfo.hasSmokingArea),
         elevator: Boolean(extraInfo.hasElevator),

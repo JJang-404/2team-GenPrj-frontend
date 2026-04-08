@@ -157,7 +157,6 @@ VITE_INITPAGE_URL=http://localhost:5173
   additionalInfo: {
     parkingSpaces: string;
     petFriendly: boolean;
-    deliveryPlatform: boolean;
     noKidsZone: boolean;
     smokingArea: boolean;
     elevator: boolean;
@@ -194,7 +193,6 @@ VITE_INITPAGE_URL=http://localhost:5173
 - `extraInfo.seatCount` -> `projectData.additionalInfo.parkingSpaces`
 - `extraInfo.phone` -> `projectData.additionalInfo.phoneNumber`
 - `extraInfo.address` -> `projectData.additionalInfo.address`
-- `extraInfo.hasDelivery` -> `projectData.additionalInfo.deliveryPlatform`
 - `extraInfo.isNoKids` -> `projectData.additionalInfo.noKidsZone`
 - `extraInfo.hasSmokingArea` -> `projectData.additionalInfo.smokingArea`
 - `extraInfo.hasElevator` -> `projectData.additionalInfo.elevator`
@@ -349,5 +347,4 @@ VITE_INITPAGE_URL=http://localhost:5173
 - `initPage`와 `editing`은 아직 완전히 하나의 라우터 앱으로 합쳐진 것은 아닙니다.
 - 지금은 브리지 방식으로 두 앱을 연결한 상태입니다.
 - `seatCount -> parkingSpaces`처럼 의미가 완전히 같은 필드는 아니므로, 필요하면 나중에 타입을 맞춰 재정리하는 것이 좋습니다.
-- `hasDelivery`는 현재 `editing` 구조에 대응 필드가 없습니다.
 - 이미지 data URL을 넘기므로 payload 크기는 제품 수가 많을수록 커질 수 있습니다.
