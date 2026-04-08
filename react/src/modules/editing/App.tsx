@@ -28,7 +28,7 @@ import {
   getTemplatePreviewElements,
   toggleAdditionalInfoElements,
 } from './utils/projectEditor';
-import { readEditingBridgePayload, readEditingBridgePayloadByToken } from './utils/editingBridge';
+import { readEditingBridgePayload } from './utils/editingBridge';
 import { buildInitialBackgroundCandidate } from './utils/initialBackground';
 
 const initialBootstrap: BootstrapResponse = {
@@ -115,16 +115,6 @@ export default function App() {
 
     const resolveBridge = async () => {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('bridgeToken');
-
-        if (token) {
-          const bridged = await readEditingBridgePayloadByToken(token);
-          window.history.replaceState({}, document.title, window.location.pathname);
-          handleStartFromHome(bridged.projectData, bridged.draftIndex ?? 0);
-          return;
-        }
-
         const bridged = readEditingBridgePayload();
         if (bridged) {
           handleStartFromHome(bridged.projectData, bridged.draftIndex ?? 0);

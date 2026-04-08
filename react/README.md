@@ -3,7 +3,6 @@
 `react`는 기존 `initPage`와 `editing`을 하나의 React/Vite 프런트 프로젝트로 합친 최종 프런트입니다.
 
 - 프런트 루트: `gen_prj/2team-GenPrj-frontend/react`
-- 백엔드 루트: `gen_prj/2team-GenPrj-backend`
 - 공용 env 루트: `gen_prj/.env`
 
 ## 요약
@@ -16,13 +15,6 @@
 즉 예전처럼 프런트 앱을 2개 따로 띄우는 구조가 아니라, 이제는 `react` 하나만 띄우면 됩니다.
 
 ## 실행
-
-백엔드:
-
-```bash
-cd gen_prj/2team-GenPrj-backend
-npm start
-```
 
 통합 프런트:
 
@@ -42,7 +34,7 @@ npm run build
 기본 주소:
 
 - 프런트: `http://localhost:5173`
-- 백엔드: `http://127.0.0.1:4000`
+- 원격 FastAPI base: `https://gen-proj.duckdns.org/addhelper`
 
 ## 페이지 구조
 
@@ -87,8 +79,6 @@ npm run build
 
 - `gen_prj/2team-GenPrj-frontend/react/src/modules/initPage/utils/editingBridge.js`
 - `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/editingBridge.ts`
-- `gen_prj/2team-GenPrj-backend/src/routes/editorRoutes.js`
-- `gen_prj/2team-GenPrj-backend/src/services/bridgeService.js`
 
 전달 순서는 아래입니다.
 
@@ -96,28 +86,12 @@ npm run build
 2. 디자인 선택 버튼 클릭
 3. `buildEditingPayload()`가 `editing`용 payload 생성
 4. 상품 이미지가 `blob:` URL이면 `data URL`로 변환
-5. payload를 fallback 용으로 `sessionStorage/window.name`에 저장
-6. payload를 백엔드 `/api/bridge/editing`에 POST
-7. 백엔드가 임시 토큰 발급
-8. 프런트가 `/editing?bridgeToken=...`으로 이동
-9. `editing`이 `/api/bridge/editing/:token`으로 payload를 1회 복원
-10. 복원된 데이터를 기준으로 템플릿, 배경, 객체 편집 화면 시작
+5. payload를 `sessionStorage/window.name`에 저장
+6. 프런트가 `/editing`으로 이동
+7. `editing`이 저장된 payload를 복원
+8. 복원된 데이터를 기준으로 템플릿, 배경, 객체 편집 화면 시작
 
-즉 현재 주 전달 방식은 `백엔드 임시 브리지 토큰`입니다.
-
-## 왜 브리지 토큰 방식을 쓰는가
-
-이 방식이 필요한 이유:
-
-- 배경제거된 상품 이미지가 커질 수 있음
-- query string으로는 길이 제한과 보안 문제가 큼
-- `sessionStorage`는 origin 차이에서 불안정할 수 있음
-- 토큰 방식은 큰 payload도 서버 메모리에서 잠깐 보관 후 안전하게 꺼내오기 쉬움
-
-현재 우선순위:
-
-1. 백엔드 브리지 토큰 복원
-2. 실패 시 `sessionStorage/window.name` fallback
+즉 현재는 같은 React 앱 안에서 `sessionStorage/window.name` 기반 로컬 브리지를 사용합니다.
 
 ## initPage에서 editing으로 넘어가는 데이터
 
@@ -327,26 +301,28 @@ npm run build
 
 ## 백엔드 연결 지점
 
-백엔드 관련 주요 파일:
-
-- 서버 진입: `gen_prj/2team-GenPrj-backend/src/server.js`
-- 라우트: `gen_prj/2team-GenPrj-backend/src/routes/editorRoutes.js`
-- 브리지 저장: `gen_prj/2team-GenPrj-backend/src/services/bridgeService.js`
-- 템플릿 정의: `gen_prj/2team-GenPrj-backend/src/services/templateService.js`
-- 배경 생성: `gen_prj/2team-GenPrj-backend/src/services/backgroundService.js`
-- 배경제거/외부 모델: `gen_prj/2team-GenPrj-backend/src/services/externalAiService.js`
-
-프런트 API 호출 파일:
+원격 API 호출 파일:
 
 - `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/api/client.ts`
+- `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/config/remoteApi.ts`
+- `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/backgroundGeneration.ts`
 
-현재 프런트가 쓰는 주요 API:
+현재 원격 FastAPI와 맞추는 기준:
 
-- `GET /api/editor/bootstrap`
-- `POST /api/images/remove-background`
-- `POST /api/backgrounds/generate`
-- `POST /api/bridge/editing`
-- `GET /api/bridge/editing/:token`
+- 개발 환경: Vite proxy로 `/addhelper -> https://gen-proj.duckdns.org/addhelper`
+- 배포 환경: `VITE_REMOTE_API_BASE` 또는 기본값 `https://gen-proj.duckdns.org/addhelper`
+
+현재 실제로 원격 API를 쓰는 기능:
+
+- `POST /addhelper/model/changeimage`
+- `GET /addhelper/model/generate`
+
+현재 프런트 내부로 옮긴 기능:
+
+- 템플릿 bootstrap
+- sidebar recommendations
+- initPage -> editing bridge
+- 배경제거
 
 ## 환경변수
 
@@ -357,13 +333,12 @@ npm run build
 현재 프런트에서 의미 있는 값:
 
 ```env
-VITE_API_BASE=/api
+VITE_REMOTE_API_BASE=https://gen-proj.duckdns.org/addhelper
 ```
 
 필요하면 아래도 쓸 수 있습니다.
 
 ```env
-VITE_API_BASE_URL=http://127.0.0.1:4000/api
 VITE_EDITING_URL=/editing
 VITE_INITPAGE_URL=/
 ```
@@ -394,9 +369,8 @@ VITE_INITPAGE_URL=/
 
 문제가 생기면 아래 순서로 보면 됩니다.
 
-1. 백엔드가 켜져 있는지 확인
-2. `react` 프런트가 `5173`에서 떠 있는지 확인
-3. `initPage`에서 디자인 선택 시 URL이 `/editing`으로 바뀌는지 확인
-4. 브라우저 콘솔에 브리지/이미지 에러가 있는지 확인
-5. `editor/bootstrap` 응답이 오는지 확인
-6. 비율/배경이 이상하면 `initPage/utils/editingBridge.js`와 `editing/utils/initialBackground.ts` 확인
+1. `react` 프런트가 `5173`에서 떠 있는지 확인
+2. `initPage`에서 디자인 선택 시 URL이 `/editing`으로 바뀌는지 확인
+3. 브라우저 콘솔에 브리지/이미지 에러가 있는지 확인
+4. 실사 생성 실패 시 `/addhelper/model/changeimage` 응답 확인
+5. 비율/배경이 이상하면 `initPage/utils/editingBridge.js`와 `editing/utils/initialBackground.ts` 확인

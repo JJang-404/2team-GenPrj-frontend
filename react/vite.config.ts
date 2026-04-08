@@ -9,7 +9,11 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      '/api': 'http://localhost:4000',
+      '/addhelper': {
+        target: 'https://gen-proj.duckdns.org',
+        changeOrigin: true,
+        secure: true,
+      },
     },
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',

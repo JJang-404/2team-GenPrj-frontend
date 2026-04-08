@@ -12,10 +12,6 @@ function safeStringify(value) {
   return JSON.stringify(value);
 }
 
-function getBridgeApiBase() {
-  return import.meta.env.VITE_API_BASE_URL ?? '/api';
-}
-
 async function blobUrlToDataUrl(blobUrl) {
   const response = await fetch(blobUrl);
   const blob = await response.blob();
@@ -93,26 +89,7 @@ export function storeEditingPayload(payload) {
   window.name = `${WINDOW_NAME_PREFIX}${encodeURIComponent(serialized)}`;
 }
 
-export async function createEditingBridge(payload) {
-  const response = await fetch(`${getBridgeApiBase()}/bridge/editing`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ payload }),
-  });
-
-  if (!response.ok) {
-    const message = await response.text().catch(() => '');
-    throw new Error(message || 'editing 브리지 생성에 실패했습니다.');
-  }
-
-  return response.json();
-}
-
-export function getEditingAppUrl(token) {
+export function getEditingAppUrl() {
   const baseUrl = import.meta.env.VITE_EDITING_URL ?? '/editing';
-  if (!token) return baseUrl;
-
-  const url = new URL(baseUrl, window.location.origin);
-  url.searchParams.set('bridgeToken', token);
-  return `${url.pathname}${url.search}`;
+  return new URL(baseUrl, window.location.origin).pathname;
 }

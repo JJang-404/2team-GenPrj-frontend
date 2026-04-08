@@ -6,7 +6,6 @@ import Sidebar from './components/sidebar/Sidebar';
 import DraftCard from './components/draft/DraftCard';
 import {
   buildEditingPayload,
-  createEditingBridge,
   getEditingAppUrl,
   storeEditingPayload,
 } from './utils/editingBridge';
@@ -39,15 +38,8 @@ const App = () => {
       });
 
       storeEditingPayload(payload);
-      try {
-        const bridge = await createEditingBridge(payload);
-        window.location.href = getEditingAppUrl(bridge.token);
-        return;
-      } catch (bridgeError) {
-        console.warn('[editing 브리지 토큰 실패, fallback 이동 시도]', bridgeError);
-        window.location.href = getEditingAppUrl();
-        return;
-      }
+      window.location.href = getEditingAppUrl();
+      return;
     } catch (error) {
       console.error('[editing 브리지 실패]', error);
       alert(`편집 페이지로 데이터를 넘기지 못했습니다.\n${error instanceof Error ? error.message : ''}`);

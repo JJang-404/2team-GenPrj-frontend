@@ -1,5 +1,4 @@
 import type { HomeProjectData } from '../types/home';
-import { API_BASE } from '../config/api';
 
 const EDITING_BRIDGE_KEY = 'adgen-editing-bridge';
 const WINDOW_NAME_PREFIX = 'adgen-editing-bridge:';
@@ -36,14 +35,4 @@ export function readEditingBridgePayload() {
   }
 
   return null;
-}
-
-export async function readEditingBridgePayloadByToken(token: string) {
-  const response = await fetch(`${API_BASE}/bridge/editing/${encodeURIComponent(token)}`);
-  if (!response.ok) {
-    const message = await response.text().catch(() => '');
-    throw new Error(message || '브리지 payload를 불러오지 못했습니다.');
-  }
-
-  return response.json() as Promise<EditingBridgePayload>;
 }
