@@ -9,14 +9,26 @@ export default defineConfig({
     react(),
   ],
   server: {
+    host: true,
     port: 5174,
     strictPort: true,
     proxy: {
-      '/api': 'http://localhost:4000',
+      '/api': 'http://localhost:8000',
+    },
+    watch: {
+      usePolling: true,
+    },
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
   preview: {
     port: 4174,
     strictPort: true,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
   },
 });
