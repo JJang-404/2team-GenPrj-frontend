@@ -13,7 +13,7 @@ export const useProducts = () => {
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
 
   const addProduct = () =>
-    setProducts((prev) => [...prev, createProduct()]);
+    setProducts((prev) => (prev.length >= 6 ? prev : [...prev, createProduct()]));
 
   const removeProduct = (id) =>
     setProducts((prev) => (prev.length > 1 ? prev.filter((p) => p.id !== id) : prev));

@@ -2,10 +2,10 @@ import { useRef, useCallback } from 'react';
 import { CONCEPT_STYLES, ASPECT_CLASSES } from '../../constants/design';
 import { getRatioStyles } from '../../utils/ratioStyles';
 import { getBgStyle } from '../../utils/bgStyles';
-import { ClassicLayout, DynamicLayout, FocusedLayout, ImmersiveLayout } from './DraftLayouts';
+import { SingleLargeLayout, SingleCompactLayout, OverlapGroupLayout, HalfCropGroupLayout } from '../wireframe';
 import { ExtraInfoStrip } from './DraftShared';
 
-const LAYOUTS = [ClassicLayout, DynamicLayout, FocusedLayout, ImmersiveLayout];
+const LAYOUTS = [SingleLargeLayout, SingleCompactLayout, OverlapGroupLayout, HalfCropGroupLayout];
 
 /**
  * DraftCard
@@ -42,7 +42,7 @@ const DraftCard = ({ idx, isSelected, onSelect, products, options, inputData, ex
       >
         <div className="w-full h-full relative z-10">
           <Layout
-            activeProducts={activeProducts}
+            products={activeProducts}
             options={options}
             inputData={inputData}
             ratioStyles={ratioStyles}
