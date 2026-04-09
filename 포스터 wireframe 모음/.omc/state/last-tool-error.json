@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"2team-GenPrj-frontend/포스터 wireframe 모음\\\" && python3 extract_metadata.py 4-4-1.png --json\",\"description\":\"Test JSON output mode\"}",
+  "error": "Exit code 1\n/bin/bash: line 1: cd: $'2team-GenPrj-frontend/\\355\\217\\254\\354\\212\\244\\355\\204\\260 wireframe \\353\\252\\250\\354\\235\\214': No such file or directory\n[rerun: b2]",
+  "timestamp": "2026-04-09T02:23:34.885Z",
+  "retry_count": 1
+}
