@@ -2,10 +2,10 @@ import { useRef, useCallback } from 'react';
 import { CONCEPT_STYLES, ASPECT_CLASSES } from '../../constants/design';
 import { getRatioStyles } from '../../utils/ratioStyles';
 import { getBgStyle } from '../../utils/bgStyles';
-import { ClassicLayout, DynamicLayout, FocusedLayout, ImmersiveLayout } from './DraftLayouts';
+import { SingleLargeLayout, SingleCompactLayout, OverlapGroupLayout, HalfCropGroupLayout } from '../wireframe';
 import { ExtraInfoStrip } from './DraftShared';
 
-const LAYOUTS = [ClassicLayout, DynamicLayout, FocusedLayout, ImmersiveLayout];
+const LAYOUTS = [SingleLargeLayout, SingleCompactLayout, OverlapGroupLayout, HalfCropGroupLayout];
 
 /**
  * DraftCard
@@ -18,21 +18,14 @@ const DraftCard = ({ idx, isSelected, onSelect, products, options, inputData, ex
   const isSquare = options.ratio === '1:1';
 
   // bgType에 따라 인라인 스타일 또는 CONCEPT_STYLES 클래스 결정
-  let bgInlineStyle;
-  if (options.bgType === 'AI 생성') {
-    bgInlineStyle = options.aiImageUrl
-      ? { backgroundImage: `url(${options.aiImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-      : null;
-  } else {
-    bgInlineStyle = getBgStyle(options.bgType, options.startColor, options.endColor, {
-      gradientAngle: options.gradientAngle,
-      splitPosition: options.splitPosition,
-      splitDirection: options.splitDirection,
-    });
-  }
+  const bgInlineStyle = getBgStyle(options.bgType, options.startColor, options.endColor, {
+    gradientAngle: options.gradientAngle,
+    splitPosition: options.splitPosition,
+    splitDirection: options.splitDirection,
+  });
   const bgClass = bgInlineStyle
     ? 'text-white'                          // 동적 배경: 항상 흰 글씨
-    : CONCEPT_STYLES[options.concept] ?? ''; // AI 생성(로딩/미생성): 기존 컨셉 클래스
+    : CONCEPT_STYLES[options.concept] ?? ''; // AI 생성: 기존 컨셉 클래스
 
   return (
     <div className="group relative transition-all duration-500">
@@ -47,17 +40,9 @@ const DraftCard = ({ idx, isSelected, onSelect, products, options, inputData, ex
         style={bgInlineStyle ?? undefined}
         data-divider-root
       >
-        {/* AI 배경 생성 중 로딩 오버레이 */}
-        {options.bgType === 'AI 생성' && options.isGeneratingAiBg && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/70">
-            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mb-2" />
-            <span className="text-white text-[10px] font-bold">AI 배경 생성 중…</span>
-          </div>
-        )}
-
         <div className="w-full h-full relative z-10">
           <Layout
-            activeProducts={activeProducts}
+            products={activeProducts}
             options={options}
             inputData={inputData}
             ratioStyles={ratioStyles}

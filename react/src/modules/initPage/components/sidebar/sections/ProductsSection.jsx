@@ -23,9 +23,12 @@ const ProductsSection = ({
       <button
         type="button"
         onClick={onAddProduct}
-        className="flex items-center gap-1 px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold rounded transition-colors"
+        disabled={products.length >= 6}
+        className={`flex items-center gap-1 px-3 py-1.5 text-white text-xs font-bold rounded transition-colors ${
+          products.length >= 6 ? 'bg-gray-400 cursor-not-allowed' : 'bg-pink-600 hover:bg-pink-500'
+        }`}
       >
-        <Plus size={12} /> 추가
+        <Plus size={12} /> {products.length >= 6 ? '최대 6개' : '추가'}
       </button>
     </div>
 

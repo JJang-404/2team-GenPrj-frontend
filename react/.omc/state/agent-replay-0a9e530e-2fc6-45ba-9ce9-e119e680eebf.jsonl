@@ -1,0 +1,4 @@
+{"t":0,"agent":"af3434a","agent_type":"architect","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a0d314a","agent_type":"code-reviewer","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"aadb7d4","agent_type":"security-reviewer","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"af3434a","agent_type":"architect","event":"agent_stop","success":true,"duration_ms":21908}
