@@ -13,10 +13,18 @@ class StoreInfo {
    */
   saveStoreInfo(data) {
     try {
+      // 1. 이미지 데이터(Base64)는 용량 초과(QuotaExceededError)의 원인이므로 제외하고 텍스트 정보만 추출합니다.
+      const sanitizedProducts = Array.isArray(data.products)
+        ? data.products.map(({ image, ...rest }) => rest)
+        : [];
+
+      // 2. 저장할 최종 페이로드 구성 (기존 extraInfo가 있다면 제외하고 최신 정보를 덮어씁니다.)
       const payload = {
-        ...data,
+        basicInfo: data.basicInfo || {},
+        products: sanitizedProducts,
         updatedAt: new Date().toISOString(),
       };
+
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
       console.log('[StoreInfo] 가게 정보 저장 완료:', payload);
     } catch (e) {
@@ -48,24 +56,26 @@ class StoreInfo {
     const info = this.getStoreInfo();
     if (!info) return '';
 
-    const { basicInfo, extraInfo } = info;
+    const { basicInfo, products } = info;
     const lines = [];
 
     if (basicInfo?.storeName) lines.push(`가게이름: ${basicInfo.storeName}`);
     if (basicInfo?.industry) lines.push(`업종: ${basicInfo.industry}`);
     if (basicInfo?.storeDesc) lines.push(`가게소개: ${basicInfo.storeDesc}`);
-    if (extraInfo?.address) lines.push(`주소: ${extraInfo.address}`);
 
-    // 추가 정보 중 '노출(show...)'이 true이거나 '보유(has.../is...)'가 true인 것만 포함
-    const extras = [];
-    if (extraInfo?.parkingCount > 0 && extraInfo?.showParkingCount) extras.push(`주차공간 ${extraInfo.parkingCount}대`);
-    if (extraInfo?.isNoKids) extras.push('노키즈존');
-    if (extraInfo?.hasSmokingArea) extras.push('흡연공간 보유');
-    if (extraInfo?.hasElevator) extras.push('엘리베이터 보유');
-    if (extraInfo?.hasDelivery) extras.push('배달 가능');
+    // 활성화된(showDesc: true) 상품 소개문구 리스트 추가
+    if (Array.isArray(products) && products.length > 0) {
+      const activeDescs = products
+        .filter((p) => p.showDesc && p.description?.trim())
+        .map((p) => p.description.trim());
 
-    if (extras.length > 0) {
-      lines.push(`편의시설/특이사항: ${extras.join(', ')}`);
+      if (activeDescs.length > 0) {
+        lines.push(''); // 가독성을 위한 구분
+        lines.push('[활성화된 상품 소개문구]');
+        activeDescs.forEach((desc, idx) => {
+          lines.push(`${idx + 1}. ${desc}`);
+        });
+      }
     }
 
     return lines.join('\n');

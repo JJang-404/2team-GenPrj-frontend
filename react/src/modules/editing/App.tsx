@@ -354,25 +354,20 @@ export default function App() {
   };
 
   const handleGenerateSlogan = async () => {
-    const prompt = storeInfo.buildAdPrompt();
-    if (!prompt) {
-      console.warn('[Editing] 저장된 가게 정보가 없어 기본 생성기를 사용합니다.');
-      handleMainSloganChange(createAutoSlogan(projectData));
-      return;
-    }
-
     setGenerating(true);
+    setError(null);
+
     try {
-      console.log('[Editing] AI 광고 문구 생성 요청 프롬프트:\n', prompt);
-      const result = await adverApi.generateAdCopy(prompt);
+      const result = await callApi.generateAdCopy();
       
       if (result.ok && result.data) {
-        // 결과가 배열이거나 단일 문자열일 수 있으므로 유연하게 처리
+        // 결과가 배열이거나 단일 문자열/객체일 수 있으므로 유연하게 처리
         const copy = Array.isArray(result.data) ? result.data[0] : (result.data.main_copy || result.data);
         console.log('[Editing] AI 광고 문구 수신:', copy);
         handleMainSloganChange(String(copy));
       } else {
-        throw new Error(result.error || '광고 문구를 생성하지 못했습니다.');
+        console.warn(`[Editing] AI 문구 생성 실패: ${result.error}. 로컬 생성기로 대체합니다.`);
+        handleMainSloganChange(createAutoSlogan(projectData));
       }
     } catch (err) {
       console.error('[Editing] 광고 문구 생성 오류:', err);
@@ -414,6 +409,26 @@ export default function App() {
       setElements((prev) => updateElement(prev, selectedElement.id, { imageUrl: result.url, hidden: false }));
     } catch (backgroundError) {
       setError(backgroundError instanceof Error ? backgroundError.message : '배경 제거에 실패했습니다.');
+    }
+  };
+
+  const handleConvertToFrontalView = async () => {
+    if (!selectedElement || selectedElement.kind !== 'image' || !selectedElement.imageUrl) return;
+
+    setGenerating(true);
+    setError(null);
+    try {
+      const result = await callApi.transformImageToFrontal(selectedElement.imageUrl);
+      if (result.ok && result.blobUrl) {
+        setElements((prev) => updateElement(prev, selectedElement.id, { imageUrl: result.blobUrl, hidden: false }));
+      } else {
+        throw new Error(result.error || '정면 변환에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('[Editing] 정면 변환 오류:', err);
+      setError(err instanceof Error ? err.message : '정면 변환 중 오류가 발생했습니다.');
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -485,6 +500,7 @@ export default function App() {
         onBringForward={handleBringForward}
         onReplaceSelectedImage={handleReplaceSelectedImage}
         onRemoveSelectedImageBackground={handleRemoveSelectedImageBackground}
+        onConvertToFrontalView={handleConvertToFrontalView}
       />
 
       <main className="workspace">

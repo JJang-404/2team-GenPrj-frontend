@@ -108,6 +108,7 @@ interface ImageInfoPanelProps {
   onRemoveSelectedImageBackground: () => void;
   onSendBackward: (id: string) => void;
   onBringForward: (id: string) => void;
+  onConvertToFrontalView?: () => void;
 }
 
 export function ImageInfoPanel({
@@ -117,6 +118,7 @@ export function ImageInfoPanel({
   onRemoveSelectedImageBackground,
   onSendBackward,
   onBringForward,
+  onConvertToFrontalView,
 }: ImageInfoPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedCurrency = selectedElement.priceCurrency ?? '원';
@@ -140,6 +142,11 @@ export function ImageInfoPanel({
             <SidebarMiniButton onClick={() => onBringForward(selectedElement.id)}>
               앞으로
             </SidebarMiniButton>
+            {onConvertToFrontalView && (
+              <SidebarMiniButton onClick={onConvertToFrontalView}>
+                정면
+              </SidebarMiniButton>
+            )}
           </div>
           <div className="sidebar-edit-row">
             <span>투명도</span>

@@ -2,6 +2,8 @@ import BaseApi from './baseApi';
 import { modelApi } from './modelApi';
 import { designApi } from './designApi';
 import { imageApi } from './imageApi';
+import { storeInfo } from './storeInfo';
+import { adverApi } from './adverApi';
 import {
   AI_BACKGROUND_NEGATIVE_PROMPT,
   AI_BACKGROUND_PROMPT_FIELDS,
@@ -278,8 +280,8 @@ class CallApi extends BaseApi {
   async generateBackground({ storeName, industry, storeDesc, customPrompt = '' }) {
     console.log('[CallApi] generateBackground 시작:', { storeName, industry, storeDesc, customPrompt });
     const basePrompt = this.buildBackgroundPrompt({ storeName, industry, storeDesc });
-    const prompt = customPrompt.trim() 
-      ? `${customPrompt}\n\n[참고 가이드]\n${basePrompt}` 
+    const prompt = customPrompt.trim()
+      ? `${customPrompt}\n\n[참고 가이드]\n${basePrompt}`
       : basePrompt;
     const negativePrompt = AI_BACKGROUND_NEGATIVE_PROMPT;
 
@@ -299,6 +301,76 @@ class CallApi extends BaseApi {
       prompt,
       negativePrompt,
     };
+  }
+
+  /**
+   * 상품 이미지를 AI모델을 사용하여 정면 뷰(Frontal View)로 변환합니다.
+   * @param {string} imageUrl - 변환할 이미지의 Blob URL 또는 경로
+   * @returns {Promise<Object>} 변환 결과 { ok, blobUrl, error }
+   */
+  async transformImageToFrontal(imageUrl) {
+    console.log('[CallApi] transformImageToFrontal 시작:', imageUrl);
+
+    try {
+      // 1. 이미지 데이터를 가져와 Base64로 인코딩
+      const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error(`이미지를 불러오지 못했습니다: ${response.statusText}`);
+      const blob = await response.blob();
+
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      // 2. 요청받은 전용 프롬프트 구성
+      const negativePrompt = `deformed object, warped geometry, broken handle, missing parts,
+      top-down view, extreme overhead angle, distorted perspective,
+      melted shape, unrealistic structure, ugly, creepy, asymmetrical,
+      low quality, blurry`;
+
+
+      const prompt = `A professional studio product photo of a ceramic coffee cup and saucer.
+      The cup is shown from a natural front-facing product angle, slightly above eye level.
+      The handle is positioned to the right side.
+      Preserve the original cup design, ceramic texture, color, and proportions.
+      The coffee surface is visible with natural perspective, not top-down.
+      Clean composition, centered, soft lighting, plain background, high detail, photorealistic.
+      This should look like a clean commercial product photo of the same object.`;
+
+
+      // 3. AI 모델 서버 호출 (strength 0.3 적용)
+      console.log('[CallApi] AI 정면 변환 요청 중...');
+      const result = await modelApi.changeImage(prompt, base64, 0.3, '', negativePrompt);
+
+      if (result.ok) {
+        console.log('[CallApi] AI 정면 변환 성공:', result.blobUrl);
+      } else {
+        console.error('[CallApi] AI 정면 변환 실패:', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('[CallApi] 정면 변환 로직 중 에러 발생:', error);
+      return { ok: false, error: error.message };
+    }
+  }
+
+  /**
+   * 저장된 가게 정보와 상품 소개문구를 기반으로 AI 광고 문구를 생성합니다.
+   * @returns {Promise<Object>} 생성 결과 { ok, data, error }
+   */
+  async generateAdCopy() {
+    const prompt = storeInfo.buildAdPrompt();
+    if (!prompt) {
+      return { ok: false, error: '저장된 가게 정보가 없어 프롬프트를 생성할 수 없습니다.' };
+    }
+
+    console.log('[CallApi] AI 광고 문구 생성 요청 프롬프트:\n', prompt);
+    const result = await adverApi.generateAdCopy(prompt);
+
+    return result;
   }
 }
 

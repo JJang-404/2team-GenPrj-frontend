@@ -34,6 +34,7 @@ interface SidebarProps {
   onBringForward: (id: string) => void;
   onReplaceSelectedImage: (file: File) => void;
   onRemoveSelectedImageBackground: () => void;
+  onConvertToFrontalView?: () => void;
 }
 
 export default function Sidebar({
@@ -63,6 +64,7 @@ export default function Sidebar({
   onBringForward,
   onReplaceSelectedImage,
   onRemoveSelectedImageBackground,
+  onConvertToFrontalView,
 }: SidebarProps) {
   const [newElementLabel, setNewElementLabel] = useState('');
 
@@ -126,6 +128,7 @@ export default function Sidebar({
             onRemoveSelectedImageBackground={onRemoveSelectedImageBackground}
             onSendBackward={onSendBackward}
             onBringForward={onBringForward}
+            onConvertToFrontalView={onConvertToFrontalView}
           />
         ) : null}
 

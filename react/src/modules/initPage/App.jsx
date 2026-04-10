@@ -32,9 +32,9 @@ const App = () => {
     console.log('[App] 디자인 선택 이벤트 발생 - 인덱스:', idx);
     setSelectedDesigns([idx]);
 
-    // 가게 정보 저장 (편집 페이지 연동용)
+    // 가게 정보 저장 (편집 페이지 연동용 - 기본 정보 및 상품 소개문구 위주)
     console.log('[App] 가게 정보 저장 시도...');
-    storeInfo.saveStoreInfo({ basicInfo, extraInfo });
+    storeInfo.saveStoreInfo({ basicInfo, products });
 
     try {
       const payload = await buildEditingPayload({
