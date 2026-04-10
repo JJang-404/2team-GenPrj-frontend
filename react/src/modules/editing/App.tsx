@@ -75,7 +75,9 @@ export default function App() {
    * UI 레벨의 '이미지 자르는 중' 로컬 인디케이터에 사용.
    */
   const [prebakingProductIds, setPrebakingProductIds] = useState<Set<number>>(() => new Set());
+  const [saving, setSaving] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
+  const mainPreviewRef = useRef<HTMLDivElement>(null);
 
   const getInitPageUrl = () => import.meta.env.VITE_INITPAGE_URL ?? '/';
 
@@ -592,6 +594,24 @@ export default function App() {
     });
   };
 
+  const handleFullSave = async () => {
+    if (!mainPreviewRef.current) return;
+    setSaving(true);
+    try {
+      const dataUrl = await captureElementAsDataUrl(mainPreviewRef.current, 3);
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `${projectData?.storeName ?? 'design'}_full.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : '이미지 저장에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!bridgeResolved) {
     return <div className="empty-panel">초기 연결 데이터를 확인하는 중입니다.</div>;
   }
@@ -651,6 +671,14 @@ export default function App() {
             <span>{backgroundMode}</span>
             {generating && <span>가이드 이미지로 배경 생성 중...</span>}
             {prebakingProductIds.size > 0 && <span>이미지 자르는 중...</span>}
+            <button
+              type="button"
+              className="btn-full-save"
+              onClick={() => void handleFullSave()}
+              disabled={saving || generating}
+            >
+              {saving ? '저장 중...' : '전체 저장'}
+            </button>
           </div>
         </div>
 
@@ -675,7 +703,7 @@ export default function App() {
           <>
             {(step === 'background' || step === 'editor') && (
               <section className="workspace__section workspace__section--split">
-                <div className="workspace__main-preview">
+                <div className="workspace__main-preview" ref={mainPreviewRef}>
                   <EditorCanvas
                     elements={renderElements}
                     background={selectedBackground}
