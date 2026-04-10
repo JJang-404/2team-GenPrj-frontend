@@ -62,7 +62,7 @@ export default function App() {
   const [queuedBackgroundGeneration, setQueuedBackgroundGeneration] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [bridgeResolved, setBridgeResolved] = useState(false);
-  const [rightPanelMode, setRightPanelMode] = useState<'background' | 'template'>('background');
+  const [rightPanelMode, setRightPanelMode] = useState<'background' | 'template'>('template');
   /**
    * Type 4 half-crop / Type 3 overlap는 제품 이미지의 natural 크기와
    * pre-bake된 절반 dataURL을 요구한다. editing 모듈 로드 시점에 한 번
@@ -691,20 +691,20 @@ export default function App() {
                       <button
                         type="button"
                         role="tab"
-                        aria-selected={rightPanelMode === 'background'}
-                        className={`choice-toggle__btn ${rightPanelMode === 'background' ? 'choice-toggle__btn--active' : ''}`}
-                        onClick={() => setRightPanelMode('background')}
-                      >
-                        배경 선택
-                      </button>
-                      <button
-                        type="button"
-                        role="tab"
                         aria-selected={rightPanelMode === 'template'}
                         className={`choice-toggle__btn ${rightPanelMode === 'template' ? 'choice-toggle__btn--active' : ''}`}
                         onClick={() => setRightPanelMode('template')}
                       >
                         구도 선택
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={rightPanelMode === 'background'}
+                        className={`choice-toggle__btn ${rightPanelMode === 'background' ? 'choice-toggle__btn--active' : ''}`}
+                        onClick={() => setRightPanelMode('background')}
+                      >
+                        배경 선택
                       </button>
                     </div>
                     {rightPanelMode === 'background' ? (
