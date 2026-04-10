@@ -1,0 +1,407 @@
+@object-save-guide.md 파일을 봐주세요.
+'AI 배경 생성' 버튼을 누르면 기존에는 @modelApi 를 통해서 generateImage 함수로 배경이 생성되었는데
+@object-save-guide.md 을 통해서 이미지가를 @modelApi 를 모듈을 통해서 changeImage 함수로 사용하려고 합니다.
+우선은 이  'AI 배경 생성' 버튼을 누르면 @object-save-guide.md 처럼 객체만 저장되게끔 만들려고 합니다. 어떻게 하면 되나요?
+
+---
+
+'AI 배경 생성' 버튼을 누르면 @object-save-guide.md 처럼 객체만 저장이 잘 되었습니다.
+우선 editing 에서 'AI 이미지 생성 프롬프트'가 띄어쓰기가 막혀있습니다. 자유롭게 쓸 수 있도록 수정해주세요.
+그 다음에는 @modelApi 를 모듈을 통해서 changeImage 함수로 사용하여서 CallApi 를 사용하여서 진행합니다.
+Negative Prompt
+"distorted subject, deformed object, altered product, extra objects on top of subject,
+duplicate subject, unrealistic lighting, broken geometry, warped shape, blurry subject"
+Prompt
+"A high-quality commercial product photo.
+Preserve the original main subject exactly as it is. Do not alter, distort, or replace the subject in any way.
+The subject may be a beverage, dessert, or any product — keep its shape, texture, color, and perspective unchanged.
+Generate only a background that naturally fits the subject.
+Scene description:
+{AI 이미지 생성 프롬프트}
+
+The background must match the subject in lighting, color tone, and perspective, creating a realistic and cohesive scene.
+Style:
+clean composition, soft natural lighting, realistic shadows, depth of field, professional product photography
+Ensure the subject remains the visual focus and is not obstructed or modified.
+No additional objects overlapping the subject unless naturally required by the scene."
+
+이렇게 해서 배경을 만들어주는 'AI 배경 생성' 을 구현해주세요. API 와 CallApi 를 이용하는 기법을 원합니다.
+
+---
+
+@contextScopeItemMention 이 함수가 'AI 배경 추가' 맞나요? 'AI 이미지 프롬프트'가 과연 프롬프트에 잘 들어갔는지 확인하기 위해서는 어떻게 확인해야하나요?
+
+---
+
+'Ai 이미지 생성 프롬프트' 에는 "봄과어울리게" 라고 작성하고 
+
+F12 눌러서 개발자 돋구에서 network 에서 changeimage 항목을 클릭했는데
+
+image_base64
+: 
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA2Y
+negative_prompt
+: 
+"distorted subject, deformed object, altered product, extra objects on top of subject,\n      duplicate subject, unrealistic lighting, broken geometry, warped shape, blurry subject"
+prompt
+: 
+"A high-quality commercial product photo.\nPreserve the original main subject exactly as it is. Do not alter, distort, or replace the subject in any way.\nThe subject may be a beverage, dessert, or any product — keep its shape, texture, color, and perspective unchanged.\nGenerate only a background that naturally fits the subject.\nScene description:\na professional studio setting\n\nThe background must match the subject in lighting, color tone, and perspective, creating a realistic and cohesive scene.\nStyle:\nclean composition, soft natural lighting, realistic shadows, depth of field, professional product photography\nEnsure the subject remains the visual focus and is not obstructed or modified.\nNo additional objects overlapping the subject unless naturally required by the scene."
+strength
+: 
+0.75
+
+이렇게 나왔습니다.
+'Ai 이미지 생성 프롬프트' 가 들어간 프롬프트인지 확인해주세요. 그리고 'Ai 이미지 생성 프롬프트' 에는 여전히 띄어쓰기가 되지 않습니다.
+
+---
+
+제가 원하는 기능은 'Ai 이미지 생성 프롬프트' 를 입력하고 'AI 배경 생성' 버튼을 누르면 배경이 생성되는 기능입니다.
+현재는 'AI 배경 추가' 버튼을 누르면 배경이 생성되는데, 객체는 그대로 두고, 객체 바깥 영역만 채우는(outpainting/배경 확장)으로 배경을 생성하고 싶습니다.
+Outpainting or Inpainting (마스크 기반)
+객체 영역 = 보호, 배경 영역 = 생성 해야합니다.
+그래서 객체 위치에 생성하는게 아니라 바깥 영역을 채우는 배경 생성하고 싶습니다.
+
+프롬프트는 이걸로 바꿔주세요
+A high-quality commercial product photo.
+
+The main subject is already present in the image.
+
+DO NOT modify, redraw, or replace the subject in any way.
+DO NOT paint over the subject.
+DO NOT generate anything on top of the subject.
+
+Only generate background in the empty or surrounding areas outside the subject.
+
+The background must naturally extend around the subject without covering it.
+
+Scene description:
+{Ai 이미지 생성 프롬프트}
+
+The generated background should match the subject's lighting, perspective, and color tone.
+
+Style:
+realistic, soft lighting, natural shadows, professional photography, clean composition
+
+The subject must remain fully visible, unobstructed, and unchanged."
+
+Inpainting (추천)
+객체 영역 마스크 = 검은색 (보호)
+배경 영역 = 흰색 (생성)
+
+모델이 배경만 생성
+객체 절대 안 건드림
+
+내가 이런식으로 생성하게 하려면 어떤게 필요한가요? 
+
+---
+여전히 'AI 배경 생성' 을 진행하면 객체 위치에 비슷한 이미지로 생성합니다.
+내가 원하는 기능은
+1: Inpainting (추천)
+객체 영역 마스크 = 검은색 (보호)
+배경 영역 = 흰색 (생성) 입니다.
+
+먼저 고쳐야 할 것 1: 마스크 생성 함수
+지금 함수는 합성 후 alpha를 읽고 있어서 구조적으로 잘못됐다.
+반드시 원본 이미지의 alpha를 먼저 읽어야 한다.
+// 수정버전
+/**
+ * 투명 PNG 이미지를 기반으로 인페인팅용 마스크를 생성합니다.
+ * 객체 영역(alpha > threshold) -> 검은색(보호)
+ * 배경 영역(alpha <= threshold) -> 흰색(생성)
+ */
+export async function generateInpaintMask(
+  dataUrl: string,
+  options: {
+    alphaThreshold?: number;
+    padding?: number; // 객체 주변 보호 여백
+    blur?: number;    // 마스크 경계 부드럽게
+  } = {}
+): Promise<string> {
+  const {
+    alphaThreshold = 8,
+    padding = 12,
+    blur = 4,
+  } = options;
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+
+      // 1) 원본 알파를 읽기 위한 캔버스
+      const srcCanvas = document.createElement('canvas');
+      srcCanvas.width = width;
+      srcCanvas.height = height;
+      const srcCtx = srcCanvas.getContext('2d');
+
+      if (!srcCtx) {
+        reject(new Error('Source canvas context failed'));
+        return;
+      }
+
+      srcCtx.clearRect(0, 0, width, height);
+      srcCtx.drawImage(img, 0, 0);
+
+      const srcImageData = srcCtx.getImageData(0, 0, width, height);
+      const src = srcImageData.data;
+
+      // 2) 기본 마스크 생성
+      const maskCanvas = document.createElement('canvas');
+      maskCanvas.width = width;
+      maskCanvas.height = height;
+      const maskCtx = maskCanvas.getContext('2d');
+
+      if (!maskCtx) {
+        reject(new Error('Mask canvas context failed'));
+        return;
+      }
+
+      const maskImageData = maskCtx.createImageData(width, height);
+      const dst = maskImageData.data;
+
+      for (let i = 0; i < src.length; i += 4) {
+        const alpha = src[i + 3];
+        const isObject = alpha > alphaThreshold;
+
+        if (isObject) {
+          // 객체 = 보호 = 검정
+          dst[i] = 0;
+          dst[i + 1] = 0;
+          dst[i + 2] = 0;
+          dst[i + 3] = 255;
+        } else {
+          // 배경 = 생성 = 흰색
+          dst[i] = 255;
+          dst[i + 1] = 255;
+          dst[i + 2] = 255;
+          dst[i + 3] = 255;
+        }
+      }
+
+      maskCtx.putImageData(maskImageData, 0, 0);
+
+      // 3) 객체 주변 보호 여백 추가
+      if (padding > 0) {
+        const expandedCanvas = document.createElement('canvas');
+        expandedCanvas.width = width;
+        expandedCanvas.height = height;
+        const expandedCtx = expandedCanvas.getContext('2d');
+
+        if (!expandedCtx) {
+          reject(new Error('Expanded canvas context failed'));
+          return;
+        }
+
+        // 기본은 흰색(생성 영역)
+        expandedCtx.fillStyle = '#ffffff';
+        expandedCtx.fillRect(0, 0, width, height);
+
+        // 검정 객체 영역을 약간 확장해서 다시 그림
+        expandedCtx.filter = `blur(${padding}px)`;
+        expandedCtx.drawImage(maskCanvas, 0, 0);
+        expandedCtx.filter = 'none';
+
+        const expandedData = expandedCtx.getImageData(0, 0, width, height);
+        const ed = expandedData.data;
+
+        for (let i = 0; i < ed.length; i += 4) {
+          const v = ed[i]; // grayscale
+          const isProtected = v < 200; // 어두우면 보호영역으로 간주
+          ed[i] = isProtected ? 0 : 255;
+          ed[i + 1] = isProtected ? 0 : 255;
+          ed[i + 2] = isProtected ? 0 : 255;
+          ed[i + 3] = 255;
+        }
+
+        expandedCtx.putImageData(expandedData, 0, 0);
+        maskCtx.clearRect(0, 0, width, height);
+        maskCtx.drawImage(expandedCanvas, 0, 0);
+      }
+
+      // 4) 경계 블러
+      if (blur > 0) {
+        const finalCanvas = document.createElement('canvas');
+        finalCanvas.width = width;
+        finalCanvas.height = height;
+        const finalCtx = finalCanvas.getContext('2d');
+
+        if (!finalCtx) {
+          reject(new Error('Final canvas context failed'));
+          return;
+        }
+
+        finalCtx.fillStyle = '#ffffff';
+        finalCtx.fillRect(0, 0, width, height);
+        finalCtx.filter = `blur(${blur}px)`;
+        finalCtx.drawImage(maskCanvas, 0, 0);
+        finalCtx.filter = 'none';
+
+        resolve(finalCanvas.toDataURL('image/png'));
+        return;
+      }
+
+      resolve(maskCanvas.toDataURL('image/png'));
+    };
+
+    img.onerror = () => reject(new Error('Image failed to load'));
+    img.src = dataUrl;
+  });
+}
+
+먼저 고쳐야 할 것 2: 입력 이미지가 진짜 투명 PNG인지 확인
+
+샘플을 보면 검은 바탕 위에 컵이 놓여 있다.
+이게 “보기용 배경”이 아니라 실제 픽셀이 검정이면, alpha 기반 마스크는 실패한다.
+
+바로 확인하는 디버그 함수
+
+export async function inspectAlpha(dataUrl: string): Promise<{
+  width: number;
+  height: number;
+  transparentPixelCount: number;
+  opaquePixelCount: number;
+}> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return reject(new Error('Canvas context failed'));
+
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      let transparentPixelCount = 0;
+      let opaquePixelCount = 0;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const alpha = data[i + 3];
+        if (alpha === 0) transparentPixelCount++;
+        else opaquePixelCount++;
+      }
+
+      resolve({
+        width: img.width,
+        height: img.height,
+        transparentPixelCount,
+        opaquePixelCount,
+      });
+    };
+
+    img.onerror = () => reject(new Error('Image failed to load'));
+    img.src = dataUrl;
+  });
+}
+transparentPixelCount가 거의 0이면, 그 이미지는 사실상 투명 PNG가 아니다.
+changeBackgroundWithImage 쪽도 조금 수정하는 게 좋다
+
+현재 호출 자체는 방향이 맞다. generateInpaintMask(base64)를 만들고 modelApi.changeImage(..., maskBase64)로 넘기고 있다.
+다만 아래처럼 디버깅 로그를 추가해 두는 게 좋다.
+async changeBackgroundWithImage(objectsImageUrl, sceneDescription, strength = 0.3) {
+  console.log('[CallApi] changeBackgroundWithImage 시작:', { sceneDescription, strength });
+
+  try {
+    let base64 = objectsImageUrl;
+    if (!objectsImageUrl.startsWith('data:')) {
+      const response = await fetch(objectsImageUrl);
+      if (!response.ok) throw new Error(`이미지를 불러오지 못했습니다: ${response.statusText}`);
+      const blob = await response.blob();
+      base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    const alphaInfo = await inspectAlpha(base64);
+    console.log('[CallApi] alpha inspection:', alphaInfo);
+
+    const maskBase64 = await generateInpaintMask(base64, {
+      alphaThreshold: 8,
+      padding: 14,
+      blur: 3,
+    });
+
+    console.log('[CallApi] mask generated:', maskBase64?.slice(0, 80));
+
+    const negativePrompt = `
+duplicate subject, multiple cups, extra plate, extra flower,
+object overlap, subject distortion, deformed object, altered product,
+warped shape, blurry subject, cropped subject, cut off object
+`.trim();
+
+    const prompt = `
+A premium commercial product photo.
+
+The main subject already exists in the image and must remain unchanged.
+Keep the subject fully visible and unobstructed.
+
+Generate only the surrounding background outside the protected subject area.
+Do not create a new subject.
+Do not duplicate the subject.
+Do not place any object in front of the subject.
+Do not cover any part of the subject.
+
+Create a cohesive background that matches the subject's perspective, lighting, shadows, and color tone.
+
+Scene description:
+${sceneDescription || 'a clean premium studio background'}
+`.trim();
+
+    const result = await modelApi.changeImage(
+      prompt,
+      base64,
+      strength,     // 0.25 ~ 0.35 권장
+      '',
+      negativePrompt,
+      maskBase64
+    );
+
+    return {
+      ...result,
+      prompt,
+      negativePrompt,
+      maskBase64,
+    };
+  } catch (error) {
+    console.error('[CallApi] 배경 변경 로직 중 에러 발생:', error);
+    return { ok: false, error: error.message };
+  }
+}
+강하게 의심되는 추가 원인 2개
+1) strength = 0.45가 아직 높을 수 있다
+
+배경만 바꾸려면 0.25 ~ 0.35부터 시작하는 게 낫다.
+0.45면 객체 근처를 다시 해석할 여지가 꽤 있다. 현재 기본값은 0.45다.
+
+2) 백엔드/모델 API가 마스크를 실제로 인페인팅 방식으로 쓰는지 확인 필요
+
+지금 프론트는 modelApi.changeImage(prompt, base64, strength, '', negativePrompt, maskBase64)로 넘기고 있지만, 백엔드가 이 6번째 인자를 진짜 mask로 받아 Stability Inpainting API에 연결하는지는 별도 확인이 필요하다.
+프론트에서 마스크를 넘겨도 백엔드가 그냥 일반 img2img로 처리하면 객체 위에 계속 그려진다. 현재 업로드된 코드만 보면 프론트에서 전달하고 있다는 것까지만 확인된다.
+정리
+
+지금 가장 먼저 수정할 건 3개다.
+
+마스크 생성 로직 수정
+흰 배경 먼저 깔고 alpha 읽지 말기
+원본 alpha를 직접 읽기
+마스크를 PNG로 저장
+JPEG 말고 PNG
+strength 낮추기
+0.45 → 0.25~0.35
+
+그리고 그 다음 확인할 것:
+
+입력 이미지가 진짜 투명 PNG인지
+백엔드가 실제 inpainting endpoint를 쓰는지
+마스크 의미가 API 기준과 맞는지
+보통 흰색 = 수정 영역 / 검정 = 보호 영역이지만, 사용하는 백엔드 구현이 반대일 수도 있다
+
+이 내용을 정리해서 수정해주세요.

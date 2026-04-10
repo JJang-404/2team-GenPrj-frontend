@@ -1,0 +1,117 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775810509428,
+  "projectRoot": "/home/codeitDev/project/2team-GenPrj-frontend",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "doc": {
+      "path": "doc",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775810509385,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 4,
+      "lastAccessed": 1775810509390,
+      "keyFiles": [
+        "EDITING_MODULE.md",
+        "EDITING_RIGHT_PANEL_TOGGLE.md",
+        "WIREFRAME_ARCHITECTURE.md",
+        "wireframe-prebake-halfcrop-report.md"
+      ]
+    },
+    "example": {
+      "path": "example",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1775810509396,
+      "keyFiles": [
+        "desired_image.jpg",
+        "error_image.jpg"
+      ]
+    },
+    "react": {
+      "path": "react",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1775810509401,
+      "keyFiles": [
+        "README.md",
+        "index.html",
+        "package-lock.json",
+        "package.json",
+        "postcss.config.js"
+      ]
+    },
+    "react/dist": {
+      "path": "react/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 3,
+      "lastAccessed": 1775810509418,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg",
+        "index.html"
+      ]
+    },
+    "react/node_modules": {
+      "path": "react/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1775810509423,
+      "keyFiles": []
+    },
+    "react/public": {
+      "path": "react/public",
+      "purpose": "Public files",
+      "fileCount": 2,
+      "lastAccessed": 1775810509428,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "react/src/modules/editing/App.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775810549400,
+      "type": "directory"
+    }
+  ],
+  "userDirectives": []
+}
