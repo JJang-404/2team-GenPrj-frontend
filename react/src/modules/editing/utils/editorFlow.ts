@@ -4,7 +4,68 @@ import type {
   TemplateDefinition,
 } from '../types/editor-core';
 import type { HomeProjectData, HomeProductInput } from '../types/home';
-import { getDraftProductSlots, getDraftTextPlacements } from '../../../shared/draftLayout';
+import {
+  computeWireframeProductPlacements,
+  deriveWireframeLayout,
+  type WireframeProductPlacement,
+} from './wireframeLayout';
+
+/**
+ * Legacy text placement table — bitwise copy of shared/draftLayout.ts DRAFT_LAYOUTS[0..3].{store,slogan,details,summary}.
+ *
+ * This exists so editing can stop importing from shared/draftLayout while the
+ * fallback-details / fallback-product-summary / generic text regex branches
+ * keep rendering identical coordinates. Only `store` and `slogan` are
+ * overridden by the wireframe-derived layout; `details` and `summary` fall
+ * through to these values.
+ *
+ * If shared/draftLayout.ts ever changes upstream, these values must be
+ * re-synced or the divergence justified.
+ */
+interface LegacyTextRect {
+  x: number;
+  y: number;
+  width: number;
+  rotation?: number;
+  zIndex?: number;
+  align?: 'left' | 'center' | 'right';
+}
+interface LegacyTextPlacements {
+  store: LegacyTextRect;
+  slogan: LegacyTextRect;
+  details: LegacyTextRect;
+  summary: LegacyTextRect;
+}
+const LEGACY_TEXT_PLACEMENTS: LegacyTextPlacements[] = [
+  // draftIndex 0 (Type1)
+  {
+    store:   { x: 18, y: 7,  width: 64, align: 'center', rotation: 0,  zIndex: 30 },
+    slogan:  { x: 16, y: 16, width: 68, align: 'center', rotation: 0,  zIndex: 29 },
+    details: { x: 14, y: 74, width: 72, align: 'center', rotation: 0,  zIndex: 28 },
+    summary: { x: 18, y: 86, width: 64, align: 'center', rotation: 0,  zIndex: 28 },
+  },
+  // draftIndex 1 (Type2)
+  {
+    store:   { x: 10, y: 10, width: 48, align: 'left',   rotation: -3, zIndex: 30 },
+    slogan:  { x: 12, y: 21, width: 42, align: 'left',   rotation: 0,  zIndex: 29 },
+    details: { x: 66, y: 74, width: 24, align: 'right',  rotation: 0,  zIndex: 28 },
+    summary: { x: 64, y: 86, width: 26, align: 'right',  rotation: 0,  zIndex: 28 },
+  },
+  // draftIndex 2 (Type3)
+  {
+    store:   { x: 22, y: 83, width: 56, align: 'center', rotation: 0,  zIndex: 30 },
+    slogan:  { x: 24, y: 90, width: 52, align: 'center', rotation: 0,  zIndex: 29 },
+    details: { x: 18, y: 12, width: 64, align: 'center', rotation: 0,  zIndex: 28 },
+    summary: { x: 26, y: 74, width: 48, align: 'center', rotation: 90, zIndex: 28 },
+  },
+  // draftIndex 3 (Type4)
+  {
+    store:   { x: 14, y: 11, width: 72, align: 'center', rotation: 0,  zIndex: 30 },
+    slogan:  { x: 20, y: 23, width: 60, align: 'center', rotation: 0,  zIndex: 29 },
+    details: { x: 16, y: 77, width: 68, align: 'center', rotation: 0,  zIndex: 28 },
+    summary: { x: 24, y: 88, width: 52, align: 'center', rotation: 0,  zIndex: 28 },
+  },
+];
 import { getDraftTypography } from '../../../shared/draftTypography';
 import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './additionalInfo';
 import { cloneTemplateElements } from './editor';
@@ -113,33 +174,77 @@ export function shouldShowAdditionalInfoText(projectData: HomeProjectData | null
   }
 }
 
-export function applyDraftLayoutVariant(elements: EditorElement[], draftIndex: number) {
-  const layout = getDraftProductSlots(draftIndex, elements.filter(isPrimaryImageElement).length);
-  const textPlacements = getDraftTextPlacements(draftIndex);
-  const productElements = elements.filter(isPrimaryImageElement).slice(0, layout.length);
+export function applyDraftLayoutVariant(
+  elements: EditorElement[],
+  draftIndex: number,
+  projectData?: HomeProjectData | null,
+) {
+  const productCount = elements.filter(isPrimaryImageElement).length;
+  // hasSlogan canonical source: presence of a `fallback-main-slogan` element with truthy text.
+  // mapProjectDataToTemplate only creates that element when projectData.mainSlogan is set,
+  // so this is equivalent to `Boolean(projectData?.mainSlogan)` without threading projectData.
+  const hasSlogan = elements.some(
+    (el) => el.id === 'fallback-main-slogan' && el.kind === 'text' && Boolean(el.text)
+  );
+  const typeIndex = (((draftIndex % 4) + 4) % 4) as 0 | 1 | 2 | 3;
+  const wireframe = deriveWireframeLayout(typeIndex, productCount, hasSlogan);
+  const textPlacements = LEGACY_TEXT_PLACEMENTS[typeIndex];
+
+  // Wireframe-derived overrides for store + slogan only; details/summary stay on LEGACY values.
+  const storeRect = wireframe.storeName;
+  const sloganRect = wireframe.mainSlogan;
+
+  // Type 3/4는 제품 natural 크기 + pre-bake 반쪽 이미지가 필요하므로
+  // projectData를 직접 전달받아 computeWireframeProductPlacements를 사용한다.
+  // projectData가 없을 때는 기존 sw/sh fallback slotToRect 동작을 유지한다.
+  // mapProjectDataToTemplate와 동일한 활성 제품 순서(primaryImages 기준)를 사용.
+  const activeProducts: HomeProductInput[] = (projectData?.products ?? []).filter(
+    (product) => product.image,
+  );
+  const placements: WireframeProductPlacement[] =
+    projectData && activeProducts.length > 0
+      ? computeWireframeProductPlacements(typeIndex, productCount, hasSlogan, activeProducts)
+      : wireframe.productSlots.map((rect) => ({ rect }));
+
+  // When placements is empty (productCount === 0 OR unsupported key), keep
+  // existing element coordinates instead of overriding them.
+  const useWireframeProducts = placements.length > 0;
+  const productElements = elements
+    .filter(isPrimaryImageElement)
+    .slice(0, placements.length);
   const productIds = new Set(productElements.map((element) => element.id));
 
   let productCursor = 0;
   return elements.map((element) => {
-    if (productIds.has(element.id)) {
-      const slot = layout[productCursor] ?? layout[0];
+    if (useWireframeProducts && productIds.has(element.id)) {
+      const placement = placements[productCursor] ?? placements[0];
       productCursor += 1;
-      return {
+      const { rect, imageUrlOverride } = placement;
+      const next: EditorElement = {
         ...element,
-        x: slot.x,
-        y: slot.y,
-        width: slot.width,
-        height: slot.height,
-        rotation: slot.rotation,
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+        // wireframe은 rotation을 지정하지 않으므로 0으로 초기화한다.
+        // (템플릿 기본값이 남아있으면 main-preview/BackgroundCard에서
+        // 의도치 않은 회전이 유지되는 문제를 방지.)
+        rotation: 0,
       };
+      // Type 4 half-crop: element.imageUrl을 pre-bake dataURL로 교체.
+      // pre-bake 실패(override undefined)인 경우 원본 imageUrl을 유지.
+      if (imageUrlOverride) {
+        next.imageUrl = imageUrlOverride;
+      }
+      return next;
     }
 
     if (element.id === 'fallback-main-slogan') {
       return {
         ...element,
-        x: textPlacements.slogan.x,
-        y: textPlacements.slogan.y,
-        width: textPlacements.slogan.width,
+        x: sloganRect.x,
+        y: sloganRect.y,
+        width: sloganRect.width,
         rotation: textPlacements.slogan.rotation ?? element.rotation,
         zIndex: textPlacements.slogan.zIndex ?? element.zIndex,
         align: textPlacements.slogan.align ?? element.align,
@@ -149,9 +254,9 @@ export function applyDraftLayoutVariant(elements: EditorElement[], draftIndex: n
     if (element.id === 'fallback-store-name') {
       return {
         ...element,
-        x: textPlacements.store.x,
-        y: textPlacements.store.y,
-        width: textPlacements.store.width,
+        x: storeRect.x,
+        y: storeRect.y,
+        width: storeRect.width,
         rotation: textPlacements.store.rotation ?? element.rotation,
         zIndex: textPlacements.store.zIndex ?? element.zIndex,
         align: textPlacements.store.align ?? element.align,

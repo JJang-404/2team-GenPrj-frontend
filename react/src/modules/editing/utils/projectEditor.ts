@@ -67,17 +67,3 @@ export function toggleAdditionalInfoElements(
   return [...withoutCurrentInfo.filter((element) => !nextIds.has(element.id)), ...nextInfoElements];
 }
 
-export function getTemplatePreviewElements(
-  template: TemplateDefinition,
-  projectData: HomeProjectData | null,
-  backgroundMode: BackgroundMode,
-  visibilityRule: (
-    templateId: string | null,
-    elements: EditorElement[],
-    backgroundMode: BackgroundMode,
-    projectData: HomeProjectData | null
-  ) => EditorElement[],
-  mapper: (template: TemplateDefinition, projectData: HomeProjectData | null) => EditorElement[]
-) {
-  return visibilityRule(template.id, mapper(template, projectData), backgroundMode, projectData);
-}

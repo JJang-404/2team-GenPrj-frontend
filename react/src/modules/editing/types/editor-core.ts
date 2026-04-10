@@ -1,4 +1,4 @@
-export type EditorStep = 'template' | 'background' | 'editor';
+export type EditorStep = 'background' | 'editor';
 
 export type BackgroundMode = 'solid' | 'gradient' | 'pastel' | 'ai-image';
 

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd react && npx vite build 2>&1 | tail -20\",\"timeout\":180000,\"description\":\"Vite build foreground\"}",
+  "error": "Exit code 1\n/bin/bash: line 1: cd: react: No such file or directory\n[rerun: b12]",
+  "timestamp": "2026-04-10T08:47:11.459Z",
+  "retry_count": 1
+}

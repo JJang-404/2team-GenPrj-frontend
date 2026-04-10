@@ -1410,6 +1410,33 @@ button {
   padding: 14px;
 }
 
+.choice-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-bottom: 14px;
+  border: 1px solid #111111;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.choice-toggle__btn {
+  appearance: none;
+  border: 0;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  background: #ffffff;
+  color: #111111;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.choice-toggle__btn--active {
+  background: #111111;
+  color: #ffffff;
+}
+
 .editor-stage__background {
   position: absolute;
   inset: 0;

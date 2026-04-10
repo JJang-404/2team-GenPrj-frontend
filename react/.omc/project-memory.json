@@ -1,0 +1,222 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775795479841,
+  "projectRoot": "/home/codeitDev/project/2team-GenPrj-frontend/react",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "5.4.2",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc && vite build",
+      "preview": "vite preview"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 3,
+      "lastAccessed": 1775795479808,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg",
+        "index.html"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 2,
+      "lastAccessed": 1775795479813,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1775795479818,
+      "keyFiles": [
+        "App.tsx",
+        "main.tsx",
+        "server.zip"
+      ]
+    },
+    "dist/assets": {
+      "path": "dist/assets",
+      "purpose": "Static assets",
+      "fileCount": 7,
+      "lastAccessed": 1775795479827,
+      "keyFiles": [
+        "index-CF4hOOOf.css",
+        "index-I2LOm5RZ.js",
+        "ort-wasm-simd-threaded.jsep-D5Jk56-t.wasm"
+      ]
+    },
+    "src/pages": {
+      "path": "src/pages",
+      "purpose": "Page components",
+      "fileCount": 2,
+      "lastAccessed": 1775795479837,
+      "keyFiles": [
+        "EditingPage.tsx",
+        "InitPage.tsx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/modules/editing/App.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1775795695278,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/editing/types/home.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775795545475,
+      "type": "directory"
+    },
+    {
+      "path": "src/modules/editing",
+      "accessCount": 2,
+      "lastAccessed": 1775795784995,
+      "type": "directory"
+    },
+    {
+      "path": "src",
+      "accessCount": 2,
+      "lastAccessed": 1775795785621,
+      "type": "directory"
+    },
+    {
+      "path": "src/modules/editing/utils/editorFlow.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775795486274,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/editing/components/TemplateCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775795498749,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/editing/components/BackgroundCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775795499563,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/initPage/components/wireframe",
+      "accessCount": 1,
+      "lastAccessed": 1775795508272,
+      "type": "directory"
+    },
+    {
+      "path": "src/modules/initPage/components/wireframe/SingleLargeLayout.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1775795513092,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/initPage/components/wireframe/SingleCompactLayout.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1775795513437,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/initPage/utils/editingBridge.js",
+      "accessCount": 1,
+      "lastAccessed": 1775795513943,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/initPage/components/draft/DraftShared.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1775795523985,
+      "type": "directory"
+    },
+    {
+      "path": "src/modules/initPage",
+      "accessCount": 1,
+      "lastAccessed": 1775795525887,
+      "type": "directory"
+    },
+    {
+      "path": "src/modules/initPage/utils/ratioStyles.js",
+      "accessCount": 1,
+      "lastAccessed": 1775795535245,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/editing/components/WireframeChoiceCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775795598706,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
