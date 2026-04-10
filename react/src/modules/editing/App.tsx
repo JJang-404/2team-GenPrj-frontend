@@ -39,6 +39,9 @@ const initialBootstrap: BootstrapResponse = {
   sidebarRecommendations: [],
 };
 
+type AdCopyResult = { ok?: boolean; data?: unknown; error?: string };
+type TransformResult = { ok?: boolean; blobUrl?: string; error?: string };
+
 export default function App() {
   const [bootstrap, setBootstrap] = useState<BootstrapResponse>(initialBootstrap);
   const [step, setStep] = useState<EditorStep>('template');
@@ -119,10 +122,7 @@ export default function App() {
   useEffect(() => {
     if (!projectData || backgroundMode === 'ai-image') return;
     const preview = buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint);
-    setBackgroundCandidates((prev) => {
-      const rest = prev.filter((b) => b.id !== preview.id);
-      return [preview, ...rest];
-    });
+    setBackgroundCandidates([preview]);
     setSelectedBackgroundId(preview.id);
   }, [backgroundMode, promptHint, projectData]);
 
@@ -234,16 +234,9 @@ export default function App() {
           return;
         }
 
-        const mergedCandidates = initialBackground
-          ? [initialBackground, ...localResult.candidates.filter((c) => c.id !== initialBackground.id)]
-          : localResult.candidates;
-
-        
-        setBackgroundCandidates(mergedCandidates);
-        setSelectedBackgroundId((prev) => {
-          if (prev === initialBackground?.id) return prev;
-          return mergedCandidates[0]?.id ?? null;
-        });
+        const nextCandidates = localResult.candidates.slice(0, 4);
+        setBackgroundCandidates(nextCandidates);
+        setSelectedBackgroundId(nextCandidates[0]?.id ?? null);
         setStep('background');
         return;
       }
@@ -303,8 +296,7 @@ export default function App() {
       console.log(`[Editing] 유효한 새 후보군 수: ${newCandidates.length}`);
 
       if (newCandidates.length > 0) {
-        // 기존 initPage 배경은 유지하면서 앞에 4개를 추가합니다
-        setBackgroundCandidates(prev => [...newCandidates, ...prev]);
+        setBackgroundCandidates(newCandidates.slice(0, 4));
         setSelectedBackgroundId(newCandidates[0].id); // 첫 번째 이미지를 자동 선택
         setStep('background');
         console.log('[Editing] 배경 후보군 업데이트 완료');
@@ -325,6 +317,22 @@ export default function App() {
   const handleSelectBackground = (backgroundId: string) => {
     setSelectedBackgroundId(backgroundId);
     setStep('editor');
+  };
+
+  const handleShowBackgroundCandidates = async () => {
+    if (backgroundMode === 'solid') {
+      setStep('editor');
+      return;
+    }
+
+    if (backgroundCandidates.length >= 4) {
+      setStep('background');
+      return;
+    }
+
+    if (!generating) {
+      await handleGenerateBackgrounds();
+    }
   };
 
   const handleBackToInitialPage = () => {
@@ -358,11 +366,16 @@ export default function App() {
     setError(null);
 
     try {
-      const result = await callApi.generateAdCopy();
+      const result = (await callApi.generateAdCopy()) as AdCopyResult;
       
       if (result.ok && result.data) {
-        // 결과가 배열이거나 단일 문자열/객체일 수 있으므로 유연하게 처리
-        const copy = Array.isArray(result.data) ? result.data[0] : (result.data.main_copy || result.data);
+        const data = result.data;
+        const copy =
+          Array.isArray(data)
+            ? data[0]
+            : data && typeof data === 'object' && 'main_copy' in data
+              ? (data as { main_copy?: unknown }).main_copy ?? data
+              : data;
         console.log('[Editing] AI 광고 문구 수신:', copy);
         handleMainSloganChange(String(copy));
       } else {
@@ -418,7 +431,7 @@ export default function App() {
     setGenerating(true);
     setError(null);
     try {
-      const result = await callApi.transformImageToFrontal(selectedElement.imageUrl);
+      const result = (await callApi.transformImageToFrontal(selectedElement.imageUrl)) as TransformResult;
       if (result.ok && result.blobUrl) {
         setElements((prev) => updateElement(prev, selectedElement.id, { imageUrl: result.blobUrl, hidden: false }));
       } else {
@@ -494,7 +507,7 @@ export default function App() {
         onBackgroundModeChange={setBackgroundMode}
         onGenerateBackgrounds={handleGenerateBackgrounds}
         onBackToInitialPage={handleBackToInitialPage}
-        onBackToBackgrounds={() => setStep('background')}
+        onBackToBackgrounds={handleShowBackgroundCandidates}
         onChangeElement={(id, patch) => setElements((prev) => updateElement(prev, id, patch))}
         onSendBackward={handleSendBackward}
         onBringForward={handleBringForward}

@@ -149,7 +149,9 @@ export default function BackgroundOptionsSection({
         {generationButtonLabel}
       </SidebarMiniButton>
       <div className="sidebar-inline-actions">
-        {backgroundMode !== 'solid' && <SidebarMiniButton onClick={onBackToBackgrounds}>배경 후보 보기</SidebarMiniButton>}
+        {backgroundMode !== 'solid' ? (
+          <SidebarMiniButton onClick={onBackToBackgrounds}>배경 후보 보기</SidebarMiniButton>
+        ) : null}
         <SidebarMiniButton>템플릿 저장</SidebarMiniButton>
         <SidebarMiniButton>프로젝트 저장</SidebarMiniButton>
       </div>

@@ -356,6 +356,28 @@ VITE_INITPAGE_URL=/
 - 초기 배경과 비율을 `initPage`에서 `editing`으로 전달
 - 배경 후보를 생성해도 첫 후보로 `initPage 배경` 유지
 
+## 최근 수정사항
+
+- `editing`의 배경 후보 로직을 다시 정리함
+  - `단색`은 후보 단계 없이 바로 편집 화면으로 이동
+  - `그라데이션`, `다중색`, `AI 이미지 생성`은 후보 4개를 보여주도록 복구
+- 배경 후보가 모드 전환 시 섞이던 문제 수정
+  - 이전 모드 후보를 유지하지 않고 현재 모드 기준 preview만 남기도록 변경
+- `배경 후보 보기` 버튼 동작 복구
+  - 후보가 이미 4개 있으면 바로 후보 화면으로 이동
+  - 후보가 부족하면 먼저 생성 후 후보 화면으로 이동
+  - `단색` 모드에서는 버튼 숨김 유지
+- `initPage` 배경을 후보 목록 첫 카드에 강제로 넣던 동작 제거
+  - 이제 후보 목록은 생성된 후보 4개만 표시
+- 로컬 배경 후보 수 확장
+  - `그라데이션` 4개
+  - `다중색` 4개
+  - `AI 생성 실패 폴백`도 4개
+- 관련 수정 파일
+  - `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/App.tsx`
+  - `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/backgroundGeneration.ts`
+  - `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/components/sidebar/BackgroundOptionsSection.tsx`
+
 ## 현재 제약
 
 - 빌드 시 chunk size 경고가 있음
