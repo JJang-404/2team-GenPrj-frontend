@@ -12,6 +12,10 @@ function createBackgroundSvg({ colors, variant, grain = false }: { colors: strin
     diagonal: `<path d="M0 0 H1080 V400 L0 820 Z" fill="${c1}"/><path d="M1080 0 V1920 H0 V910 Z" fill="${c2}"/>`,
     halo: `<rect width="100%" height="100%" fill="${c1}"/><circle cx="780" cy="420" r="280" fill="${c2}" opacity="0.45"/><circle cx="240" cy="1450" r="220" fill="${c3}" opacity="0.38"/>`,
     arch: `<rect width="100%" height="100%" fill="${c1}"/><path d="M150 1920 V920 C150 640 330 420 540 420 C750 420 930 640 930 920 V1920 Z" fill="${c2}"/>`,
+    cornerArc: `<rect width="100%" height="100%" fill="${c2}"/><circle cx="0" cy="0" r="900" fill="${c1}"/>`,
+    topBlock: `<rect width="100%" height="52%" fill="${c1}"/><rect y="52%" width="100%" height="48%" fill="${c2}"/>`,
+    diagonalCorner: `<rect width="100%" height="100%" fill="${c2}"/><path d="M0 0 H1080 V1100 L0 1920 Z" fill="${c1}"/>`,
+    doubleCircle: `<rect width="100%" height="100%" fill="${c2}"/><circle cx="950" cy="220" r="380" fill="${c1}"/><circle cx="120" cy="1700" r="340" fill="${c1}"/>`,
     cafe: `<defs><radialGradient id="g1" cx="30%" cy="18%" r="58%"><stop offset="0%" stop-color="${c2}" stop-opacity="0.95"/><stop offset="48%" stop-color="${c1}" stop-opacity="0.42"/><stop offset="100%" stop-color="${c1}" stop-opacity="0"/></radialGradient><linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${c2}"/><stop offset="100%" stop-color="${c3}"/></linearGradient></defs><rect width="100%" height="100%" fill="${c1}"/><rect y="1440" width="100%" height="480" fill="url(#desk)"/><rect y="1380" width="100%" height="18" fill="rgba(255,255,255,0.12)"/><circle cx="300" cy="320" r="480" fill="url(#g1)"/>`,
     landscape: `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="60%" stop-color="${c2}"/><stop offset="100%" stop-color="${c3}"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#sky)"/><circle cx="540" cy="430" r="180" fill="rgba(255,245,214,0.8)"/><path d="M0 1220 C110 1040 220 930 380 900 C470 884 560 924 620 988 C728 842 854 816 1080 1110 V1920 H0 Z" fill="rgba(63,87,59,0.84)"/><rect y="1470" width="100%" height="450" fill="rgba(129,92,58,0.88)"/>`,
     studio: `<defs><radialGradient id="spot" cx="50%" cy="28%" r="52%"><stop offset="0%" stop-color="${c2}" stop-opacity="0.95"/><stop offset="44%" stop-color="${c1}" stop-opacity="0.45"/><stop offset="100%" stop-color="${c1}" stop-opacity="0"/></radialGradient><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${c3}" stop-opacity="0.9"/><stop offset="100%" stop-color="${c1}" stop-opacity="0.96"/></linearGradient></defs><rect width="100%" height="100%" fill="${c1}"/><circle cx="540" cy="520" r="520" fill="url(#spot)"/><path d="M0 1380 C190 1280 340 1250 540 1250 C740 1250 900 1280 1080 1380 V1920 H0 Z" fill="url(#floor)"/>`,
@@ -131,9 +135,9 @@ function createLocalColorCandidates(payload: GenerateBackgroundRequest): Generat
     const colors = (multi ?? ['#c4b5fd', '#93c5fd']).slice(0, 2);
     const variants = [
       { id: 'multi-local-1', name: '사용자 다중색 1', variant: 'split', css: `linear-gradient(90deg, ${colors[0]} 50%, ${colors[1]} 50%)`, note: '좌우 분할형 다중색' },
-      { id: 'multi-local-2', name: '사용자 다중색 2', variant: 'diagonal', css: `linear-gradient(135deg, ${colors[0]} 0 50%, ${colors[1]} 50% 100%)`, note: '대각 분할형 다중색' },
-      { id: 'multi-local-3', name: '사용자 다중색 3', variant: 'arch', css: `linear-gradient(180deg, ${colors[0]} 0 44%, ${colors[1]} 44% 100%)`, note: '아치 패널형 다중색' },
-      { id: 'multi-local-4', name: '사용자 다중색 4', variant: 'halo', css: `radial-gradient(circle at 72% 24%, ${colors[1]} 0 24%, ${colors[0]} 25% 100%)`, note: '포인트 원형형 다중색' },
+      { id: 'multi-local-2', name: '사용자 다중색 2', variant: 'cornerArc', css: `radial-gradient(circle at 0 0, ${colors[0]} 0 63%, ${colors[1]} 64% 100%)`, note: '코너 아크형 다중색' },
+      { id: 'multi-local-3', name: '사용자 다중색 3', variant: 'topBlock', css: `linear-gradient(180deg, ${colors[0]} 0 52%, ${colors[1]} 52% 100%)`, note: '상단 블록형 다중색' },
+      { id: 'multi-local-4', name: '사용자 다중색 4', variant: 'diagonalCorner', css: `linear-gradient(150deg, ${colors[0]} 0 60%, ${colors[1]} 60% 100%)`, note: '대각 코너형 다중색' },
     ];
     candidates = variants.map((variant) => ({
       id: variant.id,

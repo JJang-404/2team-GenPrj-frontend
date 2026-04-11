@@ -43,6 +43,16 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
         />
       </Row>
 
+      {/* 애견 동반 가능 여부 */}
+      <CheckRow
+        id="petFriendly"
+        label="애견 동반 가능 여부"
+        checked={extraInfo.petFriendly}
+        onCheck={(v) => updateExtraInfo('petFriendly', v)}
+        visible={extraInfo.showPetFriendly}
+        onToggle={upd('showPetFriendly')}
+      />
+
       {/* 노키즈존 */}
       <CheckRow
         id="isNoKids"

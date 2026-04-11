@@ -87,11 +87,11 @@ export const additionalInfoPresets: Record<
     image: { x: number; y: number; width: number; height: number };
   }
 > = {
-  '주차 공간 수': { text: { x: 10, y: 78, width: 24, height: 6 }, image: { x: 34, y: 76, width: 12, height: 12 } },
-  '애견 동반 가능 여부': { text: { x: 58, y: 78, width: 26, height: 6 }, image: { x: 80, y: 76, width: 12, height: 12 } },
-  '노키즈존': { text: { x: 10, y: 66, width: 20, height: 6 }, image: { x: 34, y: 64, width: 12, height: 12 } },
-  '흡연 구역 존재 여부': { text: { x: 58, y: 66, width: 26, height: 6 }, image: { x: 80, y: 64, width: 12, height: 12 } },
-  '엘리베이터 존재 여부': { text: { x: 10, y: 90, width: 26, height: 6 }, image: { x: 34, y: 88, width: 12, height: 12 } },
+  '주차 공간 수': { text: { x: 10, y: 78, width: 24, height: 6 }, image: { x: 86, y: 88, width: 7, height: 7 } },
+  '애견 동반 가능 여부': { text: { x: 58, y: 78, width: 26, height: 6 }, image: { x: 78, y: 88, width: 7, height: 7 } },
+  '노키즈존': { text: { x: 10, y: 66, width: 20, height: 6 }, image: { x: 70, y: 88, width: 7, height: 7 } },
+  '흡연 구역 존재 여부': { text: { x: 58, y: 66, width: 26, height: 6 }, image: { x: 86, y: 80, width: 7, height: 7 } },
+  '엘리베이터 존재 여부': { text: { x: 10, y: 90, width: 26, height: 6 }, image: { x: 78, y: 80, width: 7, height: 7 } },
   '전화번호': { text: { x: 56, y: 90, width: 28, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
   주소: { text: { x: 8, y: 56, width: 34, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
 };

@@ -143,6 +143,15 @@ export default function App() {
   }, [backgroundMode, promptHint, projectData]);
 
   useEffect(() => {
+    if (!projectData) return;
+    if (backgroundMode === 'gradient' || backgroundMode === 'pastel') {
+      setRightPanelMode('background');
+      setStep('background');
+      setQueuedBackgroundGeneration(true);
+    }
+  }, [backgroundMode, promptHint, projectData]);
+
+  useEffect(() => {
     if (loading || bridgeResolved) return;
 
     const resolveBridge = async () => {
@@ -210,7 +219,7 @@ export default function App() {
       setSelectedTemplateId(nextTemplate.id);
       setElements(
         applyDraftTypographyVariant(
-          applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, baked), draftIndex, baked),
+          applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, baked), draftIndex),
           baked
         )
       );
@@ -239,7 +248,7 @@ export default function App() {
     if (!template) return;
 
     const mapped = mapProjectDataToTemplate(template, nextProjectData);
-    const withLayout = applyDraftLayoutVariant(mapped, typeIndex, nextProjectData);
+    const withLayout = applyDraftLayoutVariant(mapped, typeIndex);
     setElements(applyDraftTypographyVariant(withLayout, nextProjectData));
     setSelectedElementId(null);
   };
@@ -265,11 +274,10 @@ export default function App() {
           guideSummary: '',
         });
         
-        const initialBackground = projectData
-          ? buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint)
-          : null;
-
         if (backgroundMode === 'solid') {
+          const initialBackground = projectData
+            ? buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint)
+            : null;
           if (initialBackground) {
             setBackgroundCandidates([initialBackground]);
             setSelectedBackgroundId(initialBackground.id);
@@ -381,6 +389,23 @@ export default function App() {
 
   const handleBackToInitialPage = () => {
     window.location.href = getInitPageUrl();
+  };
+
+  const handleBackgroundModeChange = (mode: BackgroundMode) => {
+    setBackgroundMode(mode);
+
+    if (mode === 'solid') {
+      setQueuedBackgroundGeneration(false);
+      setRightPanelMode('template');
+      setStep('editor');
+      return;
+    }
+
+    if (mode === 'gradient' || mode === 'pastel') {
+      setRightPanelMode('background');
+      setStep('background');
+      setQueuedBackgroundGeneration(true);
+    }
   };
 
   const handleStoreNameChange = (value: string) => {
@@ -510,7 +535,6 @@ export default function App() {
           const layoutApplied = applyDraftLayoutVariant(
             currentElements,
             nextData.options.draftIndex ?? 0,
-            nextData,
           );
           return applyDraftTypographyVariant(layoutApplied, nextData);
         });
@@ -646,7 +670,7 @@ export default function App() {
         onToggleInfoItem={handleToggleInfoItem}
         onAddTextElement={handleAddTextElement}
         onAddImageElement={handleAddImageElement}
-        onBackgroundModeChange={setBackgroundMode}
+        onBackgroundModeChange={handleBackgroundModeChange}
         onGenerateBackgrounds={handleGenerateBackgrounds}
         onBackToInitialPage={handleBackToInitialPage}
         onBackToBackgrounds={handleShowBackgroundCandidates}

@@ -107,6 +107,7 @@ export const ExtraInfoStrip = ({ extraInfo, isSquare }) => {
     extraInfo.showParkingCount && extraInfo.parkingCount > 0 && `주차장 ${extraInfo.parkingCount}대`,
     extraInfo.showPhone   && extraInfo.phone    && extraInfo.phone,
     extraInfo.showAddress && extraInfo.address  && extraInfo.address,
+    extraInfo.petFriendly && extraInfo.showPetFriendly && '애견 동반',
     extraInfo.isNoKids       && extraInfo.showIsNoKids    && '노키즈존',
     extraInfo.hasSmokingArea && extraInfo.showSmokingArea && '흡연 구역',
     extraInfo.hasElevator    && extraInfo.showHasElevator   && '엘레베이터',

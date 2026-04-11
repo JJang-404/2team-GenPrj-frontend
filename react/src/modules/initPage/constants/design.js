@@ -60,6 +60,8 @@ export const DEFAULT_BASIC_INFO = {
 export const DEFAULT_EXTRA_INFO = {
   parkingCount: 0,
   showParkingCount: true,
+  petFriendly: false,
+  showPetFriendly: true,
   phone: '',
   showPhone: true,
   address: '',

@@ -190,7 +190,7 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
       })),
       additionalInfo: {
         parkingSpaces: String(extraInfo.parkingCount ?? ''),
-        petFriendly: false,
+        petFriendly: Boolean(extraInfo.petFriendly),
         noKidsZone: Boolean(extraInfo.isNoKids),
         smokingArea: Boolean(extraInfo.hasSmokingArea),
         elevator: Boolean(extraInfo.hasElevator),
