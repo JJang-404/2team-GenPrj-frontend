@@ -219,7 +219,7 @@ export default function App() {
       setSelectedTemplateId(nextTemplate.id);
       setElements(
         applyDraftTypographyVariant(
-          applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, baked), draftIndex),
+          applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, baked), draftIndex, baked),
           baked
         )
       );
@@ -248,7 +248,7 @@ export default function App() {
     if (!template) return;
 
     const mapped = mapProjectDataToTemplate(template, nextProjectData);
-    const withLayout = applyDraftLayoutVariant(mapped, typeIndex);
+    const withLayout = applyDraftLayoutVariant(mapped, typeIndex, nextProjectData);
     setElements(applyDraftTypographyVariant(withLayout, nextProjectData));
     setSelectedElementId(null);
   };
@@ -535,6 +535,7 @@ export default function App() {
           const layoutApplied = applyDraftLayoutVariant(
             currentElements,
             nextData.options.draftIndex ?? 0,
+            nextData,
           );
           return applyDraftTypographyVariant(layoutApplied, nextData);
         });

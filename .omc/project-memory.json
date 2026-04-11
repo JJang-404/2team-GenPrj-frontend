@@ -108,8 +108,8 @@
   "hotPaths": [
     {
       "path": "react/src/modules/editing/App.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1775810549400,
+      "accessCount": 7,
+      "lastAccessed": 1775889332480,
       "type": "directory"
     }
   ],
