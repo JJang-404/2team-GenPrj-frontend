@@ -40,36 +40,83 @@ function parseBackgroundToken(prompt: string, type: 'SOLID' | 'GRADIENT' | 'MULT
 
 function heuristicTranslation(promptKo: string, backgroundMode: string, guideSummary = '') {
   const lower = promptKo.trim();
-  const subject = [
-    lower.includes('말차') || lower.includes('녹차') ? 'matcha drink advertisement poster background' : '',
-    lower.includes('라떼') ? 'latte campaign backdrop' : '',
-    lower.includes('초코') || lower.includes('초콜릿') ? 'chocolate beverage poster background' : '',
-    lower.includes('아이스크림') ? 'dessert promotion background' : '',
-    lower.includes('커피') ? 'coffee advertising background' : '',
-  ].filter(Boolean).join(', ');
+
+  // 업종/음식 키워드 → 영문 배경 컨텍스트
+  const subjectMap: Array<[string[], string]> = [
+    [['말차', '녹차'], 'matcha tea cafe poster background'],
+    [['라떼', '카페라떼'], 'latte coffee shop advertising background'],
+    [['초코', '초콜릿'], 'chocolate dessert cafe poster background'],
+    [['아이스크림'], 'dessert ice cream shop promotion background'],
+    [['커피'], 'coffee cafe advertising background'],
+    [['베이커리', '빵'], 'artisan bakery shop background'],
+    [['한식'], 'traditional korean restaurant background'],
+    [['일식', '스시', '라멘'], 'japanese restaurant advertising background'],
+    [['이탈리안', '파스타', '피자'], 'italian restaurant poster background'],
+    [['꽃', '플라워'], 'flower shop botanical background'],
+    [['미용', '헤어', '살롱'], 'beauty salon elegant background'],
+  ];
+  const subject = subjectMap
+    .filter(([keys]) => keys.some((k) => lower.includes(k)))
+    .map(([, en]) => en)
+    .join(', ');
+
+  // 분위기/스타일 키워드 → 영문 번역
+  const styleMap: Array<[RegExp, string]> = [
+    [/분위기\s*고급지게/g, 'luxury premium sophisticated'],
+    [/고급스럽게/g, 'high-end luxury refined'],
+    [/빈티지/g, 'vintage retro nostalgic'],
+    [/세련되게/g, 'sleek modern refined'],
+    [/카툰화/g, 'illustrated artistic stylized'],
+    [/봄/g, 'spring fresh blooming'],
+    [/여름/g, 'summer vibrant sunny'],
+    [/가을/g, 'autumn warm golden'],
+    [/겨울/g, 'winter cozy cool'],
+    [/화사한/g, 'bright cheerful radiant'],
+    [/따뜻한/g, 'warm cozy inviting'],
+    [/시원한/g, 'cool refreshing crisp'],
+    [/어두운/g, 'dark moody dramatic'],
+    [/밝은/g, 'bright airy luminous'],
+    [/미니멀/g, 'minimalist clean simple'],
+    [/럭셔리/g, 'luxury premium opulent'],
+    [/자연/g, 'natural organic earthy'],
+    [/노을/g, 'sunset golden hour warm glow'],
+    [/파스텔/g, 'pastel soft gentle colors'],
+    [/모던/g, 'modern contemporary sleek'],
+  ];
+  let translatedKo = lower;
+  for (const [pattern, replacement] of styleMap) {
+    translatedKo = translatedKo.replace(pattern, replacement);
+  }
+
   const modeHint: Record<string, string> = {
-    solid: 'clean solid-color composition with bold panels',
-    gradient: 'smooth gradient backdrop with soft depth',
-    pastel: 'graphic poster background with clean split color blocks',
-    'ai-image': 'photorealistic advertising background with cinematic lighting and real materials',
+    solid: 'clean solid-color commercial composition',
+    gradient: 'smooth gradient backdrop, soft color depth',
+    pastel: 'graphic poster background, clean split color blocks',
+    'ai-image': 'photorealistic advertising background, cinematic lighting, realistic materials',
   };
+
   return [
-    subject || 'advertising poster background',
-    guideSummary ? `guide layout: ${guideSummary}` : '',
+    subject || 'professional advertising poster background',
+    guideSummary ? `layout guide: ${guideSummary}` : '',
     modeHint[backgroundMode] || 'commercial backdrop',
-    lower,
+    translatedKo !== lower ? translatedKo : '',
     'background only',
-    'preserve object silhouette and text layout',
-    'no extra product',
+    'no foreground objects',
     'no people',
-    'no hand',
     'no logo',
     'no text',
   ].filter(Boolean).join(', ');
 }
 
 function buildNegativePrompt() {
-  return 'product, cup, bottle, glass, food, person, hand, typography, logo, watermark, label, duplicate object, extra packaging, extra drink, illustration, vector art, graphic splash, cream splash, floating toppings, floating garnish';
+  return [
+    'text', 'letters', 'alphabet', 'numbers', 'digits', 'typography', 'font', 'words', 'captions',
+    'logo', 'watermark', 'brand name', 'label', 'sign', 'signage', 'banner',
+    'people', 'person', 'human', 'face', 'faces', 'hands', 'fingers', 'body parts', 'figure',
+    'product', 'cup', 'bottle', 'glass', 'food', 'packaging', 'extra objects',
+    'duplicate objects', 'illustration', 'vector art', 'graphic splash',
+    'low quality', 'blurry', 'distorted', 'ugly',
+  ].join(', ');
 }
 
 function createLocalColorCandidates(payload: GenerateBackgroundRequest): GenerateBackgroundResponse {
@@ -233,14 +280,29 @@ function createAiFallbackCandidates(
 async function createAiImageCandidates(payload: GenerateBackgroundRequest): Promise<GenerateBackgroundResponse> {
   const translatedPrompt = heuristicTranslation(payload.promptKo, payload.backgroundMode, payload.guideSummary);
   const negativePrompt = buildNegativePrompt();
+
+  // 4가지 포스터 배경 스타일 변형 — 텍스트/로고/사람 없이 배경만 생성
   const variants = [
-    { name: 'AI 프리미엄 스튜디오', suffix: 'photoreal premium studio lighting, dark refined backdrop, realistic material textures, high-end beverage campaign set' },
-    { name: 'AI 카페 우드 무드', suffix: 'photoreal coffee shop interior, rich wooden tabletop, cinematic spotlight, natural reflections' },
-    { name: 'AI 골든 아워 밸리', suffix: 'photoreal golden hour landscape backdrop, atmospheric depth, realistic mountains and field' },
-    { name: 'AI 소프트 윈도 라이트', suffix: 'photoreal daylight through cafe window, elegant wall texture, realistic shadows' },
+    {
+      name: 'AI 고급 스튜디오',
+      suffix: 'luxury premium studio backdrop, dark refined elegant, cinematic dramatic lighting, realistic material textures, high-end commercial poster set',
+    },
+    {
+      name: 'AI 따뜻한 우드',
+      suffix: 'warm wooden interior atmosphere, rich natural wood grain, cozy ambient spotlight, soft golden tones, inviting commercial backdrop',
+    },
+    {
+      name: 'AI 골든 아워',
+      suffix: 'golden hour outdoor atmosphere, warm sunset glow, soft bokeh depth, atmospheric natural light, premium advertising backdrop',
+    },
+    {
+      name: 'AI 소프트 라이트',
+      suffix: 'soft natural daylight, elegant minimal background, clean airy atmosphere, subtle texture, modern clean commercial poster backdrop',
+    },
   ];
 
   const base = getRemoteApiBase();
+  // guideImage가 있으면 inpainting, 없으면 순수 생성(pure generation) 사용
   const useChangeImage = Boolean(payload.guideImage);
   const successes: BackgroundCandidate[] = [];
   let lastError = '';
@@ -281,7 +343,7 @@ async function createAiImageCandidates(payload: GenerateBackgroundRequest): Prom
       }
     }
   } else {
-    // generate: 병렬 실행 — 4개 요청을 동시에 보내 총 대기 시간을 줄입니다.
+    // generate: 순수 생성 — 4개 요청을 병렬로 실행해 총 대기 시간을 줄입니다.
     const settled = await Promise.allSettled(
       variants.map(async (variant, index) => {
         const url = `${base}/model/generate?${new URLSearchParams({

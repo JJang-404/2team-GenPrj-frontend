@@ -17,15 +17,23 @@ const DraftCard = ({ idx, isSelected, onSelect, products, options, inputData, ex
   const Layout = LAYOUTS[idx % LAYOUTS.length];
   const isSquare = options.ratio === '1:1';
 
-  // bgType에 따라 인라인 스타일 또는 CONCEPT_STYLES 클래스 결정
-  const bgInlineStyle = getBgStyle(options.bgType, options.startColor, options.endColor, {
-    gradientAngle: options.gradientAngle,
-    splitPosition: options.splitPosition,
-    splitDirection: options.splitDirection,
-  });
-  const bgClass = bgInlineStyle
-    ? 'text-white'                          // 동적 배경: 항상 흰 글씨
-    : CONCEPT_STYLES[options.concept] ?? ''; // AI 생성: 기존 컨셉 클래스
+  // ── 배경 img.jpg 통일 ──────────────────────────────────────────────────────
+  // 기존: bgType에 따라 인라인 스타일 또는 CONCEPT_STYLES 클래스 결정
+  // const bgInlineStyle = getBgStyle(options.bgType, options.startColor, options.endColor, {
+  //   gradientAngle: options.gradientAngle,
+  //   splitPosition: options.splitPosition,
+  //   splitDirection: options.splitDirection,
+  // });
+  // const bgClass = bgInlineStyle
+  //   ? 'text-white'
+  //   : CONCEPT_STYLES[options.concept] ?? '';
+  // ─────────────────────────────────────────────────────────────────────────
+  const bgInlineStyle = {
+    backgroundImage: 'url(/img.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  };
+  const bgClass = 'text-white';
 
   return (
     <div className="group relative transition-all duration-500">

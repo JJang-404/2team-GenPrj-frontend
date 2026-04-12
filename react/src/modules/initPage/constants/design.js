@@ -40,7 +40,8 @@ export const createProduct = () => ({
 
 export const DEFAULT_OPTIONS = {
   ratio: '4:5',
-  sampleCount: 4,
+  // sampleCount: 4, // 원래 4가지 레이아웃 표시 — 현재 1가지만 표시
+  sampleCount: 1,
   concept: 'vivid',
   bgType: '단색',
   startColor: '#FF4757',

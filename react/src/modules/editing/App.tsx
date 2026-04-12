@@ -40,6 +40,40 @@ const initialBootstrap: BootstrapResponse = {
   sidebarRecommendations: [],
 };
 
+// ─── AI 배경 스타일 변형 정의 ──────────────────────────────────────────────────
+// 한국어로 작성하면 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 SD3.5 영문으로 번역합니다.
+// 새 스타일 추가 시 이 배열에만 항목을 추가하면 됩니다.
+const BACKGROUND_VARIANTS = [
+  { label: '고급',   style: '고급스럽고 프리미엄한 분위기' },
+  { label: '빈티지', style: '빈티지 레트로 감성'           },
+  { label: '세련',   style: '세련되고 모던한 미니멀'        },
+  { label: '활기찬', style: '밝고 활기찬 따뜻한 색감'       },
+] as const;
+
+// 테스트용: 생성할 배경 수 (전체 생성 시 BACKGROUND_VARIANTS.length 로 변경)
+const GENERATE_VARIANT_COUNT = 1;
+
+// ─── 후보군 항목 타입 (as const 로 인한 widening 방지) ─────────────────────────
+type BackgroundVariant = (typeof BACKGROUND_VARIANTS)[number];
+
+// ─── AI 배경 후보 객체를 생성하는 순수 함수 ────────────────────────────────────
+function buildAiCandidate(
+  res: { blobUrl?: string; prompt?: string; negativePrompt?: string },
+  variant: BackgroundVariant,
+  index: number,
+): BackgroundCandidate {
+  return {
+    id: `ai-gen-${Date.now()}-${index}`,
+    name: `AI 배경 ${index + 1} (${variant.label})`,
+    mode: 'ai-image' as const,
+    cssBackground: 'transparent',
+    imageUrl: res.blobUrl!,
+    note: `${variant.label} 스타일로 생성된 배경입니다.`,
+    translatedPrompt: res.prompt ?? '',
+    negativePrompt: res.negativePrompt ?? '',
+  };
+}
+
 type AdCopyResult = { ok?: boolean; data?: unknown; error?: string };
 type TransformResult = { ok?: boolean; blobUrl?: string; error?: string };
 
@@ -293,57 +327,37 @@ export default function App() {
         return;
       }
 
-      // [Case B] AI 이미지 생성 모드 (서버 호출 + 4개 확장)
-      console.log('[Editing] AI 이미지 생성 모드 시작 (4개 병렬 요청)');
+      // [Case B] AI 이미지 생성 모드 — GENERATE_VARIANT_COUNT 만큼 병렬 생성
+      const activeVariants = BACKGROUND_VARIANTS.slice(0, GENERATE_VARIANT_COUNT);
+      console.log(`[Editing] AI 이미지 생성 시작 (${activeVariants.length}개 요청)`);
 
-      // 4가지 스타일 정의
-      const variantStyles = [
-        '분위기 고급지게',
-        '빈티지',
-        '세련되게',
-        '카툰화'
-      ];
+      // 각 스타일별 생성 태스크 구성
+      // - 사용자 입력 프롬프트(promptKo)를 최우선으로 배치하고 스타일 키워드를 보조로 결합
+      // - 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 한국어 → SD3.5 영문으로 번역
+      const generateTasks = activeVariants.map((variant, idx) => {
+        const combinedPrompt = promptKo.trim()
+          ? `${promptKo}, ${variant.style}`
+          : variant.style;
 
-      //  4개의 생성 태스크를 병렬로 준비합니다.
-      const generateTasks = variantStyles.map((style, idx) => {
-        const sequence = idx + 1;
-        console.log(`[Editing] 배경 요청 #${sequence} 준비 (스타일: ${style})...`);
-        
-        // 사용자가 입력한 프롬프트에 스타일 키워드를 조합
-        const combinedPrompt = promptKo.trim() 
-          ? `${promptKo}, ${style}` 
-          : style;
+        console.log(`[Editing] 배경 요청 #${idx + 1} (${variant.label}) 준비...`);
 
-        return callApi.generateBackground({
-          storeName: projectData.storeName,
-          industry: projectData.industry,
-          storeDesc: projectData.mainSlogan,
-          customPrompt: combinedPrompt,
-        }).then(res => {
-          console.log(`[Editing] 배경 요청 #${sequence} [${style}] 응답 수신:`, res.ok ? '성공' : '실패');
-          return { ...res, styleName: style };
-        });
+        return callApi.generateBackground({ customPrompt: combinedPrompt })
+          .then(res => {
+            console.log(`[Editing] 배경 요청 #${idx + 1} [${variant.label}]:`, res.ok ? '성공' : '실패');
+            return { res, variant, idx };
+          });
       });
-      // 4개의 요청을 동시에 실행하고 기다립니다.
-      const results = await Promise.all(generateTasks);
-      console.log('[Editing] 모든 배경 생성 요청 완료. 결과 분석 중...');
 
-      // 성공한 결과만 필터링하여 후보군(Candidates)으로 변환
+      const results = await Promise.all(generateTasks);
+      console.log('[Editing] 모든 배경 생성 완료. 결과 분석 중...');
+
+      // 성공한 결과만 후보군(BackgroundCandidate)으로 변환
       const newCandidates = results
-        .filter(res => {
-          if (!res.ok) console.warn('[Editing] 생성 실패 항목:', res.error);
+        .filter(({ res }) => {
+          if (!res.ok) console.warn('[Editing] 생성 실패:', res.error);
           return res.ok && res.blobUrl;
         })
-        .map((res: any, idx) => ({
-          id: `ai-gen-${Date.now()}-${idx}`,
-          name: `AI 배경 ${idx + 1} (${res.styleName})`,
-          mode: 'ai-image' as const,
-          cssBackground: 'transparent',
-          imageUrl: res.blobUrl!,
-          note: `${res.styleName} 스타일로 생성된 배경입니다.`,
-          translatedPrompt: res.prompt || '',
-          negativePrompt: res.negativePrompt || '',
-        }));
+        .map(({ res, variant, idx }) => buildAiCandidate(res, variant, idx));
   
       console.log(`[Editing] 유효한 새 후보군 수: ${newCandidates.length}`);
 

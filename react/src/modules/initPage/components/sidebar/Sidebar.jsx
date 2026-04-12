@@ -58,16 +58,16 @@ const Sidebar = ({
 
     {/* 스크롤 가능 콘텐츠 */}
     <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-      {/* 구역 1: 배경 종류 */}
-      <BgSection options={options} updateOption={updateOption} onGenerateAiBg={onGenerateAiBg} />
-
-      {/* 구역 2: 기본 정보 */}
+      {/* 구역 1: 기본 정보 (최상단으로 이동) */}
       <BasicInfoSection
         basicInfo={basicInfo}
         updateBasicInfo={updateBasicInfo}
         brandColor={options.brandColor}
         onBrandColorChange={(v) => updateOption('brandColor', v)}
       />
+
+      {/* 구역 2: 배경 종류 — 현재 비활성화 (img.jpg 배경 통일) */}
+      {/* <BgSection options={options} updateOption={updateOption} onGenerateAiBg={onGenerateAiBg} /> */}
 
       {/* 구역 3: 추가 정보 */}
       <ExtraInfoSection extraInfo={extraInfo} updateExtraInfo={updateExtraInfo} />

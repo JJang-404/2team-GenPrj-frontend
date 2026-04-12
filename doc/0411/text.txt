@@ -1,0 +1,19 @@
+D:\01.project\2team-GenPrj-frontend_United\United1_1\react\src\modules_git
+git 에서 pull 해서 가져온 파일입니다.
+지금 내 코드에서 어떤게 바뀐지 알려주시고, 어떻게 작업하면 좋을까요?
+---
+
+@ai_background_final_report.md 문서를 파악해서 'AI 배경 생성' 을 수정하려고 합니다.
+순수 생성으로 @modelApi.js 의 generateImage 를 사용하려고 합니다.
+
+업종에 어울리는 포스터 배경으로 생성해주세요.
+그리고 'AI 이미지 생성 프롬프트' 를 gpt 로 변역해서 어울리는 포스터를 만드는데 사용해주세요.
+
+텍스트, 문자, 숫자, 로고, 사람은 제거하고 배경만 생성해주세요.
+
+
+1.  **[callApi.js](file:///d:/01.project/2team-GenPrj-frontend_United/United1_1/react/src/server/api/callApi.js)**: `generateBackground` 함수 고도화 ('AI 이미지 생성 프롬프트' 기반 프롬프트 템플릿 적용).
+2.  **[App.tsx](file:///d:/01.project/2team-GenPrj-frontend_United/United1_1/react/src/modules/editing/App.tsx)**: 메인 배경 생성 로직을 순수 생성 방식으로 변경.
+3.  **[backgroundGeneration.ts](file:///d:/01.project/2team-GenPrj-frontend_United/United1_1/react/src/modules/editing/utils/backgroundGeneration.ts)**: 실사 배경 후보군 생성 시 인페인팅 대신 순수 생성 API 호출.
+
+위에 있는 1,2,3 은 내가 요청한것에 수정해야한다면 수정해주고 md 파일로 변경된점을 작성해주세요.

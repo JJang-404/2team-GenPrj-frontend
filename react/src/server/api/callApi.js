@@ -5,9 +5,6 @@ import { imageApi } from './imageApi';
 import { storeInfo } from './storeInfo';
 import { adverApi } from './adverApi';
 import {
-  AI_BACKGROUND_NEGATIVE_PROMPT,
-  AI_BACKGROUND_PROMPT_FIELDS,
-  AI_BACKGROUND_PROMPT_HEADER,
   EMPTY_INPUT_FALLBACK,
 } from '../common/defines';
 
@@ -268,25 +265,45 @@ class CallApi extends BaseApi {
     };
   }
 
-  buildBackgroundPrompt({ storeName, industry, storeDesc }) {
-    const source = { storeName, industry, storeDesc };
-    const promptLines = AI_BACKGROUND_PROMPT_FIELDS.map(
-      ({ no, label, key }) => `${no}.${label} : ${normalizeValue(source[key])}`,
-    );
-
-    return `${AI_BACKGROUND_PROMPT_HEADER}\n${promptLines.join('\n')}\n`;
+  /**
+   * AI 배경 생성용 포지티브 프롬프트를 조립합니다.
+   * - 사용자 입력 프롬프트(customPrompt)를 최우선으로 배치합니다.
+   * - 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 한국어 → 영문 SD3.5 프롬프트로 번역합니다.
+   */
+  _buildBackgroundPrompt(customPrompt = '') {
+    return [
+      customPrompt.trim(),
+      '포스터 배경만 생성, 제품·객체 포함하지 않음',
+    ].filter(Boolean).join(', ');
   }
 
-  async generateBackground({ storeName, industry, storeDesc, customPrompt = '' }) {
-    console.log('[CallApi] generateBackground 시작:', { storeName, industry, storeDesc, customPrompt });
-    const basePrompt = this.buildBackgroundPrompt({ storeName, industry, storeDesc });
-    const prompt = customPrompt.trim()
-      ? `${customPrompt}\n\n[참고 가이드]\n${basePrompt}`
-      : basePrompt;
-    const negativePrompt = AI_BACKGROUND_NEGATIVE_PROMPT;
+  /**
+   * AI 배경 생성용 네거티브 프롬프트를 반환합니다.
+   * 영문으로 유지하여 이미지 엔진이 직접 해석하고 백엔드 GPT가 보존하게 합니다.
+   */
+  _buildBackgroundNegativePrompt() {
+    return [
+      'text', 'letters', 'numbers', 'digits', 'typography', 'logo', 'watermark',
+      'brand name', 'label', 'sign', 'banner',
+      'people', 'person', 'face', 'hands', 'body parts',
+      'product', 'cup', 'bottle', 'food', 'packaging',
+    ].join(', ');
+  }
 
-    console.log('[CallApi] 구성된 프롬프트:', prompt);
-    console.log('[CallApi] AI 모델 서버 요청 중...');
+  /**
+   * AI 배경 이미지를 순수 생성(text-to-image)합니다.
+   * - 사용자 프롬프트(customPrompt)를 최우선으로 반영합니다.
+   * - 백엔드 /model/generate → GPT 번역 → 이미지 엔진 순서로 처리됩니다.
+   *
+   * @param {{ customPrompt?: string }} [options]
+   */
+  async generateBackground(options = {}) {
+    const { customPrompt = '' } = options;
+    const prompt = this._buildBackgroundPrompt(customPrompt);
+    const negativePrompt = this._buildBackgroundNegativePrompt();
+
+    console.log('[CallApi] generateBackground 시작');
+    console.log('[CallApi] 프롬프트 (백엔드 GPT 번역 예정):', prompt);
 
     const result = await modelApi.generateImage(prompt, '', negativePrompt);
 
@@ -296,11 +313,7 @@ class CallApi extends BaseApi {
       console.error('[CallApi] AI 배경 생성 실패:', result.error || result.statusCode);
     }
 
-    return {
-      ...result,
-      prompt,
-      negativePrompt,
-    };
+    return { ...result, prompt, negativePrompt };
   }
 
   /**
