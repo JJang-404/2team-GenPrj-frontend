@@ -1,0 +1,17 @@
+editing 화면에서 main preview 와 우측의 backgroundCare/WireFrameChoiceCard 에서 이미지, 텍스트 폰트 비율이 동기화되지 않는 문제가 있습니다.
+(main preview 에서 이미지와 텍스트의 비율이 변경되면 WireFrameChoiceCard 에서도 동일한 비율로 변경되어야 합니다.)
+1. main preview 와 backgroundCare/WireFrameChoiceCard 의 비율을 알려주세요.
+2. main preview 에서 이미지와 텍스트의 비율이 변경될 때, backgroundCare/WireFrameChoiceCard 에서도 동일한 비율로 변경되도록 구현하는 방법을 설명해주세요.
+3. 이 방법은 코드 수정 전 doc/0413 폴더에 md 파일로 작성하여 공유해주세요.
+(md 파일 : @font-scale-sync-applied.md )
+
+---
+
+@font-scale-sync-applied.md 을 보면 editing 화면에서 main preview 와 우측의 backgroundCare/WireFrameChoiceCard 이미지 비율은 적용되었습니다.
+텍스트는 동기화가 되지 않았습니다. main preview 와 우측 backgroundCare/WireFrameChoiceCard 가 따로 있습니다.
+1. 가장 먼저 '구도 선택' 을 눌러서 사용자가 구도를 선택할 수 있도록 해야 합니다. 구도를 선택하면 main preview 와 backgroundCare/WireFrameChoiceCard 의 이미지와 텍스트가 동일한 비율로 변경되어야 합니다.
+2. 그리고 main preview 와 backgroundCare/WireFrameChoiceCard 텍스트의 글씨체도 동기화 되어야합니다. 사용자가 선택하기 전까지는 zen Serif 로 유지되어야합니다.
+3. backgroundCare/WireFrameChoiceCard 에도 동일한 폰트로 적용해주세요.
+4. 이 방법은 코드 수정 전 doc/0413 폴더에 md 파일로 작성하여 공유해주세요.
+
+---
