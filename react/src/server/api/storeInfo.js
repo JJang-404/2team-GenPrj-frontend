@@ -13,12 +13,14 @@ class StoreInfo {
    */
   saveStoreInfo(data) {
     try {
-      // 1. 이미지 데이터(Base64)는 용량 초과(QuotaExceededError)의 원인이므로 제외하고 텍스트 정보만 추출합니다.
+      // description 만 보관 — id, name, price, currency, isAiGen,
+      // showDesc, showName, showPrice, image 등은 모두 제외합니다.
       const sanitizedProducts = Array.isArray(data.products)
-        ? data.products.map(({ image, ...rest }) => rest)
+        ? data.products
+            .filter((p) => p.description?.trim())
+            .map(({ description }) => ({ description }))
         : [];
 
-      // 2. 저장할 최종 페이로드 구성 (기존 extraInfo가 있다면 제외하고 최신 정보를 덮어씁니다.)
       const payload = {
         basicInfo: data.basicInfo || {},
         products: sanitizedProducts,
@@ -63,10 +65,10 @@ class StoreInfo {
     if (basicInfo?.industry) lines.push(`업종: ${basicInfo.industry}`);
     if (basicInfo?.storeDesc) lines.push(`가게소개: ${basicInfo.storeDesc}`);
 
-    // 활성화된(showDesc: true) 상품 소개문구 리스트 추가
+    // 저장된 상품 소개문구 리스트 추가
     if (Array.isArray(products) && products.length > 0) {
       const activeDescs = products
-        .filter((p) => p.showDesc && p.description?.trim())
+        .filter((p) => p.description?.trim())
         .map((p) => p.description.trim());
 
       if (activeDescs.length > 0) {

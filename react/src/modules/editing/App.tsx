@@ -205,17 +205,6 @@ export default function App() {
     setSelectedBackgroundId(preview.id);
   }, [backgroundMode, promptHint, projectData]);
 
-  useEffect(() => {
-    if (!projectData) return;
-    storeInfo.saveStoreInfo({
-      basicInfo: {
-        storeName: projectData.storeName,
-        industry: projectData.industry ?? '',
-        storeDesc: projectData.mainSlogan,
-      },
-      products: projectData.products,
-    });
-  }, [projectData]);
 
   useEffect(() => {
     if (!projectData) return;
@@ -506,6 +495,16 @@ export default function App() {
   };
 
   const handleMainSloganChange = (value: string) => {
+    if (projectData) {
+      storeInfo.saveStoreInfo({
+        basicInfo: {
+          storeName: projectData.storeName,
+          industry: projectData.industry ?? '',
+          storeDesc: value,
+        },
+        products: projectData.products,
+      });
+    }
     setProjectData((prev) => {
       if (!prev) return prev;
       setElements((current) => {

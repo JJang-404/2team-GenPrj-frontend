@@ -45,10 +45,6 @@ const App = () => {
   } = useDesignOptions();
 
   useEffect(() => {
-    storeInfo.saveStoreInfo({ basicInfo, products });
-  }, [basicInfo, products]);
-
-  useEffect(() => {
     if (basicInfo.storeDesc?.trim()) {
       autoCopyKeyRef.current = '';
       return;
@@ -76,7 +72,6 @@ const App = () => {
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
-          storeInfo.saveStoreInfo({ basicInfo, products });
           const result = await callApi.generateAdCopy();
           const generated = extractAdCopy(result);
           if (generated) {
