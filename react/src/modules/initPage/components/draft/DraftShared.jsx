@@ -1,8 +1,8 @@
 // ─── StoreTitle ────────────────────────────────────────────────────────────
 export const StoreTitle = ({ storeName, brandColor, className = '' }) => (
   <h3
-    className={`font-black uppercase tracking-tighter italic font-zen z-30 ${className}`}
-    style={{ color: brandColor }}
+    className={`font-black tracking-tighter italic font-zen z-30 ${className}`}
+    style={{ color: brandColor || '#000000' }}
   >
     {storeName || '가게 이름을 입력하세요'}
   </h3>
@@ -11,7 +11,7 @@ export const StoreTitle = ({ storeName, brandColor, className = '' }) => (
 // ─── SloganText ────────────────────────────────────────────────────────────
 export const SloganText = ({ slogan, className = '' }) =>
   slogan ? (
-    <p className={`text-white/80 font-bold tracking-[0.2em] font-zen uppercase z-30 ${className}`}>
+    <p className={`text-black/80 font-bold tracking-[0.2em] font-zen uppercase z-30 ${className}`}>
       {slogan}
     </p>
   ) : null;
@@ -24,15 +24,15 @@ export const ProductInfo = ({ p, isSquare }) => {
 
   return (
     <div
-      className={`bg-black/50 backdrop-blur-md ${
+      className={`bg-white/80 backdrop-blur-md ${
         isSquare ? 'p-2 rounded-lg' : 'p-4 rounded-2xl'
-      } text-white z-20 shadow-xl border border-white/10`}
+      } text-black z-20 shadow-xl border border-slate-200/70`}
     >
       {p.showName && p.name && (
         <p className={`${isSquare ? 'text-[10px]' : 'text-[14px]'} font-black font-zen`}>{p.name}</p>
       )}
       {p.showPrice && p.price && (
-        <p className={`${isSquare ? 'text-[9px]' : 'text-[13px]'} text-yellow-400 font-bold mt-0.5`}>
+        <p className={`${isSquare ? 'text-[9px]' : 'text-[13px]'} text-black font-bold mt-0.5`}>
           {Number(p.price).toLocaleString()}{p.currency ?? '원'}
         </p>
       )}
@@ -40,7 +40,7 @@ export const ProductInfo = ({ p, isSquare }) => {
         <p
           className={`${
             isSquare ? 'text-[10px]' : 'text-[14px]'
-          } font-zen opacity-90 mt-1 leading-tight border-t border-white/20 pt-1`}
+          } font-zen opacity-90 mt-1 leading-tight border-t border-slate-300 pt-1`}
         >
           {p.description}
         </p>

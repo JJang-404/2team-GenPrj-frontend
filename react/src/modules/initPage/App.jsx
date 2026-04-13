@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FONT_STYLES, RATIOS } from './constants/design';
 import { useProducts } from './hooks/useProducts';
 import { useDesignOptions } from './hooks/useDesignOptions';
@@ -10,13 +10,27 @@ import {
   storeEditingPayload,
 } from './utils/editingBridge';
 
+import { callApi } from '../../server/api/callApi';
 import { storeInfo } from '../../server/api/storeInfo';
+
+function extractAdCopy(result) {
+  if (!result?.ok || !result.data) return '';
+  const data = result.data;
+  const copy =
+    Array.isArray(data)
+      ? data[0]
+      : data && typeof data === 'object' && 'main_copy' in data
+        ? data.main_copy ?? data
+        : data;
+  return String(copy ?? '').trim();
+}
 
 const App = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedDesigns, setSelectedDesigns] = useState([]);
   // 다음 단계 확인 모달용 — null 이면 비표시, 숫자면 해당 draftIndex 대기 중
   const [pendingIdx, setPendingIdx] = useState(null);
+  const autoCopyKeyRef = useRef('');
 
   const {
     products, isRemovingBg, isFirstRun,
@@ -29,6 +43,53 @@ const App = () => {
     updateOption, updateBasicInfo, updateExtraInfo,
     generateAiBgImage,
   } = useDesignOptions();
+
+  useEffect(() => {
+    storeInfo.saveStoreInfo({ basicInfo, products });
+  }, [basicInfo, products]);
+
+  useEffect(() => {
+    if (basicInfo.storeDesc?.trim()) {
+      autoCopyKeyRef.current = '';
+      return;
+    }
+
+    const hasPromptSource =
+      Boolean(basicInfo.storeName?.trim()) ||
+      Boolean(basicInfo.industry?.trim()) ||
+      products.some((product) => product.showDesc && product.description?.trim());
+
+    if (!hasPromptSource) return;
+
+    const requestKey = JSON.stringify({
+      storeName: basicInfo.storeName ?? '',
+      industry: basicInfo.industry ?? '',
+      products: products.map((product) => ({
+        description: product.description ?? '',
+        showDesc: Boolean(product.showDesc),
+      })),
+    });
+
+    if (autoCopyKeyRef.current === requestKey) return;
+    autoCopyKeyRef.current = requestKey;
+
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          storeInfo.saveStoreInfo({ basicInfo, products });
+          const result = await callApi.generateAdCopy();
+          const generated = extractAdCopy(result);
+          if (generated) {
+            updateBasicInfo('storeDesc', generated);
+          }
+        } catch (error) {
+          console.warn('[InitPage] AI 소개문구 자동 생성 실패:', error);
+        }
+      })();
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [basicInfo.storeDesc, basicInfo.storeName, basicInfo.industry, products, updateBasicInfo]);
 
   /** 실제 편집 페이지 이동 로직 (확인 모달에서 "네" 선택 시 호출) */
   const handleSelectDesign = async (idx) => {

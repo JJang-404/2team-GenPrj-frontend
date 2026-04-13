@@ -38,7 +38,7 @@ const BasicInfoSection = ({ basicInfo, updateBasicInfo, brandColor, onBrandColor
 
     <InfoField label="가게 소개 문구">
       <textarea
-        placeholder="소개 문구 (미입력 시 AI 생성)"
+        placeholder="소개 문구 (미입력 시 AI 문구 자동 생성)"
         rows={2}
         value={basicInfo.storeDesc}
         onChange={(e) => updateBasicInfo('storeDesc', e.target.value)}

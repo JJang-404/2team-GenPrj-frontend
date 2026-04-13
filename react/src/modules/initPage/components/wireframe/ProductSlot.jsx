@@ -14,7 +14,7 @@ export const ProductSlot = ({ product, isSquare, className = '', showLabel = tru
           <img
             src={product.image}
             alt={product.name || ''}
-            className="h-full w-auto drop-shadow-lg"
+            className="h-full w-auto max-w-full object-contain drop-shadow-lg"
           />
         ) : (
           <div className="flex items-center justify-center p-4">
@@ -23,12 +23,12 @@ export const ProductSlot = ({ product, isSquare, className = '', showLabel = tru
         )}
       </div>
       {showLabel && product?.name && product?.showName && (
-        <p className={`${isSquare ? 'text-[8px]' : 'text-[11px]'} text-white/80 font-bold mt-1 text-center truncate w-full`}>
+        <p className={`${isSquare ? 'text-[8px]' : 'text-[11px]'} text-black/80 font-bold mt-1 text-center truncate w-full`}>
           {product.name}
         </p>
       )}
       {showLabel && product?.price && product?.showPrice && (
-        <p className={`${isSquare ? 'text-[7px]' : 'text-[10px]'} text-yellow-400/80 font-bold text-center`}>
+        <p className={`${isSquare ? 'text-[7px]' : 'text-[10px]'} text-black/80 font-bold text-center`}>
           {Number(product.price).toLocaleString()}{product.currency ?? '원'}
         </p>
       )}

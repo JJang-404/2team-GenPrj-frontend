@@ -173,6 +173,7 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
         splitDirection: options.splitDirection,
       },
       storeName: basicInfo.storeName?.trim() ?? '',
+      industry: basicInfo.industry?.trim() ?? '',
       mainSlogan: basicInfo.storeDesc?.trim() ?? '',
       details: '',
       products: productsWithTransform.map((product) => ({

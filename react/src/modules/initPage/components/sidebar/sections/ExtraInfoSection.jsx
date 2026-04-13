@@ -15,8 +15,9 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
       <Row label="주차장 공간 수" visible={extraInfo.showParkingCount} onToggle={upd('showParkingCount')}>
         <input
           type="number"
+          min="0"
           value={extraInfo.parkingCount}
-          onChange={(e) => updateExtraInfo('parkingCount', parseInt(e.target.value) || 0)}
+          onChange={(e) => updateExtraInfo('parkingCount', Math.max(0, parseInt(e.target.value, 10) || 0))}
           placeholder="0"
           className={numCls}
         />

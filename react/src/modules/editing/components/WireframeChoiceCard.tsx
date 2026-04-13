@@ -1,12 +1,3 @@
-/**
- * WireframeChoiceCard — editing 2단계 구도 선택 카드.
- *
- * initPage의 wireframe Layout 컴포넌트(Type1~4)를 그대로 렌더해서,
- * 사용자가 고르는 카드와 initPage에서 본 레이아웃이 100% 동일하도록 보장한다.
- *
- * 모든 cross-import는 `../utils/wireframeBridge`를 통해서만 수행한다.
- */
-
 import type { BackgroundCandidate } from '../types/api';
 import type { HomeProjectData } from '../types/home';
 import { ratioToAspectValue } from '../utils/ratio';
@@ -38,25 +29,6 @@ const LABELS: Record<0 | 1 | 2 | 3, { title: string; note: string }> = {
   3: { title: 'Type 4 · 하프크롭 그룹', note: '반쪽 크롭 제품 전폭 구도' },
 };
 
-/**
- * editing 전용 ratioStyles 빌더.
- *
- * initPage의 `getRatioStyles`와 동일한 shape을 반환해야 wireframe Layout 컴포넌트가
- * 그대로 동작한다. Tailwind 클래스 문자열은 카드 프리뷰에서도 유효하다.
- */
-function getEditingRatioStyles(ratio: string) {
-  const isTall = ratio === '9:16';
-  const isSquare = ratio === '1:1';
-  const isFiveFour = ratio === '4:5';
-  return {
-    isTall,
-    isSquare,
-    isFiveFour,
-    containerPadding: isTall ? 'p-10' : isSquare ? 'p-4' : 'p-6',
-    titleSize: isTall ? 'text-5xl' : isSquare ? 'text-3xl' : 'text-4xl',
-  };
-}
-
 interface WireframeChoiceCardProps {
   typeIndex: 0 | 1 | 2 | 3;
   projectData: HomeProjectData | null;
@@ -70,6 +42,19 @@ interface WireframeChoiceCardProps {
   onSelect: () => void;
 }
 
+function getEditingRatioStyles(ratio: string) {
+  const isTall = ratio === '9:16';
+  const isSquare = ratio === '1:1';
+  const isFiveFour = ratio === '4:5';
+  return {
+    isTall,
+    isSquare,
+    isFiveFour,
+    containerPadding: isTall ? 'p-10' : isSquare ? 'p-4' : 'p-6',
+    titleSize: isTall ? 'text-5xl' : isSquare ? 'text-3xl' : 'text-4xl',
+  };
+}
+
 export default function WireframeChoiceCard({
   typeIndex,
   projectData,
@@ -81,8 +66,6 @@ export default function WireframeChoiceCard({
   const Layout = LAYOUTS[typeIndex];
   const label = LABELS[typeIndex];
 
-  // wireframe Layout 컴포넌트가 기대하는 형태로 projectData를 매핑한다.
-  // (initPage의 DraftShared/wireframe 컴포넌트는 products[].image/name/price/... 을 직접 참조)
   const products = (projectData?.products ?? []).map((p) => ({
     id: p.id,
     name: p.name,

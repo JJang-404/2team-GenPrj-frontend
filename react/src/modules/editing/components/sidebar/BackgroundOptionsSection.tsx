@@ -72,6 +72,7 @@ export default function BackgroundOptionsSection({
     pastel: '다중색 배경 생성',
     'ai-image': 'AI 배경 생성',
   }[backgroundMode];
+  const candidateButtonLabel = backgroundMode === 'solid' ? '구도 후보 보기' : '구도/배경 후보 보기';
 
   return (
     <SidebarBlock title="배경 생성 옵션">
@@ -145,13 +146,13 @@ export default function BackgroundOptionsSection({
         onChange={(event) => setPromptWithToken(backgroundMode, event.target.value)}
         placeholder="AI 이미지 생성 프롬프트"
       />
-      <SidebarMiniButton className="sidebar-mini-btn--wide" onClick={onGenerateBackgrounds}>
-        {generationButtonLabel}
-      </SidebarMiniButton>
+      {backgroundMode === 'ai-image' ? (
+        <SidebarMiniButton className="sidebar-mini-btn--wide" onClick={onGenerateBackgrounds}>
+          {generationButtonLabel}
+        </SidebarMiniButton>
+      ) : null}
       <div className="sidebar-inline-actions">
-        {backgroundMode !== 'solid' ? (
-          <SidebarMiniButton onClick={onBackToBackgrounds}>배경 후보 보기</SidebarMiniButton>
-        ) : null}
+        <SidebarMiniButton onClick={onBackToBackgrounds}>{candidateButtonLabel}</SidebarMiniButton>
         <SidebarMiniButton>템플릿 저장</SidebarMiniButton>
         <SidebarMiniButton>프로젝트 저장</SidebarMiniButton>
       </div>

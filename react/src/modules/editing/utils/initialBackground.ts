@@ -17,12 +17,12 @@ function getConceptCss(concept?: string) {
     case 'solid':
       return '#ffffff';
     case 'gradient':
-      return 'linear-gradient(135deg, #FF4757 0%, #4A90E2 100%)';
+      return '#ffffff';
     case 'pastel':
-      return 'linear-gradient(90deg, #FDF6E3 50%, #EAE0C9 50%)';
+      return '#ffffff';
     case 'ai-image':
     default:
-      return 'linear-gradient(180deg, #111827 0%, #0f172a 100%)';
+      return '#ffffff';
   }
 }
 
@@ -71,7 +71,7 @@ export function buildInitialBackgroundCandidate(
     splitDirection,
   });
 
-  if (sharedStyle?.background) {
+  if (sharedStyle?.background && normalizedMode !== 'ai-image') {
     cssBackground = sharedStyle.background;
   }
 

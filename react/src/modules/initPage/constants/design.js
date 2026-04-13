@@ -46,7 +46,7 @@ export const DEFAULT_OPTIONS = {
   bgType: '단색',
   startColor: '#FF4757',
   endColor: '#4A90E2',        // 기본 종료 색: 파랑 (그라데이션/다중색 시 대비 명확)
-  brandColor: '#FF4757',      // 가게 이름 글자색 (독립 관리)
+  brandColor: '#000000',      // 가게 이름 글자색 (독립 관리)
   gradientAngle: 135,         // 그라데이션 각도 (deg, 0–360)
   splitPosition: 50,          // 다중색 분할 위치 (%, 10–90)
   splitDirection: 'horizontal', // 다중색 분할 방향: 'horizontal' | 'vertical'

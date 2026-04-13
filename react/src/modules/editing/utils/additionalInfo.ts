@@ -1,7 +1,8 @@
 import type { HomeProjectData } from '../types/editor';
 
 const INFO_ICON_PATHS = {
-  parking: '/info-icons/parking.png',
+  parkingYes: '/info-icons/parking-yes.png',
+  parkingNo: '/info-icons/parking-no.png',
   petFriendlyYes: '/info-icons/pet-friendly-yes.png',
   petFriendlyNo: '/info-icons/pet-friendly-no.png',
   noKidsZoneYes: '/info-icons/no-kids-yes.png',
@@ -47,16 +48,18 @@ function circleBadge({
 
 function parkingIcon(count: string) {
   const trimmed = count.trim();
-  const badgeText = trimmed ? trimmed.slice(0, 2) : undefined;
+  const normalized = Number(trimmed);
+  const hasParking = Number.isFinite(normalized) ? normalized > 0 : Boolean(trimmed);
+  if (!hasParking) {
+    return INFO_ICON_PATHS.parkingNo;
+  }
 
+  const badgeText = trimmed.slice(0, 2);
   return svgDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
-      <image href="${INFO_ICON_PATHS.parking}" x="0" y="0" width="96" height="96" preserveAspectRatio="xMidYMid meet"/>
-      ${
-        badgeText
-          ? `<rect x="14" y="12" width="24" height="18" rx="9" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/><text x="26" y="25" text-anchor="middle" font-size="11" font-weight="900" font-family="Arial, sans-serif" fill="#1d4ed8">${badgeText}</text>`
-          : ''
-      }
+      <image href="${INFO_ICON_PATHS.parkingYes}" x="0" y="0" width="96" height="96" preserveAspectRatio="xMidYMid meet"/>
+      <rect x="14" y="12" width="24" height="18" rx="9" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+      <text x="26" y="25" text-anchor="middle" font-size="11" font-weight="900" font-family="Arial, sans-serif" fill="#1d4ed8">${badgeText}</text>
     </svg>
   `);
 }

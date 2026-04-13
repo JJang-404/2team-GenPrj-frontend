@@ -116,6 +116,103 @@ const extraLayoutPresets: Record<
 };
 
 const DEFAULT_TITLE_FONT = '"ZenSerif", serif';
+const DEFAULT_TEXT_COLOR = '#000000';
+
+function buildProductTextElements(product: HomeProductInput, index: number): EditorElement[] {
+  const prefix = `product-meta-${product.id}`;
+  const elements: EditorElement[] = [];
+
+  if (product.showName && product.name?.trim()) {
+    elements.push({
+      id: `${prefix}-name`,
+      kind: 'text',
+      label: `상품명 ${index + 1}`,
+      x: 8,
+      y: 8,
+      width: 20,
+      height: 4,
+      rotation: 0,
+      zIndex: 24,
+      text: product.name.trim(),
+      fontSize: 10,
+      fontWeight: 800,
+      lineHeight: 1.1,
+      letterSpacing: 0,
+      color: DEFAULT_TEXT_COLOR,
+      align: 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  if (product.showPrice && product.price?.trim()) {
+    elements.push({
+      id: `${prefix}-price`,
+      kind: 'text',
+      label: `상품 가격 ${index + 1}`,
+      x: 8,
+      y: 12,
+      width: 20,
+      height: 4,
+      rotation: 0,
+      zIndex: 24,
+      text: `${product.price.trim()}${normalizePriceCurrency(product.currency)}`,
+      fontSize: 9,
+      fontWeight: 800,
+      lineHeight: 1.1,
+      letterSpacing: 0,
+      color: DEFAULT_TEXT_COLOR,
+      align: 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  if (product.showDesc && product.description?.trim()) {
+    elements.push({
+      id: `${prefix}-desc`,
+      kind: 'text',
+      label: `상품 소개문구 ${index + 1}`,
+      x: 8,
+      y: 16,
+      width: 24,
+      height: 6,
+      rotation: 0,
+      zIndex: 24,
+      text: product.description.trim(),
+      fontSize: 8,
+      fontWeight: 700,
+      lineHeight: 1.2,
+      letterSpacing: 0,
+      color: DEFAULT_TEXT_COLOR,
+      align: 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  return elements;
+}
+
+function placeProductMetaElement(element: EditorElement, rect: WireframeProductPlacement['rect']): EditorElement {
+  const isName = /-name$/.test(element.id);
+  const isPrice = /-price$/.test(element.id);
+  const width = Math.max(rect.width, isName ? 18 : isPrice ? 16 : 22);
+  const x = rect.x + (rect.width - width) / 2;
+  const yOffset = isName ? 1.2 : isPrice ? 4 : 6.6;
+  const fontSize = isName ? 10 : isPrice ? 9 : 8;
+
+  return {
+    ...element,
+    x,
+    y: Math.min(95, rect.y + rect.height + yOffset),
+    width,
+    rotation: 0,
+    align: 'center',
+    fontSize,
+    color: DEFAULT_TEXT_COLOR,
+  };
+}
 
 function normalizePriceCurrency(currency?: string): '원' | '$' {
   return currency === '$' || currency === '달러' ? '$' : '원';
@@ -149,7 +246,7 @@ export function shouldShowAdditionalInfoIcon(projectData: HomeProjectData | null
 
   switch (label) {
     case '주차 공간 수':
-      return Boolean(info.parkingSpaces.trim());
+      return true;
     case '애견 동반 가능 여부':
     case '노키즈존':
     case '흡연 구역 존재 여부':
@@ -213,6 +310,9 @@ export function applyDraftLayoutVariant(
     .filter(isPrimaryImageElement)
     .slice(0, placements.length);
   const productIds = new Set(productElements.map((element) => element.id));
+  const productPlacementById = new Map(
+    activeProducts.slice(0, placements.length).map((product, index) => [String(product.id), placements[index]?.rect]),
+  );
 
   let productCursor = 0;
   return elements.map((element) => {
@@ -241,6 +341,14 @@ export function applyDraftLayoutVariant(
         next.imageUrl = imageUrlOverride;
       }
       return next;
+    }
+
+    const productMetaMatch = element.id.match(/^product-meta-(.+)-(name|price|desc)$/);
+    if (productMetaMatch) {
+      const rect = productPlacementById.get(String(productMetaMatch[1]));
+      if (rect) {
+        return placeProductMetaElement(element, rect);
+      }
     }
 
     if (element.id === 'fallback-main-slogan') {
@@ -368,26 +476,10 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
   const activeProducts = projectData.products.filter(
     (product) => product.image || product.name || product.price || product.description || product.isAiGen
   );
-  const firstProduct = activeProducts[0];
   const primaryImages = baseElements.filter(isPrimaryImageElement);
   const usedProductIds = new Set<number>();
   const extras: EditorElement[] = [];
-  const matchedFields = { store: false, slogan: false, details: false, price: false };
-  const visiblePriceText = activeProducts
-    .filter((product) => product.showPrice && product.price?.trim())
-    .map((product) => `${product.price}${normalizePriceCurrency(product.currency)}`)
-    .join(' / ');
-  const visibleProductSummaryText = activeProducts
-    .map((product) =>
-      [
-        product.showName && product.name?.trim() ? product.name : '',
-        product.showPrice && product.price?.trim() ? `${product.price}${normalizePriceCurrency(product.currency)}` : '',
-      ]
-        .filter(Boolean)
-        .join(' ')
-    )
-    .filter(Boolean)
-    .join('  /  ');
+  const matchedFields = { store: false, slogan: false, details: false };
 
   const mapped = baseElements.map((element) => {
     if (element.kind === 'image') {
@@ -430,7 +522,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       return {
         ...element,
         text: projectData.storeName,
-        color: projectData.options.brandColor,
+        color: projectData.options.brandColor || DEFAULT_TEXT_COLOR,
         hidden: false,
         fontFamily: DEFAULT_TITLE_FONT,
       };
@@ -442,7 +534,13 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
     if (/(headline|title|타이틀)/.test(normalizedLabel)) {
       if (projectData.mainSlogan) {
         matchedFields.slogan = true;
-        return { ...element, text: projectData.mainSlogan, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
+        return {
+          ...element,
+          text: projectData.mainSlogan,
+          hidden: false,
+          fontFamily: DEFAULT_TITLE_FONT,
+          color: DEFAULT_TEXT_COLOR,
+        };
       }
       return { ...element, text: '', hidden: true };
     }
@@ -450,7 +548,13 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
     if (/(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel)) {
       if (projectData.mainSlogan) {
         matchedFields.slogan = true;
-        return { ...element, text: projectData.mainSlogan, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
+        return {
+          ...element,
+          text: projectData.mainSlogan,
+          hidden: false,
+          fontFamily: DEFAULT_TITLE_FONT,
+          color: DEFAULT_TEXT_COLOR,
+        };
       }
       return { ...element, text: '', hidden: true };
     }
@@ -462,17 +566,18 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
     if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel)) {
       if (projectData.details) {
         matchedFields.details = true;
-        return { ...element, text: projectData.details, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
+        return {
+          ...element,
+          text: projectData.details,
+          hidden: false,
+          fontFamily: DEFAULT_TITLE_FONT,
+          color: DEFAULT_TEXT_COLOR,
+        };
       }
       return { ...element, text: '', hidden: true };
     }
 
-    if (/(price|가격)/.test(normalizedLabel) && visiblePriceText) {
-      matchedFields.price = true;
-      return { ...element, text: visiblePriceText, hidden: false, fontFamily: DEFAULT_TITLE_FONT };
-    }
-
-    if (/(price|가격)/.test(normalizedLabel) && !visiblePriceText) {
+    if (/(price|가격)/.test(normalizedLabel)) {
       return { ...element, text: '', hidden: true };
     }
 
@@ -505,38 +610,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       opacity: 1,
     });
 
-    if (product.showName || product.showPrice) {
-      extras.push({
-        id: `extra-product-caption-${product.id}`,
-        kind: 'text',
-        label: `추가 제품 캡션 ${index + 1}`,
-        x: preset.x,
-        y: Math.min(92, preset.y + preset.height + 1),
-        width: Math.max(14, preset.width),
-        height: 8,
-        rotation: 0,
-        zIndex: 12 + index,
-        text: [
-          product.showName && product.name?.trim() ? product.name : '',
-          product.showPrice && product.price?.trim()
-            ? `${product.price}${normalizePriceCurrency(product.currency)}`
-            : '',
-        ]
-          .filter(Boolean)
-          .join('\n'),
-        fontSize: 11,
-        fontWeight: 800,
-        lineHeight: 1.15,
-        letterSpacing: 0,
-        color: '#ffffff',
-        align: 'center',
-        fontFamily: DEFAULT_TITLE_FONT,
-        opacity: 1,
-      });
-    }
   });
-
-  const productSummaryText = visibleProductSummaryText;
 
   if (projectData.storeName && !matchedFields.store) {
     extras.push({
@@ -554,7 +628,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       fontWeight: 900,
       lineHeight: 1.1,
       letterSpacing: 1,
-      color: projectData.options.brandColor,
+      color: projectData.options.brandColor || DEFAULT_TEXT_COLOR,
       align: 'left',
       fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
@@ -577,7 +651,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       fontWeight: 900,
       lineHeight: 1.05,
       letterSpacing: 0,
-      color: '#ffffff',
+      color: DEFAULT_TEXT_COLOR,
       align: 'left',
       fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
@@ -600,35 +674,16 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       fontWeight: 600,
       lineHeight: 1.3,
       letterSpacing: 0,
-      color: '#f8fafc',
+      color: DEFAULT_TEXT_COLOR,
       align: 'left',
       fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
     });
   }
 
-  if (productSummaryText && !matchedFields.price) {
-    extras.push({
-      id: 'fallback-product-summary',
-      kind: 'text',
-      label: '보조 가격 정보',
-      x: 8,
-      y: 88,
-      width: 60,
-      height: 7,
-      rotation: 0,
-      zIndex: 13,
-      text: productSummaryText,
-      fontSize: 12,
-      fontWeight: 800,
-      lineHeight: 1.15,
-      letterSpacing: 0,
-      color: '#fde68a',
-      align: 'left',
-      fontFamily: DEFAULT_TITLE_FONT,
-      opacity: 1,
-    });
-  }
+  activeProducts.forEach((product, index) => {
+    extras.push(...buildProductTextElements(product, index));
+  });
 
   return [...mapped, ...extras];
 }
@@ -667,11 +722,12 @@ export function updateProjectTextElements(
   const nextValue = field === 'storeName' ? projectData.storeName : projectData.mainSlogan;
   const fallbackId = field === 'storeName' ? 'fallback-store-name' : 'fallback-main-slogan';
   const typography = getDraftTypography(projectData.options.draftIndex ?? 0, projectData.options.ratio);
-
-  return elements.map((element) => {
+  let matched = false;
+  const nextElements = elements.map((element) => {
     const normalizedLabel = `${element.id} ${element.label}`.toLowerCase();
 
     if (element.id === fallbackId) {
+      matched = true;
       return {
         ...element,
         text: nextValue,
@@ -681,10 +737,11 @@ export function updateProjectTextElements(
     }
 
     if (field === 'storeName' && element.kind === 'text' && /(store|brand|가게명|브랜드명)/.test(normalizedLabel)) {
+      matched = true;
       return {
         ...element,
         text: nextValue,
-        color: projectData.options.brandColor,
+        color: projectData.options.brandColor || DEFAULT_TEXT_COLOR,
         fontSize: typography.storeSize,
         lineHeight: typography.storeLineHeight,
       };
@@ -695,9 +752,11 @@ export function updateProjectTextElements(
       element.kind === 'text' &&
       (/(headline|title|타이틀)/.test(normalizedLabel) || /(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel))
     ) {
+      matched = true;
       return {
         ...element,
         text: nextValue,
+        color: DEFAULT_TEXT_COLOR,
         fontSize: typography.sloganSize,
         lineHeight: typography.sloganLineHeight,
       };
@@ -705,6 +764,62 @@ export function updateProjectTextElements(
 
     return element;
   });
+
+  if (matched || !nextValue.trim()) {
+    return nextElements;
+  }
+
+  if (field === 'storeName') {
+    const fallbackElement: EditorElement = {
+      id: fallbackId,
+      kind: 'text',
+      label: '보조 가게명',
+      x: 8,
+      y: 8,
+      width: 44,
+      height: 8,
+      rotation: 0,
+      zIndex: 13,
+      text: nextValue,
+      fontSize: typography.storeSize,
+      fontWeight: 900,
+      lineHeight: typography.storeLineHeight,
+      letterSpacing: 1,
+      color: projectData.options.brandColor || DEFAULT_TEXT_COLOR,
+      align: 'left',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    };
+    return [
+      ...nextElements,
+      fallbackElement,
+    ];
+  }
+
+  const fallbackElement: EditorElement = {
+    id: fallbackId,
+    kind: 'text',
+    label: '보조 메인 문구',
+    x: 8,
+    y: 18,
+    width: 58,
+    height: 12,
+    rotation: 0,
+    zIndex: 13,
+    text: nextValue,
+    fontSize: typography.sloganSize,
+    fontWeight: 900,
+    lineHeight: typography.sloganLineHeight,
+    letterSpacing: 0,
+    color: DEFAULT_TEXT_COLOR,
+    align: 'left',
+    fontFamily: DEFAULT_TITLE_FONT,
+    opacity: 1,
+  };
+  return [
+    ...nextElements,
+    fallbackElement,
+  ];
 }
 
 export function createAdditionalInfoElements(projectData: HomeProjectData | null, label: string) {

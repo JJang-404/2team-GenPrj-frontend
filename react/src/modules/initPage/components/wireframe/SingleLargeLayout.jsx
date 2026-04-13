@@ -5,7 +5,7 @@ import { computeType3Style, getWireframeSlots } from './computeSlotStyle';
 
 const imgStyle = {
   width: '100%', height: '100%',
-  objectFit: 'cover', objectPosition: 'center center',
+  objectFit: 'contain', objectPosition: 'center center',
   display: 'block',
 };
 
@@ -36,12 +36,12 @@ const IndividualSlot = ({ product, slotMeta, isSquare }) => {
         )}
       </div>
       {product?.name && product?.showName && (
-        <p className={`${isSquare ? 'text-[6px]' : 'text-[9px]'} text-white/80 font-bold truncate text-center mt-0.5`}>
+        <p className={`${isSquare ? 'text-[6px]' : 'text-[9px]'} text-black/80 font-bold truncate text-center mt-0.5`}>
           {product.name}
         </p>
       )}
       {product?.price && product?.showPrice && (
-        <p className={`${isSquare ? 'text-[5px]' : 'text-[8px]'} text-yellow-400/80 font-bold text-center`}>
+        <p className={`${isSquare ? 'text-[5px]' : 'text-[8px]'} text-black/80 font-bold text-center`}>
           {Number(product.price).toLocaleString()}{product.currency ?? '원'}
         </p>
       )}

@@ -77,6 +77,30 @@ function buildAiCandidate(
 type AdCopyResult = { ok?: boolean; data?: unknown; error?: string };
 type TransformResult = { ok?: boolean; blobUrl?: string; error?: string };
 
+function extractAdCopy(result: AdCopyResult) {
+  if (!result.ok || !result.data) return '';
+  const data = result.data;
+  const copy =
+    Array.isArray(data)
+      ? data[0]
+      : data && typeof data === 'object' && 'main_copy' in data
+        ? (data as { main_copy?: unknown }).main_copy ?? data
+        : data;
+  return String(copy ?? '').trim();
+}
+
+function buildPlainWhiteBackground(mode: BackgroundMode): BackgroundCandidate {
+  return {
+    id: 'init-preview-background',
+    name: '기본 흰색 배경',
+    mode,
+    cssBackground: '#ffffff',
+    note: 'editing 진입 시 기본 흰색 배경',
+    translatedPrompt: '',
+    negativePrompt: '',
+  };
+}
+
 export default function App() {
   const [bootstrap, setBootstrap] = useState<BootstrapResponse>(initialBootstrap);
   const [step, setStep] = useState<EditorStep>('background');
@@ -112,6 +136,8 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
   const mainPreviewRef = useRef<HTMLDivElement>(null);
+  const autoCopyKeyRef = useRef('');
+  const suspendInitialBackgroundSyncRef = useRef(false);
 
   const getInitPageUrl = () => import.meta.env.VITE_INITPAGE_URL ?? '/';
 
@@ -171,6 +197,9 @@ export default function App() {
    */
   useEffect(() => {
     if (!projectData || backgroundMode === 'ai-image') return;
+    if (suspendInitialBackgroundSyncRef.current) {
+      return;
+    }
     const preview = buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint);
     setBackgroundCandidates([preview]);
     setSelectedBackgroundId(preview.id);
@@ -178,12 +207,48 @@ export default function App() {
 
   useEffect(() => {
     if (!projectData) return;
-    if (backgroundMode === 'gradient' || backgroundMode === 'pastel') {
-      setRightPanelMode('background');
-      setStep('background');
-      setQueuedBackgroundGeneration(true);
+    storeInfo.saveStoreInfo({
+      basicInfo: {
+        storeName: projectData.storeName,
+        industry: projectData.industry ?? '',
+        storeDesc: projectData.mainSlogan,
+      },
+      products: projectData.products,
+    });
+  }, [projectData]);
+
+  useEffect(() => {
+    if (!projectData) return;
+    if (projectData.mainSlogan?.trim()) {
+      autoCopyKeyRef.current = '';
+      return;
     }
-  }, [backgroundMode, promptHint, projectData]);
+
+    const hasPromptSource =
+      Boolean(projectData.storeName?.trim()) ||
+      Boolean(projectData.industry?.trim()) ||
+      projectData.products.some((product) => product.showDesc && product.description?.trim());
+
+    if (!hasPromptSource) return;
+
+    const requestKey = JSON.stringify({
+      storeName: projectData.storeName ?? '',
+      industry: projectData.industry ?? '',
+      products: projectData.products.map((product) => ({
+        description: product.description ?? '',
+        showDesc: Boolean(product.showDesc),
+      })),
+    });
+
+    if (autoCopyKeyRef.current === requestKey) return;
+    autoCopyKeyRef.current = requestKey;
+
+    const timer = window.setTimeout(() => {
+      void handleGenerateSlogan();
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [projectData]);
 
   useEffect(() => {
     if (loading || bridgeResolved) return;
@@ -245,7 +310,8 @@ export default function App() {
     // initPage 색상을 사이드바 컬러 피커에 반영
     const initPromptHint = buildInitPromptHint(baked.options);
     setPromptHint(initPromptHint);
-    const initialBackground = buildInitialBackgroundCandidate(baked, nextBackgroundMode, initPromptHint);
+    const initialBackground = buildPlainWhiteBackground(nextBackgroundMode);
+    suspendInitialBackgroundSyncRef.current = true;
     setBackgroundCandidates([initialBackground]);
     setSelectedBackgroundId(initialBackground.id);
     const nextTemplate = bootstrap.templates[draftIndex] ?? selectedTemplate ?? bootstrap.templates[0] ?? null;
@@ -284,12 +350,14 @@ export default function App() {
     const mapped = mapProjectDataToTemplate(template, nextProjectData);
     const withLayout = applyDraftLayoutVariant(mapped, typeIndex, nextProjectData);
     setElements(applyDraftTypographyVariant(withLayout, nextProjectData));
+    setRightPanelMode('background');
     setSelectedElementId(null);
   };
 
   const handleGenerateBackgrounds = async () => {
     if (!selectedTemplateId || !projectData) return;
-    
+    suspendInitialBackgroundSyncRef.current = false;
+
     setGenerating(true);
     setError(null);
 
@@ -316,14 +384,12 @@ export default function App() {
             setBackgroundCandidates([initialBackground]);
             setSelectedBackgroundId(initialBackground.id);
           }
-          setStep('editor');
           return;
         }
 
         const nextCandidates = localResult.candidates.slice(0, 4);
         setBackgroundCandidates(nextCandidates);
         setSelectedBackgroundId(nextCandidates[0]?.id ?? null);
-        setStep('background');
         return;
       }
 
@@ -364,7 +430,6 @@ export default function App() {
       if (newCandidates.length > 0) {
         setBackgroundCandidates(newCandidates.slice(0, 4));
         setSelectedBackgroundId(newCandidates[0].id); // 첫 번째 이미지를 자동 선택
-        setStep('background');
         console.log('[Editing] 배경 후보군 업데이트 완료');
       } else {
         throw new Error('서버로부터 배경 이미지를 받지 못했습니다. 백엔드 상태를 확인하세요.');
@@ -382,17 +447,17 @@ export default function App() {
   
   const handleSelectBackground = (backgroundId: string) => {
     setSelectedBackgroundId(backgroundId);
-    setStep('editor');
   };
 
   const handleShowBackgroundCandidates = async () => {
     if (backgroundMode === 'solid') {
-      setStep('editor');
+      setRightPanelMode('template');
       return;
     }
 
+    setRightPanelMode('background');
+
     if (backgroundCandidates.length >= 4) {
-      setStep('background');
       return;
     }
 
@@ -406,20 +471,27 @@ export default function App() {
   };
 
   const handleBackgroundModeChange = (mode: BackgroundMode) => {
+    suspendInitialBackgroundSyncRef.current = false;
     setBackgroundMode(mode);
 
     if (mode === 'solid') {
       setQueuedBackgroundGeneration(false);
       setRightPanelMode('template');
-      setStep('editor');
       return;
     }
 
     if (mode === 'gradient' || mode === 'pastel') {
       setRightPanelMode('background');
-      setStep('background');
-      setQueuedBackgroundGeneration(true);
+      setQueuedBackgroundGeneration(false);
+      return;
     }
+
+    setRightPanelMode('background');
+  };
+
+  const handlePromptHintChange = (value: string) => {
+    suspendInitialBackgroundSyncRef.current = false;
+    setPromptHint(value);
   };
 
   const handleStoreNameChange = (value: string) => {
@@ -450,17 +522,11 @@ export default function App() {
 
     try {
       const result = (await callApi.generateAdCopy()) as AdCopyResult;
-      
-      if (result.ok && result.data) {
-        const data = result.data;
-        const copy =
-          Array.isArray(data)
-            ? data[0]
-            : data && typeof data === 'object' && 'main_copy' in data
-              ? (data as { main_copy?: unknown }).main_copy ?? data
-              : data;
+
+      const copy = extractAdCopy(result);
+      if (copy) {
         console.log('[Editing] AI 광고 문구 수신:', copy);
-        handleMainSloganChange(String(copy));
+        handleMainSloganChange(copy);
       } else {
         console.warn(`[Editing] AI 문구 생성 실패: ${result.error}. 로컬 생성기로 대체합니다.`);
         handleMainSloganChange(createAutoSlogan(projectData));
@@ -678,7 +744,7 @@ export default function App() {
         promptHint={promptHint}
         backgroundMode={backgroundMode}
         recommendations={bootstrap.sidebarRecommendations}
-        onPromptHintChange={setPromptHint}
+        onPromptHintChange={handlePromptHintChange}
         onStoreNameChange={handleStoreNameChange}
         onMainSloganChange={handleMainSloganChange}
         onGenerateSlogan={handleGenerateSlogan}
@@ -701,10 +767,7 @@ export default function App() {
         <div className="workspace__header">
           <div>
             <span className="workspace__eyebrow">Layout Guided Background Flow</span>
-            <h2>
-              {step === 'background' && '2단계. 배치에 맞춘 AI 배경 후보'}
-              {step === 'editor' && '3단계. 객체 자유 편집'}
-            </h2>
+            <h2 className="text-4xl font-black text-slate-900 tracking-tighter italic uppercase font-zen">EditingView</h2>
           </div>
           <div className="status-row">
             <span>{backgroundMode}</span>
@@ -740,72 +803,68 @@ export default function App() {
           <div className="empty-panel">초기 구성을 불러오는 중입니다.</div>
         ) : (
           <>
-            {(step === 'background' || step === 'editor') && (
-              <section className="workspace__section workspace__section--split">
-                <div className="workspace__main-preview" ref={mainPreviewRef}>
-                  <EditorCanvas
-                    elements={renderElements}
-                    background={selectedBackground}
-                    ratio={projectData?.options.ratio ?? '4:5'}
-                    selectedElementId={selectedElementId}
-                    onSelect={setSelectedElementId}
-                    onChangeElement={(id, patch) => setElements((prev) => updateElement(prev, id, patch))}
-                  />
+            <section className="workspace__section workspace__section--split">
+              <div className="workspace__main-preview" ref={mainPreviewRef}>
+                <EditorCanvas
+                  elements={renderElements}
+                  background={selectedBackground}
+                  ratio={projectData?.options.ratio ?? '4:5'}
+                  selectedElementId={selectedElementId}
+                  onSelect={setSelectedElementId}
+                  onChangeElement={(id, patch) => setElements((prev) => updateElement(prev, id, patch))}
+                />
+              </div>
+              <div className="workspace__choices">
+                <div className="choice-toggle" role="tablist" aria-label="우측 패널 모드">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={rightPanelMode === 'template'}
+                    className={`choice-toggle__btn ${rightPanelMode === 'template' ? 'choice-toggle__btn--active' : ''}`}
+                    onClick={() => setRightPanelMode('template')}
+                  >
+                    구도 선택
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={rightPanelMode === 'background'}
+                    className={`choice-toggle__btn ${rightPanelMode === 'background' ? 'choice-toggle__btn--active' : ''}`}
+                    onClick={() => setRightPanelMode('background')}
+                  >
+                    배경 선택
+                  </button>
                 </div>
-                {step === 'background' && (
-                  <div className="workspace__choices">
-                    <div className="choice-toggle" role="tablist" aria-label="우측 패널 모드">
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={rightPanelMode === 'template'}
-                        className={`choice-toggle__btn ${rightPanelMode === 'template' ? 'choice-toggle__btn--active' : ''}`}
-                        onClick={() => setRightPanelMode('template')}
-                      >
-                        구도 선택
-                      </button>
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={rightPanelMode === 'background'}
-                        className={`choice-toggle__btn ${rightPanelMode === 'background' ? 'choice-toggle__btn--active' : ''}`}
-                        onClick={() => setRightPanelMode('background')}
-                      >
-                        배경 선택
-                      </button>
-                    </div>
-                    {rightPanelMode === 'background' ? (
-                      <div className="choice-grid choice-grid--compact">
-                        {backgroundCandidates.map((background) => (
-                          <BackgroundCard
-                            key={background.id}
-                            background={background}
-                            elements={renderElements}
-                            ratio={projectData?.options.ratio ?? '4:5'}
-                            selected={background.id === selectedBackgroundId}
-                            onSelect={() => handleSelectBackground(background.id)}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="choice-grid choice-grid--compact">
-                        {([0, 1, 2, 3] as const).map((typeIndex) => (
-                          <WireframeChoiceCard
-                            key={typeIndex}
-                            typeIndex={typeIndex}
-                            projectData={projectData}
-                            background={selectedBackground}
-                            ratio={projectData?.options.ratio ?? '4:5'}
-                            selected={(projectData?.options.draftIndex ?? 0) === typeIndex}
-                            onSelect={() => handleSelectWireframeType(typeIndex)}
-                          />
-                        ))}
-                      </div>
-                    )}
+                {rightPanelMode === 'background' ? (
+                  <div className="choice-grid choice-grid--compact">
+                    {backgroundCandidates.map((background) => (
+                      <BackgroundCard
+                        key={background.id}
+                        background={background}
+                        elements={renderElements}
+                        ratio={projectData?.options.ratio ?? '4:5'}
+                        selected={background.id === selectedBackgroundId}
+                        onSelect={() => handleSelectBackground(background.id)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="choice-grid choice-grid--compact">
+                    {([0, 1, 2, 3] as const).map((typeIndex) => (
+                      <WireframeChoiceCard
+                        key={typeIndex}
+                        typeIndex={typeIndex}
+                        projectData={projectData}
+                        background={selectedBackground}
+                        ratio={projectData?.options.ratio ?? '4:5'}
+                        selected={(projectData?.options.draftIndex ?? 0) === typeIndex}
+                        onSelect={() => handleSelectWireframeType(typeIndex)}
+                      />
+                    ))}
                   </div>
                 )}
-              </section>
-            )}
+              </div>
+            </section>
           </>
         )}
       </main>

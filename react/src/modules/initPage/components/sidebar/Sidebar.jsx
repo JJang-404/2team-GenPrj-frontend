@@ -1,4 +1,4 @@
-import { Zap, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import BgSection from './sections/BgSection';
 import BasicInfoSection from './sections/BasicInfoSection';
 import ExtraInfoSection from './sections/ExtraInfoSection';
@@ -36,19 +36,18 @@ const Sidebar = ({
     }`}
   >
     {/* 헤더 */}
-    <div className="px-5 py-4 border-b border-slate-200 flex justify-between items-center shrink-0">
+    <div className="px-6 py-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
       <a
         href="/"
-        className="text-base font-bold flex items-center gap-2 font-zen hover:opacity-80 transition-opacity"
+        className="hover:opacity-80 transition-opacity"
         title="홈페이지로 이동"
       >
-        <Zap className="text-blue-500 fill-blue-500" size={16} />
-        AD-GEN PRO
+        <h1 className="sidebar__brand">AD-GEN <span>PRO</span></h1>
       </a>
       <button
         type="button"
         onClick={onToggleExpand}
-        className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all"
+        className="flex items-center gap-1 px-3 py-2 border border-slate-600 rounded-[10px] text-xs font-bold bg-slate-800 text-slate-200 hover:bg-slate-700 transition-all"
         title={isExpanded ? '축소' : '상세 확장'}
       >
         {isExpanded ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}

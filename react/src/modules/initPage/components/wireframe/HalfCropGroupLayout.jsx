@@ -28,12 +28,12 @@ const HalfCropSlot = ({ product, slotMeta, side, isSquare }) => {
       </div>
       {/* 라벨: overflow:hidden 바깥 — 잘리지 않음 */}
       {product?.name && product?.showName && (
-        <p className={`${isSquare ? 'text-[6px]' : 'text-[9px]'} text-white/80 font-bold truncate text-center mt-0.5`}>
+        <p className={`${isSquare ? 'text-[6px]' : 'text-[9px]'} text-black/80 font-bold truncate text-center mt-0.5`}>
           {product.name}
         </p>
       )}
       {product?.price && product?.showPrice && (
-        <p className={`${isSquare ? 'text-[5px]' : 'text-[8px]'} text-yellow-400/80 font-bold text-center`}>
+        <p className={`${isSquare ? 'text-[5px]' : 'text-[8px]'} text-black/80 font-bold text-center`}>
           {Number(product.price).toLocaleString()}{product.currency ?? '원'}
         </p>
       )}
