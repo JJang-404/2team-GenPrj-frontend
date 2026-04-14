@@ -12,6 +12,7 @@ interface SidebarProps {
   onToggleExpanded: () => void;
   templateId?: string | null;
   selectedElement: EditorElement | null;
+  selectionCount?: number;
   infoItems: Array<{ label: string; visible: boolean }>;
   storeName: string;
   mainSlogan: string;
@@ -42,6 +43,7 @@ export default function Sidebar({
   onToggleExpanded,
   templateId,
   selectedElement,
+  selectionCount = 0,
   infoItems,
   storeName,
   mainSlogan,
@@ -108,6 +110,16 @@ export default function Sidebar({
           onAddTextElement={onAddTextElement}
           onAddImageElement={onAddImageElement}
         />
+
+        {selectionCount > 1 ? (
+          <div className="sidebar-card">
+            <h3 className="sidebar-card__title">다중 선택</h3>
+            <div className="template-summary">
+              <strong>{selectionCount}개 요소 선택됨</strong>
+              <span>현재는 동시에 이동만 지원하고, 세부 속성 편집은 단일 선택에서만 지원합니다.</span>
+            </div>
+          </div>
+        ) : null}
 
         {selectedElement?.kind === 'text' ? (
           <TextInfoPanel

@@ -44,7 +44,7 @@ export const computeSlotStyle = (slotMeta, imageNaturals, side) => {
       imgStyle: {
         width: '100%',
         height: '100%',
-        objectFit: 'contain',
+        objectFit: 'cover',
         objectPosition: 'center center',
         display: 'block',
       },
@@ -67,8 +67,8 @@ export const computeSlotStyle = (slotMeta, imageNaturals, side) => {
     imgStyle: {
       width: '100%',
       height: '100%',
-      objectFit: 'contain',
-      objectPosition: 'center center',
+      objectFit: 'cover',
+      objectPosition: side === 'left' ? 'left center' : 'right center',
       display: 'block',
     },
   };
@@ -91,7 +91,7 @@ export const getFallbackStyle = (slotMeta, side) => {
       imgStyle: {
         width: '100%',
         height: '100%',
-        objectFit: 'contain',
+        objectFit: 'cover',
         objectPosition: 'center center',
         display: 'block',
       },
@@ -108,8 +108,8 @@ export const getFallbackStyle = (slotMeta, side) => {
     imgStyle: {
       width: '100%',
       height: '100%',
-      objectFit: 'contain',
-      objectPosition: 'center center',
+      objectFit: 'cover',
+      objectPosition: side === 'left' ? 'left center' : 'right center',
       display: 'block',
     },
   };

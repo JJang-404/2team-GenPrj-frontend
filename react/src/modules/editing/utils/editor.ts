@@ -14,6 +14,15 @@ export function updateElement(
   );
 }
 
+export function updateElementsByIds(
+  elements: EditorElement[],
+  elementIds: string[],
+  updater: (element: EditorElement) => EditorElement
+) {
+  const idSet = new Set(elementIds);
+  return elements.map((element) => (idSet.has(element.id) ? updater(element) : element));
+}
+
 export function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }

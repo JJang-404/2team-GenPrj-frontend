@@ -9,6 +9,7 @@ import {
   deriveWireframeLayout,
   type WireframeProductPlacement,
 } from './wireframeLayout';
+import { WIREFRAME_TEXT_PLACEMENTS } from './wireframeTextPlacements';
 
 /**
  * Legacy text placement table — bitwise copy of shared/draftLayout.ts DRAFT_LAYOUTS[0..3].{store,slogan,details,summary}.
@@ -194,12 +195,20 @@ function buildProductTextElements(product: HomeProductInput, index: number): Edi
   return elements;
 }
 
-function placeProductMetaElement(element: EditorElement, rect: WireframeProductPlacement['rect']): EditorElement {
+function placeProductMetaElement(
+  element: EditorElement,
+  rect: WireframeProductPlacement['rect'],
+  draftIndex: 0 | 1 | 2 | 3,
+): EditorElement {
   const isName = /-name$/.test(element.id);
   const isPrice = /-price$/.test(element.id);
-  const width = Math.max(rect.width, isName ? 18 : isPrice ? 16 : 22);
+  const meta = WIREFRAME_TEXT_PLACEMENTS[draftIndex].productMeta;
+  const width = Math.max(
+    rect.width,
+    isName ? meta.nameMinWidth : isPrice ? meta.priceMinWidth : meta.descMinWidth,
+  );
   const x = rect.x + (rect.width - width) / 2;
-  const yOffset = isName ? 1.2 : isPrice ? 4 : 6.6;
+  const yOffset = isName ? meta.nameOffsetY : isPrice ? meta.priceOffsetY : meta.descOffsetY;
   const fontSize = isName ? 10 : isPrice ? 9 : 8;
 
   return {
@@ -347,7 +356,7 @@ export function applyDraftLayoutVariant(
     if (productMetaMatch) {
       const rect = productPlacementById.get(String(productMetaMatch[1]));
       if (rect) {
-        return placeProductMetaElement(element, rect);
+        return placeProductMetaElement(element, rect, typeIndex);
       }
     }
 

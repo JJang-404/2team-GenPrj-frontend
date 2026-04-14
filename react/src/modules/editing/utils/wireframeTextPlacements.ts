@@ -18,9 +18,19 @@ export interface WireframeTextRect {
   height: number;
 }
 
+export interface WireframeProductMetaPlacement {
+  nameOffsetY: number;
+  priceOffsetY: number;
+  descOffsetY: number;
+  nameMinWidth: number;
+  priceMinWidth: number;
+  descMinWidth: number;
+}
+
 export interface WireframeTypeTextPlacement {
   storeName: WireframeTextRect;
   mainSlogan: WireframeTextRect;
+  productMeta: WireframeProductMetaPlacement;
 }
 
 export const WIREFRAME_TEXT_PLACEMENTS: Record<0 | 1 | 2 | 3, WireframeTypeTextPlacement> = {
@@ -28,20 +38,52 @@ export const WIREFRAME_TEXT_PLACEMENTS: Record<0 | 1 | 2 | 3, WireframeTypeTextP
   0: {
     storeName:  { x: 4, y: 4,  width: 68, height: 10 },
     mainSlogan: { x: 4, y: 90, width: 92, height: 8  },
+    productMeta: {
+      nameOffsetY: 1.4,
+      priceOffsetY: 4.8,
+      descOffsetY: 7.8,
+      nameMinWidth: 18,
+      priceMinWidth: 16,
+      descMinWidth: 22,
+    },
   },
   // Type2 — SingleCompactLayout (상단 헤더 블록: store + inline slogan)
   1: {
     storeName:  { x: 4, y: 4,  width: 56, height: 12 },
     mainSlogan: { x: 4, y: 88, width: 92, height: 8  },
+    productMeta: {
+      nameOffsetY: 1.2,
+      priceOffsetY: 4.6,
+      descOffsetY: 7.4,
+      nameMinWidth: 18,
+      priceMinWidth: 16,
+      descMinWidth: 22,
+    },
   },
   // Type3 — OverlapGroupLayout (상단 store, 하단 slogan, overlap 제품 위 z-30)
   2: {
     storeName:  { x: 4, y: 4,  width: 68, height: 10 },
     mainSlogan: { x: 4, y: 90, width: 92, height: 8  },
+    productMeta: {
+      nameOffsetY: 1.1,
+      priceOffsetY: 4.2,
+      descOffsetY: 6.8,
+      nameMinWidth: 16,
+      priceMinWidth: 15,
+      descMinWidth: 20,
+    },
   },
   // Type4 — HalfCropGroupLayout (반쪽 크롭 전폭, 텍스트 상/하 얇게)
   3: {
     storeName:  { x: 4, y: 3,  width: 68, height: 9  },
     mainSlogan: { x: 4, y: 91, width: 92, height: 7  },
+    productMeta: {
+      nameOffsetY: 1,
+      priceOffsetY: 4.1,
+      descOffsetY: 6.6,
+      nameMinWidth: 18,
+      priceMinWidth: 16,
+      descMinWidth: 22,
+    },
   },
 };

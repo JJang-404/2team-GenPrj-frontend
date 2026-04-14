@@ -34,7 +34,7 @@ const HalfCropSlot = ({ product, slotMeta, side, isSquare }) => {
       )}
       {product?.price && product?.showPrice && (
         <p className={`${isSquare ? 'text-[5px]' : 'text-[8px]'} text-black/80 font-bold text-center`}>
-          {Number(product.price).toLocaleString()}{product.currency ?? '원'}
+          {Number(product.price).toLocaleString()} {product.currency ?? '원'}
         </p>
       )}
     </div>

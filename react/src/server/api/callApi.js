@@ -273,7 +273,7 @@ class CallApi extends BaseApi {
   _buildBackgroundPrompt(customPrompt = '') {
     return [
       customPrompt.trim(),
-      '포스터 배경만 생성, 제품·객체 포함하지 않음',
+      'Generate only the poster background, without including any products or objects',
     ].filter(Boolean).join(', ');
   }
 
