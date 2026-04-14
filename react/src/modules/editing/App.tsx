@@ -106,7 +106,7 @@ export default function App() {
   const [step, setStep] = useState<EditorStep>('background');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [elements, setElements] = useState<EditorElement[]>([]);
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
   const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('ai-image');
   const [promptKo, setPromptKo] = useState('');
   const [promptHint, setPromptHint] = useState('');
@@ -176,9 +176,28 @@ export default function App() {
   );
 
   const selectedElement = useMemo(
-    () => renderElements.find((element) => element.id === selectedElementId) ?? null,
-    [renderElements, selectedElementId]
+    () =>
+      selectedElementIds.length === 1
+        ? renderElements.find((element) => element.id === selectedElementIds[0]) ?? null
+        : null,
+    [renderElements, selectedElementIds]
   );
+
+  const handleCanvasSelect = (id: string | null, options?: { append?: boolean }) => {
+    if (!id) {
+      setSelectedElementIds([]);
+      return;
+    }
+
+    if (options?.append) {
+      setSelectedElementIds((prev) =>
+        prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      );
+      return;
+    }
+
+    setSelectedElementIds([id]);
+  };
 
   useEffect(() => {
     if (!queuedBackgroundGeneration || !projectData) return;
@@ -315,7 +334,7 @@ export default function App() {
     }
     setStep('background');
     setQueuedBackgroundGeneration(false);
-    setSelectedElementId(null);
+    setSelectedElementIds([]);
   };
 
   /**
@@ -340,7 +359,7 @@ export default function App() {
     const withLayout = applyDraftLayoutVariant(mapped, typeIndex, nextProjectData);
     setElements(applyDraftTypographyVariant(withLayout, nextProjectData));
     setRightPanelMode('background');
-    setSelectedElementId(null);
+    setSelectedElementIds([]);
   };
 
   const handleGenerateBackgrounds = async () => {
@@ -351,8 +370,8 @@ export default function App() {
     setError(null);
 
     // 편집 중이던 선택 박스 해제
-    const previousSelectedId = selectedElementId;
-    setSelectedElementId(null);
+    const previousSelectedIds = selectedElementIds;
+    setSelectedElementIds([]);
 
     try {
       // [Case A] 단색/그라데이션/다중색 모드 (로컬 생성)
@@ -429,7 +448,7 @@ export default function App() {
       setError(err instanceof Error ? err.message : '배경 생성 도중 오류가 발생했습니다.');
     } finally {
       // 생성 완료 후 원래 선택했던 요소 다시 선택 (UX 배려)
-      setSelectedElementId(previousSelectedId);
+      setSelectedElementIds(previousSelectedIds);
       setGenerating(false);
     }
   };
@@ -670,7 +689,7 @@ export default function App() {
   const handleAddTextElement = (label: string) => {
     const nextElement = createCustomTextElement(label);
     setElements((prev) => [...prev, nextElement]);
-    setSelectedElementId(nextElement.id);
+    setSelectedElementIds([nextElement.id]);
   };
 
   const handleAddImageElement = async (file: File, label: string) => {
@@ -678,7 +697,7 @@ export default function App() {
       const imageUrl = await readFileAsDataUrl(file);
       const nextElement = createCustomImageElement(imageUrl, label);
       setElements((prev) => [...prev, nextElement]);
-      setSelectedElementId(nextElement.id);
+      setSelectedElementIds([nextElement.id]);
     } catch (addImageError) {
       setError(addImageError instanceof Error ? addImageError.message : '이미지 요소 추가에 실패했습니다.');
     }
@@ -737,6 +756,7 @@ export default function App() {
         onToggleExpanded={() => setSidebarExpanded((prev) => !prev)}
         templateId={selectedTemplateId}
         selectedElement={selectedElement}
+        selectionCount={selectedElementIds.length}
         infoItems={additionalInfoLabels.map((label) => ({ label, visible: additionalInfoVisibility[label] ?? false }))}
         storeName={projectData?.storeName ?? ''}
         mainSlogan={projectData?.mainSlogan ?? ''}
@@ -790,7 +810,7 @@ export default function App() {
             <EditorCanvas
               elements={renderElements}
               background={null}
-              selectedElementId={null}
+              selectedElementIds={[]}
               onSelect={() => {}}
               onChangeElement={(_id, _patch) => {}}
               captureMode
@@ -808,8 +828,8 @@ export default function App() {
                   elements={renderElements}
                   background={selectedBackground}
                   ratio={projectData?.options.ratio ?? '4:5'}
-                  selectedElementId={selectedElementId}
-                  onSelect={setSelectedElementId}
+                  selectedElementIds={selectedElementIds}
+                  onSelect={handleCanvasSelect}
                   onChangeElement={(id, patch) => setElements((prev) => updateElement(prev, id, patch))}
                 />
               </div>

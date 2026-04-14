@@ -8,14 +8,20 @@ interface EditorCanvasProps {
   elements: EditorElement[];
   background: BackgroundCandidate | null;
   ratio?: string;
-  selectedElementId: string | null;
-  onSelect: (id: string | null) => void;
+  selectedElementIds: string[];
+  onSelect: (id: string | null, options?: { append?: boolean }) => void;
   onChangeElement: (id: string, patch: Partial<EditorElement>) => void;
   captureMode?: boolean;
 }
 
 type DragState =
-  | { type: 'move'; id: string; startX: number; startY: number; x: number; y: number }
+  | {
+      type: 'move';
+      ids: string[];
+      startX: number;
+      startY: number;
+      origins: Array<{ id: string; x: number; y: number }>;
+    }
   | { type: 'resize'; id: string; startX: number; startY: number; width: number; height: number }
   | { type: 'rotate'; id: string };
 
@@ -23,7 +29,7 @@ export default function EditorCanvas({
   elements,
   background,
   ratio = '4:5',
-  selectedElementId,
+  selectedElementIds,
   onSelect,
   onChangeElement,
   captureMode = false,
@@ -40,9 +46,13 @@ export default function EditorCanvas({
       const current = dragState.current;
 
       if (current.type === 'move') {
-        const x = clamp(current.x + toPercent(event.clientX - current.startX, rect.width), 0, 90);
-        const y = clamp(current.y + toPercent(event.clientY - current.startY, rect.height), 0, 90);
-        onChangeElement(current.id, { x, y });
+        const dx = toPercent(event.clientX - current.startX, rect.width);
+        const dy = toPercent(event.clientY - current.startY, rect.height);
+        current.origins.forEach((origin) => {
+          const x = clamp(origin.x + dx, 0, 90);
+          const y = clamp(origin.y + dy, 0, 90);
+          onChangeElement(origin.id, { x, y });
+        });
         return;
       }
 
@@ -76,13 +86,19 @@ export default function EditorCanvas({
   const startMove = (event: ReactMouseEvent, element: EditorElement) => {
     if (element.locked) return;
     event.stopPropagation();
+    if (event.ctrlKey || event.metaKey) {
+      onSelect(element.id, { append: true });
+      return;
+    }
+    const selectedIds = selectedElementIds.includes(element.id) ? selectedElementIds : [element.id];
     dragState.current = {
       type: 'move',
-      id: element.id,
+      ids: selectedIds,
       startX: event.clientX,
       startY: event.clientY,
-      x: element.x,
-      y: element.y,
+      origins: elements
+        .filter((item) => selectedIds.includes(item.id))
+        .map((item) => ({ id: item.id, x: item.x, y: item.y })),
     };
     onSelect(element.id);
   };
@@ -137,7 +153,8 @@ export default function EditorCanvas({
               return null;
             }
 
-            const selected = selectedElementId === element.id;
+            const selected = selectedElementIds.includes(element.id);
+            const canTransform = selected && selectedElementIds.length === 1;
             const shadowStrength = element.shadowStrength ?? 0;
             const shadow = shadowStrength
               ? `drop-shadow(0 10px ${8 + shadowStrength * 1.8}px rgba(0,0,0,${0.12 + shadowStrength / 100}))`
@@ -163,7 +180,10 @@ export default function EditorCanvas({
                 onMouseDown={(event) => startMove(event, element)}
                 onClick={(event) => {
                   event.stopPropagation();
-                  onSelect(element.id);
+                  if (event.ctrlKey || event.metaKey) {
+                    return;
+                  }
+                  onSelect(element.id, { append: event.ctrlKey || event.metaKey });
                 }}
               >
                 {element.kind === 'text' && (
@@ -207,7 +227,7 @@ export default function EditorCanvas({
                     style={{ objectFit: element.imageFit ?? 'contain' }}
                   />
                 )}
-                {selected && !captureMode && (
+                {canTransform && !captureMode && (
                   <>
                     <button
                       className="canvas-handle canvas-handle--rotate"
