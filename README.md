@@ -54,6 +54,8 @@ npm run dev
 - **UI/UX 개선**: '좌석 수' 명칭을 '주차장 공간 수'로 변경하여 비즈니스 적합성 향상.
 - **안정성 확보**: 로컬 스토리지 저장 시 이미지 데이터를 제외하여 브라우저 저장소 용량 초과 오류 해결.
 - **가독성 강화**: AI 문구 생성 시 사용자가 선택한 정보만 프롬프트에 포함되도록 필터링 로직 고도화.
+- **Wireframe Type 4 Half-Crop 복구 (2026-04-14)**: `WireframeChoiceCard` 4번째 카드의 반쪽 크롭 썸네일이 `object-fit: contain`으로 잘못 변경되어 있던 회귀를 `cover` + `left/right center`로 원복. 상세 내역은 [`doc/0414/wireframe_halfcrop_restoration_report.md`](doc/0414/wireframe_halfcrop_restoration_report.md) 참조.
+- **United1_5 선택적 머지 (2026-04-14)**: `feature/United1_5`의 `ba6441a` 커밋에서 (a) 다중 선택 UX(`Ctrl/Meta + 클릭`으로 여러 요소 토글 및 동시 드래그), (b) 타입별 상품명·가격 오프셋 테이블(`productMeta`), (c) 배경 프롬프트 영어 전환만 선별적으로 반영. `storeName` / `mainSlogan` 좌표 재배치는 의도되지 않은 변경으로 판단하여 수용하지 않음. 상세 내역은 [`doc/0414/united1_5_selective_merge_report.md`](doc/0414/united1_5_selective_merge_report.md) 참조.
 
 ---
 **Note**: 본 프로젝트는 백엔드 서버(FastAPI 기반)와 함께 구동되어야 AI 생성 기능이 정상적으로 동작합니다. 백엔드 주소는 `.env` 또는 `defines.js`에서 확인하십시오.
