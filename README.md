@@ -56,6 +56,13 @@ npm run dev
 - **가독성 강화**: AI 문구 생성 시 사용자가 선택한 정보만 프롬프트에 포함되도록 필터링 로직 고도화.
 - **Wireframe Type 4 Half-Crop 복구 (2026-04-14)**: `WireframeChoiceCard` 4번째 카드의 반쪽 크롭 썸네일이 `object-fit: contain`으로 잘못 변경되어 있던 회귀를 `cover` + `left/right center`로 원복. 상세 내역은 [`doc/0414/wireframe_halfcrop_restoration_report.md`](doc/0414/wireframe_halfcrop_restoration_report.md) 참조.
 - **United1_5 선택적 머지 (2026-04-14)**: `feature/United1_5`의 `ba6441a` 커밋에서 (a) 다중 선택 UX(`Ctrl/Meta + 클릭`으로 여러 요소 토글 및 동시 드래그), (b) 타입별 상품명·가격 오프셋 테이블(`productMeta`), (c) 배경 프롬프트 영어 전환만 선별적으로 반영. `storeName` / `mainSlogan` 좌표 재배치는 의도되지 않은 변경으로 판단하여 수용하지 않음. 상세 내역은 [`doc/0414/united1_5_selective_merge_report.md`](doc/0414/united1_5_selective_merge_report.md) 참조.
+- **United1_6 업데이트 (2026-04-15)**: 
+    - **AI 광고 문구 생성 흐름 개선**: `initPage` 로딩 시 불필요하게 호출되던 GPT API를 **'디자인 선택하기'** 버튼 클릭 시점으로 지연(Lazy-load)시켜 성능 및 비용 최적화. 메인 프리뷰 내 문구 중복 노출 오류 해결.
+    - **메인 프리뷰 - 선택 카드 간 동기화 고도화**: 
+        - `ResizeObserver`를 이용한 **동적 폰트 스케일링** 도입 (580px 기준 비율 유지).
+        - 텍스트 박스 너비 로직(`fit-content`) 일원화로 메인 프리뷰와 선택 카드 간의 **위치 정합성(Position Sync)** 확보.
+        - 구도 선택(Type 1, 2) 시 제품 이미지의 가로세로비(AR) 스케일링을 `initPage`와 동일하게 적용.
+    - 상세 내역은 [`doc/0415/work_summary.md`](doc/0415/work_summary.md) 참조.
 
 ---
 **Note**: 본 프로젝트는 백엔드 서버(FastAPI 기반)와 함께 구동되어야 AI 생성 기능이 정상적으로 동작합니다. 백엔드 주소는 `.env` 또는 `defines.js`에서 확인하십시오.

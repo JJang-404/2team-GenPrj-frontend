@@ -51,6 +51,41 @@ class StoreInfo {
   }
 
   /**
+   * editing 화면 '처음으로' 클릭 시 storeDesc(최종 광고 문구)를 초기화합니다.
+   */
+  clearStoreDesc() {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return;
+      const info = JSON.parse(raw);
+      const payload = {
+        ...info,
+        basicInfo: { ...info.basicInfo, storeDesc: '' },
+      };
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
+      console.log('[StoreInfo] 광고 문구 필드 초기화 완료');
+    } catch (e) {
+      console.error('[StoreInfo] storeDesc 초기화 실패:', e);
+      localStorage.removeItem(this.STORAGE_KEY);
+    }
+  }
+
+  /**
+   * editing 화면 '처음으로' 클릭 시 storeIntro(가게 소개 문구)를 초기화합니다.
+   */
+  clearStoreIntro() {
+    try {
+      const data = this.getStoreInfo();
+      if (data?.basicInfo) {
+        data.basicInfo.storeIntro = '';
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+      }
+    } catch (e) {
+      console.error('[StoreInfo] storeIntro 초기화 실패:', e);
+    }
+  }
+
+  /**
    * AdCopy 생성을 위한 정제된 텍스트 프롬프트를 빌드합니다.
    * 선택된 정보만 기입되도록 필터링합니다.
    */
@@ -63,7 +98,7 @@ class StoreInfo {
 
     if (basicInfo?.storeName) lines.push(`가게이름: ${basicInfo.storeName}`);
     if (basicInfo?.industry) lines.push(`업종: ${basicInfo.industry}`);
-    if (basicInfo?.storeDesc) lines.push(`가게소개: ${basicInfo.storeDesc}`);
+    if (basicInfo?.storeIntro) lines.push(`가게 소개: ${basicInfo.storeIntro}`);
 
     // 저장된 상품 소개문구 리스트 추가
     if (Array.isArray(products) && products.length > 0) {

@@ -526,7 +526,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
 
     const normalizedLabel = `${element.id} ${element.label}`.toLowerCase();
 
-    if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel) && projectData.storeName) {
+    if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel) && projectData.storeName && !matchedFields.store) {
       matchedFields.store = true;
       return {
         ...element,
@@ -540,7 +540,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       return { ...element, text: '', hidden: true };
     }
 
-    if (/(headline|title|타이틀)/.test(normalizedLabel)) {
+    if (/(headline|title|타이틀)/.test(normalizedLabel) && !matchedFields.slogan) {
       if (projectData.mainSlogan) {
         matchedFields.slogan = true;
         return {
@@ -554,7 +554,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       return { ...element, text: '', hidden: true };
     }
 
-    if (/(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel)) {
+    if (/(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel) && !matchedFields.slogan) {
       if (projectData.mainSlogan) {
         matchedFields.slogan = true;
         return {
@@ -572,7 +572,7 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
       return { ...element, text: '', hidden: true };
     }
 
-    if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel)) {
+    if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel) && !matchedFields.details) {
       if (projectData.details) {
         matchedFields.details = true;
         return {

@@ -332,5 +332,23 @@ export function computeWireframeProductPlacements(
   if (draftIndex === 3) {
     return computeType4HalfCropLayout(slots, products);
   }
+
+  // Type 1 & 2: Individual slots with AR scaling (matching initPage IndividualSlot/computeSlotStyle 'single')
+  /* 기존 코드 백업:
   return slots.map((slot) => ({ rect: slotToRect(slot) }));
+  */
+  return slots.map((slot, i) => {
+    const product = products[i];
+    if (!product) return { rect: slotToRect(slot) };
+
+    const wScaled = scaledWidthOrFallback(slot, product);
+    return {
+      rect: {
+        x: slot.Cx - wScaled / 2,
+        y: slot.Cy - slot.sh / 2,
+        width: wScaled,
+        height: slot.sh,
+      },
+    };
+  });
 }

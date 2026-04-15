@@ -1,0 +1,167 @@
+Wireframe 에서 .json 으로 cx, cy 로 좌표값을 받는지 확인해줘. 추후에 백엔드에서 레이아웃 데이터를 변경할 수 있으니 지금 현재 어떤 .json 으로 x, y 값 받는지 확인하고 doc/0414 폴더에 md 파일 만들어줘.
+
+---
+
+http://localhost:5173/ 혹은 '처음으로' 버튼 누르면 genprj_store_info 중 '최종 광고 문구' 초기화해주세요. 그리고 초기 화면에서 다른 값이 들어가면 genprj_store_info 값은 다시 생성해주세요.
+수정되기 전에 doc/0414 폴더에 md 파일로 어디를 수정하면 되는지 알려줘. 
+
+---
+
+목표 : 코드 가독성, 유지보수성, 간결성, 일관성, 확장성, 이식성을 고려하고 코드의 중복을 피하며 모듈화/클래스화/함수화하여 작성한다.
+
+---
+editing 화면에서 초기화면을 누르면
+"[StoreInfo] 최종 광고 문구 초기화 완료"
+console 에 나옵니다.
+그러다가 initPage 에서
+카페 이름을 작성하면
+"callApi.js:383 [CallApi] AI 광고 문구 생성 요청 프롬프트:
+ 가게이름: 파파카페
+업종: 카페
+
+[활성화된 상품 소개문구]
+1. 짭짤한 원두"
+이렇게 나오면서 '소개 문구' 하단에 기존에 생성된 '소개문구'가 작성됩니다.
+
+{basicInfo: {storeName: "파파카페", industry: "카페", storeDesc: ""}, products: [{description: "짭짤한 원두"}],…}
+basicInfo: {storeName: "파파카페", industry: "카페", storeDesc: ""}
+industry: "카페"
+storeDesc: ""
+storeName: "파파카페"
+products: [{description: "짭짤한 원두"}]
+0: {description: "짭짤한 원두"}
+updatedAt: "2026-04-14T04:23:02.596Z"
+
+원하는건 '소개문구'가 "" 없어지는걸 원합니다. 어떻게 해야하는지 지금 수정한 코드는
+`react/src/server/api/storeInfo.js`
+`react/src/modules/initPage/App.jsx`
+`react/src/modules/editing/App.tsx`
+입니다. 코드 확인하고 어디에 수정해야하는지 doc/0414 에 md 파일에 알려주세요.
+
+
+---
+
+@react\src\modules\initPage\App.jsx 를 수정했는데,
+{basicInfo: {storeName: "다다 커피", industry: "커피숍", storeDesc: ""},…}
+basicInfo: {storeName: "다다 커피", industry: "커피숍", storeDesc: ""}
+products: [{description: "따뜻한 원두에 깊은 향"}]
+updatedAt: "2026-04-14T04:49:56.856Z
+이렇게 storeDesc: "" 을 없애도 gpt 에서 생성한 소개문구가 없어지지 않습니다. 어디서 없애야하는지 md 문서로 알려주세요.
+
+@clear_storeDesc_auto_fix
+
+---
+
+storeDesc: 이걸 초기화 할 필요는 없을것 같습니다.
+@react\src\modules\initPage\App.jsx 수정하였으나 기존에 있던 소개문구가 계속 남아있습니다. 이유가 뭘까요? '가게 소개 문구' , '최종 광고 문구' 이 항목들이 초기화되었으면 좋겠습니다.
+@clear_all_fields_fix.md
+
+---
+
+'가게 소개 문구' , '최종 광고 문구' 이 항목들의 프로세스를 알려주세요.
+genprj_store_info 항목이 아닌거 같은데 확인 부탁하고 알려주세요.
+genprj_store_info 처럼 따로 항목을 저장하는게 좋을까요??
+->   [추천하는 개선 구조]
+   * storeIntro (가게 소개 문구): 사용자가 입력한 원본 데이터 보존.
+   * storeDesc (최종 광고 문구): AI가 생성한 최종 결과물 또는 사용자가 최종적으로 확정한 문구.
+@field_separation_plan.md
+
+---
+
+@field_separation_plan.md
+으로 수정했는데 editing 화면에서 '처음으로' 들어가니
+F12 개발자모드에서
+[StoreInfo] 모든 문구 필드 초기화 완료
+4callApi.js:383 [CallApi] AI 광고 문구 생성 요청 프롬프트:
+ 업종: 커피숍
+
+왜 문구 필드 초기화까지 했는데 AI 광고 문구 생성 요청을 하는지 모르겠습니다.
+초기화면에서 왜 AI 광고 문구 생성되는지 어디서 꼬인건지 코드 분석 후 md 파일로 알려주세요.
+@auto_slogan_trigger_analysis.md
+
+---
+@auto_slogan_trigger_analysis.md
+문서보고 수정하였습니다 하지만 여전히
+editing -> '처음으로' (initPage로 돌아가면)
+(혹은 editing 하고 Ctrl 하고 initPage 를 다시 들어가게 된다고 한들)
+[StoreInfo] 모든 문구 필드 초기화 완료
+4callApi.js:383 [CallApi] AI 광고 문구 생성 요청 프롬프트:
+ 업종: 커피숍
+
+이렇게 여전히 초기화 완료를 하고 다시 광고 문구 생성 요청 프롬프트를 시작하는게 이상합니다.
+
+AI 광고 문구가 "한 잔의 온기가 머무는 동네 커피숍, 오늘의 휴식을 만나세요." 인거 보니깐 뭔가 아무것도 없는 상태에서 백엔드에서 진행되는거 아닌가요? 
+
+
+---
+
+@data_loss_root_cause.md 으로 수정을 하였으나,
+아무것도 입력되지 않은 상태에서 기존에서 생성된
+"callApi.js:383 [CallApi] AI 광고 문구 생성 요청 프롬프트:
+ 업종: 붕어빵
+
+[활성화된 상품 소개문구]
+1. 팥과 슈크림이 모두 있는 붕어빵으로 달콤한 겨울을 느껴보세요"
+앞에 4라는 표시도 있고, '소개 문구 (미입력 시 AI 문구 자동 생성)' 부분에서
+기존에 작성된 값이 계속들어갑니다.
+
+코드를 수정하기 전에 문제점이 뭔지, 어떻게 수정해야하는지 md 파일이 필요합니다.
+
+1. '소개 문구 (미입력 시 AI 문구 자동 생성)' 항목을 보여드립니다.
+@src\modules\initPage\components\sidebar\sections\BasicInfoSection.jsx
+<InfoField label="가게 소개 문구">
+      <textarea
+        placeholder="가게 소개 문구 (미입력 시 AI 문구 자동 생성)"
+        rows={2}
+        value={basicInfo.storeDesc}
+        onChange={(e) => updateBasicInfo('storeDesc', e.target.value)}
+        className={`${inputCls} resize-none`}
+      />
+    </InfoField>
+  </section>
+
+추후 editing 상태에서 gpt 로 storeDesc 값이 들어오면
+initPage 에서는 페이지를 로드하는 순간 저 값으로 무조건 들어가게 진행되는걸로 보입니다.
+gpt 토큰 사용 낭비입니다.
+
+2. initPage 입력받는 상품 정보의 '상품 소개 문구' 는
+@src\modules\initPage\components\sidebar\ProductCard.jsx
+   {/* 상품 소개 문구 */}
+    <FieldRow visible={p.showDesc} onToggle={() => onUpdate(p.id, 'showDesc', !p.showDesc)}>
+      <textarea
+        placeholder="상품 소개 문구"
+        rows={2}
+        value={p.description}
+        onChange={(e) => onUpdate(p.id, 'description', e.target.value)}
+        className={`${fieldCls} flex-1 resize-none`}
+      />
+    </FieldRow>
+이건 동적으로 정보를 받게 되는건데 이건 AI_BACKGROUND_PROMPT_FIELDS 에서 정보를 받나요?
+
+export const AI_BACKGROUND_PROMPT_FIELDS = [
+	{ no: 1, label: '업종', key: 'industry' },
+	{ no: 2, label: '가게 소개 문구', key: 'storeIntro' },
+	{ no: 3, label: '최종 광고 문구', key: 'storeDesc' },
+];
+
+지금 코드가 다 꼬였습니다.
+
+다시 한번 말씀드립니다.
+
+1. initPage 에서 <InfoField label="가게 소개 문구"> 에서 입력을 못한다면
+editing 에서 '최종 광고 문구' 에 gpt 로 광고 문구 해줍니다.
+
+2. '최종 광고 문구' 에는 initPage 에 업종, <InfoField label="가게 소개 문구">, <textarea placeholder="상품 소개 문구"> 들을 입력받아서 gpt 로 만듭니다.
+
+3. 지금 storeDesc 의 중복 사용으로 gpt 에 사용해야하는 부분은
+initPage 에서 "가게 소개 문구" 를 미 입력했을때
+editing 화면에서 "최종 광고 문구" 에서만 gpt 로 광고 문구 생성받습니다.
+
+4. 만일 사용자가 '처음으로' 버튼을 눌러서 initPage 에 하게 되면 
+'[CallApi] AI 광고 문구 생성 요청 프롬프트:'
+는 실행되지 않습니다. 
+
+코드를 제대로 수정해서 이 꼬인걸 해결해야합니다. 변수를 추가해도 좋습니다.
+그러니 코드를 제대로 파악해서 코드 수정전에 제대로 알려주세요.
+
+

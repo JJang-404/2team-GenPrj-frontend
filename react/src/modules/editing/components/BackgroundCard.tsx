@@ -1,6 +1,10 @@
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { BackgroundCandidate, EditorElement } from '../types/editor';
 import { ratioToAspectValue } from '../utils/ratio';
+
+// 모든 폰트 비율의 기준이 되는 캔버스 너비
+const REFERENCE_WIDTH = 580;
 
 interface BackgroundCardProps {
   background: BackgroundCandidate;
@@ -10,12 +14,38 @@ interface BackgroundCardProps {
   onSelect: () => void;
 }
 
-export default function BackgroundCard({ background, elements, ratio = '4:5', selected, onSelect }: BackgroundCardProps) {
-  const showGeneratedImage = (background.mode === 'ai-image' || background.mode === 'pastel') && Boolean(background.imageUrl);
+export default function BackgroundCard({
+  background,
+  elements,
+  ratio = '4:5',
+  selected,
+  onSelect,
+}: BackgroundCardProps) {
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [scaleFactor, setScaleFactor] = useState(1);
+  const showGeneratedImage =
+    (background.mode === 'ai-image' || background.mode === 'pastel') && Boolean(background.imageUrl);
+
+  // 캔버스 크기 변화를 감지하여 폰트 스케일링 비율 계산
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const currentWidth = entry.contentRect.width;
+      if (currentWidth > 0) {
+        setScaleFactor(currentWidth / REFERENCE_WIDTH);
+      }
+    });
+    observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <button className={`choice-card ${selected ? 'active' : ''}`} onClick={onSelect}>
-      <div className="choice-card__canvas" style={{ aspectRatio: ratioToAspectValue(ratio) }}>
+      <div
+        ref={canvasRef}
+        className="choice-card__canvas"
+        style={{ aspectRatio: ratioToAspectValue(ratio) }}
+      >
         <div className="background-swatch" style={{ background: background.cssBackground }}>
           {showGeneratedImage && (
             <img
@@ -33,8 +63,13 @@ export default function BackgroundCard({ background, elements, ratio = '4:5', se
               const base: CSSProperties = {
                 left: `${element.x}%`,
                 top: `${element.y}%`,
+                /* 기존 코드 백업 (고객 요청 대응 전):
                 width: `${element.width}%`,
                 height: `${element.height}%`,
+                */
+                width: element.kind === 'text' ? 'fit-content' : `${element.width}%`,
+                maxWidth: element.kind === 'text' ? `${element.width}%` : undefined,
+                height: element.kind === 'text' ? 'auto' : `${element.height}%`,
                 transform: `rotate(${element.rotation}deg)`,
                 zIndex: element.zIndex,
                 opacity: element.opacity ?? 1,
@@ -48,12 +83,16 @@ export default function BackgroundCard({ background, elements, ratio = '4:5', se
                     style={{
                       ...base,
                       color: element.color,
+                      /* 기존 코드 백업 (절대 px):
                       fontSize: `${element.fontSize ?? 24}px`,
+                      letterSpacing: `${element.letterSpacing ?? 0}px`,
+                      */
+                      fontSize: `${(element.fontSize ?? 24) * scaleFactor}px`,
                       fontWeight: element.fontWeight,
                       fontFamily: element.fontFamily,
                       textAlign: element.align,
                       lineHeight: element.lineHeight,
-                      letterSpacing: `${element.letterSpacing ?? 0}px`,
+                      letterSpacing: `${(element.letterSpacing ?? 0) * scaleFactor}px`,
                     }}
                   >
                     {element.text}

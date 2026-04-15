@@ -475,6 +475,8 @@ export default function App() {
   };
 
   const handleBackToInitialPage = () => {
+    storeInfo.clearStoreDesc();
+    storeInfo.clearStoreIntro();
     window.location.href = getInitPageUrl();
   };
 

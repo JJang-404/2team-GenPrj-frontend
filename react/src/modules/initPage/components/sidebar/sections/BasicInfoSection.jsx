@@ -40,8 +40,8 @@ const BasicInfoSection = ({ basicInfo, updateBasicInfo, brandColor, onBrandColor
       <textarea
         placeholder="소개 문구 (미입력 시 AI 문구 자동 생성)"
         rows={2}
-        value={basicInfo.storeDesc}
-        onChange={(e) => updateBasicInfo('storeDesc', e.target.value)}
+        value={basicInfo.storeIntro ?? ''}
+        onChange={(e) => updateBasicInfo('storeIntro', e.target.value)}
         className={`${inputCls} resize-none`}
       />
     </InfoField>

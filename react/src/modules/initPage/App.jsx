@@ -44,61 +44,54 @@ const App = () => {
     generateAiBgImage,
   } = useDesignOptions();
 
+  // 마운트 시 이전 세션 광고 문구 초기화
   useEffect(() => {
-    if (basicInfo.storeDesc?.trim()) {
-      autoCopyKeyRef.current = '';
-      return;
-    }
-
-    const hasPromptSource =
-      Boolean(basicInfo.storeName?.trim()) ||
-      Boolean(basicInfo.industry?.trim()) ||
-      products.some((product) => product.showDesc && product.description?.trim());
-
-    if (!hasPromptSource) return;
-
-    const requestKey = JSON.stringify({
-      storeName: basicInfo.storeName ?? '',
-      industry: basicInfo.industry ?? '',
-      products: products.map((product) => ({
-        description: product.description ?? '',
-        showDesc: Boolean(product.showDesc),
-      })),
-    });
-
-    if (autoCopyKeyRef.current === requestKey) return;
-    autoCopyKeyRef.current = requestKey;
-
-    const timer = window.setTimeout(() => {
-      void (async () => {
-        try {
-          const result = await callApi.generateAdCopy();
-          const generated = extractAdCopy(result);
-          if (generated) {
-            updateBasicInfo('storeDesc', generated);
-          }
-        } catch (error) {
-          console.warn('[InitPage] AI 소개문구 자동 생성 실패:', error);
-        }
-      })();
-    }, 400);
-
-    return () => window.clearTimeout(timer);
-  }, [basicInfo.storeDesc, basicInfo.storeName, basicInfo.industry, products, updateBasicInfo]);
+    storeInfo.clearStoreDesc();
+    autoCopyKeyRef.current = '__init__';
+  }, []);
 
   /** 실제 편집 페이지 이동 로직 (확인 모달에서 "네" 선택 시 호출) */
   const handleSelectDesign = async (idx) => {
     console.log('[App] 디자인 선택 이벤트 발생 - 인덱스:', idx);
     setSelectedDesigns([idx]);
 
-    // 가게 정보 저장 (편집 페이지 연동용 - 기본 정보 및 상품 소개문구 위주)
-    console.log('[App] 가게 정보 저장 시도...');
-    storeInfo.saveStoreInfo({ basicInfo, products });
+    let finalStoreDesc = basicInfo.storeDesc;
+
+    if (!basicInfo.storeIntro?.trim()) {
+      // generateAdCopy()는 localStorage에서 읽으므로 호출 전에 먼저 저장
+      storeInfo.saveStoreInfo({ basicInfo, products });
+
+      try {
+        console.log('[InitPage] 소개문구가 비어 있어 AI 광고 문구를 생성합니다..');
+        const result = await callApi.generateAdCopy();
+        if (!result?.ok) {
+          console.warn('[InitPage] AI 광고 문구 생성 실패 (API 오류):', result?.error ?? '알 수 없는 오류');
+        } else {
+          const generated = extractAdCopy(result);
+          if (generated) {
+            finalStoreDesc = generated;
+            updateBasicInfo('storeDesc', generated);
+          } else {
+            console.warn('[InitPage] AI 광고 문구 생성 성공이나 빈 결과:', result);
+          }
+        }
+      } catch (error) {
+        console.warn('[InitPage] AI 광고 문구 생성 중 네트워크/연결 오류:', error);
+      }
+    }
+
+    // storeIntro가 있으면 그대로 사용, 없으면 AI 생성 문구 사용
+    const mergedBasicInfo = {
+      ...basicInfo,
+      storeDesc: basicInfo.storeIntro?.trim() ? basicInfo.storeIntro : finalStoreDesc,
+    };
+
+    storeInfo.saveStoreInfo({ basicInfo: mergedBasicInfo, products });
 
     try {
       const payload = await buildEditingPayload({
         options,
-        basicInfo,
+        basicInfo: mergedBasicInfo,
         extraInfo,
         products,
         draftIndex: idx,

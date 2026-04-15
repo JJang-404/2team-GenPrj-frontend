@@ -1,8 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import type { BackgroundCandidate, EditorElement } from '../types/editor';
 import { clamp, toPercent } from '../utils/editor';
 import { ratioToAspectValue } from '../utils/ratio';
+
+// 모든 폰트 비율의 기준이 되는 캔버스 너비
+const REFERENCE_WIDTH = 580;
 
 interface EditorCanvasProps {
   elements: EditorElement[];
@@ -35,9 +38,23 @@ export default function EditorCanvas({
   captureMode = false,
 }: EditorCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [scaleFactor, setScaleFactor] = useState(1);
   const dragState = useRef<DragState | null>(null);
   const showGeneratedImage =
     Boolean(background?.imageUrl) && (background?.mode === 'ai-image' || background?.mode === 'pastel');
+
+  // 캔버스 크기 변화를 감지하여 폰트 스케일링 비율 계산
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const currentWidth = entry.contentRect.width;
+      if (currentWidth > 0) {
+        setScaleFactor(currentWidth / REFERENCE_WIDTH);
+      }
+    });
+    observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const onMove = (event: MouseEvent) => {
@@ -191,12 +208,16 @@ export default function EditorCanvas({
                     className={`canvas-element__text ${selected ? 'canvas-element__text--selected' : ''}`}
                     style={{
                       color: element.color,
+                      /* 기존 코드 백업 (절대 px):
                       fontSize: `${element.fontSize ?? 24}px`,
+                      letterSpacing: `${element.letterSpacing ?? 0}px`,
+                      */
+                      fontSize: `${(element.fontSize ?? 24) * scaleFactor}px`,
                       fontWeight: element.fontWeight,
                       fontFamily: element.fontFamily,
                       textAlign: element.align,
                       lineHeight: element.lineHeight,
-                      letterSpacing: `${element.letterSpacing ?? 0}px`,
+                      letterSpacing: `${(element.letterSpacing ?? 0) * scaleFactor}px`,
                       textShadow: shadowStrength
                         ? `0 8px ${8 + shadowStrength}px rgba(0,0,0,${0.1 + shadowStrength / 120})`
                         : 'none',

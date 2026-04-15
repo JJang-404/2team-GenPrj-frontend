@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import type { BackgroundCandidate } from '../types/api';
 import type { HomeProjectData } from '../types/home';
 import { ratioToAspectValue } from '../utils/ratio';
@@ -21,6 +22,9 @@ const LAYOUTS: Record<0 | 1 | 2 | 3, LayoutComponent> = {
   2: OverlapGroupLayout as unknown as LayoutComponent,
   3: HalfCropGroupLayout as unknown as LayoutComponent,
 };
+
+// Main Preview 기준 캔버스 너비 (editor-stage__canvas: min(100%, 580px))
+const REFERENCE_CANVAS_WIDTH = 580;
 
 const LABELS: Record<0 | 1 | 2 | 3, { title: string; note: string }> = {
   0: { title: 'Type 1 · 클래식 대형', note: '상단 로고 + 대형 단일/소수 제품' },
@@ -63,8 +67,22 @@ export default function WireframeChoiceCard({
   selected,
   onSelect,
 }: WireframeChoiceCardProps) {
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [scaleFactor, setScaleFactor] = useState(1);
+
   const Layout = LAYOUTS[typeIndex];
   const label = LABELS[typeIndex];
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const cardWidth = entry.contentRect.width;
+      // Main Preview(580px) 대비 현재 카드의 너비 비율 계산
+      setScaleFactor(cardWidth / REFERENCE_CANVAS_WIDTH);
+    });
+    observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const products = (projectData?.products ?? []).map((p) => ({
     id: p.id,
@@ -99,6 +117,7 @@ export default function WireframeChoiceCard({
       onClick={onSelect}
     >
       <div
+        ref={canvasRef}
         className="choice-card__canvas"
         style={{ aspectRatio: ratioToAspectValue(projectData?.options.ratio ?? ratio) }}
       >
@@ -115,7 +134,25 @@ export default function WireframeChoiceCard({
                 className="background-swatch__image"
               />
             )}
-          <div style={{ position: 'absolute', inset: 0 }}>
+          <div 
+            style={{ 
+              position: 'absolute', 
+              inset: 0,
+              // scaleFactor를 이용해 내부 Tailwind 레이아웃(텍스트 크기 등)을 메인 프리뷰와 동일 비율로 축소
+              transform: `scale(${scaleFactor})`,
+              transformOrigin: 'top left',
+              width: `${100 / scaleFactor}%`,
+              height: `${100 / scaleFactor}%`,
+            }}
+          >
+            {/* 기존 코드 백업:
+            <Layout
+              products={products}
+              options={options}
+              inputData={inputData}
+              ratioStyles={ratioStyles}
+            />
+            */}
             <Layout
               products={products}
               options={options}

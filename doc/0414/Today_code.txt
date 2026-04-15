@@ -1,0 +1,5 @@
+1. genprj_store_info
+초기화면이거나, '처음으로' 버튼 누르면 초기화 되는 것
+@clear_storeDesc_plan.md -> 업데이트 완료
+
+2. 'Main Preview'  'WireframeChoiceCard' 텍스트와 이미지 매칭
