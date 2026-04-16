@@ -2,6 +2,7 @@ import { StoreTitle, SloganText } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
 import { computeSlotStyle, getFallbackStyle, getWireframeSlots } from './computeSlotStyle';
+import { MAIN_ZONE_4x5, computeMainZone916 } from './outerFrameZones';
 
 /**
  * HalfCropSlot — 개별 반쪽 크롭 또는 단독 제품 슬롯
@@ -82,8 +83,9 @@ const mapSlotsToProducts = (slots, products) => {
  * 좌표가 직접 매핑되도록 제품 캔버스는 absolute inset-0.
  * 헤더/슬로건은 z-index 오버레이.
  */
-export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles }) => {
-  const { isSquare, containerPadding } = ratioStyles;
+export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles, zonePositions, textStyles }) => {
+  const { isSquare, isTall, containerPadding } = ratioStyles;
+  const defaultMainZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
   const showOverlays = useDecorOverlays(options.bgType);
   const p = products.filter(prod => prod.image).slice(0, 6);
   const count = p.length;
@@ -96,10 +98,91 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles 
   const slots = wireframe?.slots || [];
   const mapped = mapSlotsToProducts(slots, p);
 
+  // zonePositions가 있으면 store/slogan 아래에 main zone 배치 (store → slogan → main zone 순서)
+  const productZone = zonePositions ? (() => {
+    const sloganBottom = Math.max(zonePositions.store.y, zonePositions.slogan.y) + 7;
+    return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
+  })() : defaultMainZone;
+
   return (
     <div className={`w-full h-full relative ${showOverlays ? 'bg-white/5' : ''}`}>
-      {/* 제품 캔버스: 전체 영역, wireframe 좌표 직접 매핑 */}
-      <div className="absolute inset-0">
+      {/* store (로고) */}
+      {zonePositions ? (
+        <div style={{
+          position: 'absolute',
+          left: zonePositions.store.x + '%',
+          top: zonePositions.store.y + '%',
+          width: zonePositions.store.width + '%',
+          textAlign: zonePositions.store.align || 'center',
+          transform: zonePositions.store.rotation ? `rotate(${zonePositions.store.rotation}deg)` : undefined,
+          zIndex: zonePositions.store.zIndex || 30,
+        }}>
+          {textStyles ? (
+            <div style={{
+              fontSize: textStyles.store.fontSize + 'px',
+              fontWeight: textStyles.store.fontWeight,
+              fontFamily: textStyles.store.fontFamily,
+              lineHeight: textStyles.store.lineHeight,
+              color: textStyles.store.color,
+            }}>
+              {inputData.storeName || '가게 이름을 입력하세요'}
+            </div>
+          ) : (
+            <StoreTitle
+              storeName={inputData.storeName}
+              brandColor={options.brandColor}
+              className={isSquare ? 'text-xl' : 'text-3xl'}
+            />
+          )}
+        </div>
+      ) : (
+        <div className={`relative z-30 ${containerPadding}`}>
+          <StoreTitle
+            storeName={inputData.storeName}
+            brandColor={options.brandColor}
+            className={isSquare ? 'text-xl' : 'text-3xl'}
+          />
+        </div>
+      )}
+
+      {/* slogan (슬로건) */}
+      {zonePositions ? (
+        <div style={{
+          position: 'absolute',
+          left: zonePositions.slogan.x + '%',
+          top: zonePositions.slogan.y + '%',
+          width: zonePositions.slogan.width + '%',
+          textAlign: zonePositions.slogan.align || 'center',
+          transform: zonePositions.slogan.rotation ? `rotate(${zonePositions.slogan.rotation}deg)` : undefined,
+          zIndex: zonePositions.slogan.zIndex || 30,
+        }}>
+          {textStyles && inputData.mainSlogan ? (
+            <div style={{
+              fontSize: textStyles.slogan.fontSize + 'px',
+              fontWeight: textStyles.slogan.fontWeight,
+              fontFamily: textStyles.slogan.fontFamily,
+              lineHeight: textStyles.slogan.lineHeight,
+              color: textStyles.slogan.color,
+              opacity: 0.6,
+            }}>
+              {inputData.mainSlogan}
+            </div>
+          ) : (
+            <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
+          )}
+        </div>
+      ) : (
+        <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
+          <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
+        </div>
+      )}
+
+      {/* 제품 캔버스: store/slogan 아래 영역 */}
+      <div style={{
+        position: 'absolute',
+        left: productZone.x + '%', top: productZone.y + '%',
+        width: productZone.w + '%', height: productZone.h + '%',
+      }}>
         {mapped.map(({ product, slotMeta, side }, idx) => (
           <HalfCropSlot
             key={product.id || idx}
@@ -109,20 +192,6 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles 
             isSquare={isSquare}
           />
         ))}
-      </div>
-
-      {/* 헤더 오버레이 */}
-      <div className={`relative z-30 ${containerPadding}`}>
-        <StoreTitle
-          storeName={inputData.storeName}
-          brandColor={options.brandColor}
-          className={isSquare ? 'text-xl' : 'text-3xl'}
-        />
-      </div>
-
-      {/* 하단 슬로건 오버레이 */}
-      <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
-        <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
       </div>
     </div>
   );

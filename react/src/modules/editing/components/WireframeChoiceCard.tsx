@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { BackgroundCandidate } from '../types/api';
 import type { HomeProjectData } from '../types/home';
 import { ratioToAspectValue } from '../utils/ratio';
+import { getDefaultZonePositions } from '../utils/editorFlow';
+import { getDraftTypography } from '../../../shared/draftTypography';
 import {
   SingleLargeLayout,
   SingleCompactLayout,
@@ -9,11 +11,18 @@ import {
   HalfCropGroupLayout,
 } from '../utils/wireframeBridge';
 
+interface TextStyleSet {
+  store: { fontSize: number; fontWeight: number; fontFamily: string; lineHeight: number; color: string };
+  slogan: { fontSize: number; fontWeight: number; fontFamily: string; lineHeight: number; color: string };
+}
+
 type LayoutComponent = (props: {
   products: unknown[];
   options: Record<string, unknown>;
   inputData: Record<string, unknown>;
   ratioStyles: Record<string, unknown>;
+  zonePositions?: import('../types/home').ZonePositions;
+  textStyles?: TextStyleSet;
 }) => JSX.Element;
 
 const LAYOUTS: Record<0 | 1 | 2 | 3, LayoutComponent> = {
@@ -110,6 +119,24 @@ export default function WireframeChoiceCard({
 
   const ratioStyles = getEditingRatioStyles(projectData?.options.ratio ?? ratio);
 
+  const typo = getDraftTypography(typeIndex, projectData?.options.ratio ?? ratio);
+  const textStyles: TextStyleSet = {
+    store: {
+      fontSize: typo.storeSize,
+      fontWeight: 900,
+      fontFamily: '"ZenSerif", serif',
+      lineHeight: typo.storeLineHeight,
+      color: projectData?.options.brandColor || '#000000',
+    },
+    slogan: {
+      fontSize: typo.sloganSize,
+      fontWeight: 900,
+      fontFamily: '"ZenSerif", serif',
+      lineHeight: typo.sloganLineHeight,
+      color: '#000000',
+    },
+  };
+
   return (
     <button
       type="button"
@@ -145,19 +172,13 @@ export default function WireframeChoiceCard({
               height: `${100 / scaleFactor}%`,
             }}
           >
-            {/* 기존 코드 백업:
             <Layout
               products={products}
               options={options}
               inputData={inputData}
               ratioStyles={ratioStyles}
-            />
-            */}
-            <Layout
-              products={products}
-              options={options}
-              inputData={inputData}
-              ratioStyles={ratioStyles}
+              zonePositions={getDefaultZonePositions(typeIndex)}
+              textStyles={textStyles}
             />
           </div>
         </div>

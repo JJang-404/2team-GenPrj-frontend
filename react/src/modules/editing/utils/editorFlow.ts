@@ -10,6 +10,7 @@ import {
   type WireframeProductPlacement,
 } from './wireframeLayout';
 import { WIREFRAME_TEXT_PLACEMENTS } from './wireframeTextPlacements';
+import { MAIN_ZONE_4x5, computeMainZone916, type FrameZone } from './wireframeBridge';
 
 /**
  * Legacy text placement table — bitwise copy of shared/draftLayout.ts DRAFT_LAYOUTS[0..3].{store,slogan,details,summary}.
@@ -67,7 +68,159 @@ const LEGACY_TEXT_PLACEMENTS: LegacyTextPlacements[] = [
     summary: { x: 24, y: 88, width: 52, align: 'center', rotation: 0,  zIndex: 28 },
   },
 ];
+import type { ZonePositions } from '../types/home';
+
+export function getDefaultZonePositions(draftIndex: number): ZonePositions {
+  const typeIndex = (((draftIndex % 4) + 4) % 4) as 0 | 1 | 2 | 3;
+  const p = LEGACY_TEXT_PLACEMENTS[typeIndex];
+  return {
+    store:   { x: p.store.x,   y: p.store.y,   width: p.store.width,   align: p.store.align,   rotation: p.store.rotation,   zIndex: p.store.zIndex },
+    slogan:  { x: p.slogan.x,  y: p.slogan.y,  width: p.slogan.width,  align: p.slogan.align,  rotation: p.slogan.rotation,  zIndex: p.slogan.zIndex },
+    details: { x: p.details.x, y: p.details.y, width: p.details.width, align: p.details.align, rotation: p.details.rotation, zIndex: p.details.zIndex },
+    summary: { x: p.summary.x, y: p.summary.y, width: p.summary.width, align: p.summary.align, rotation: p.summary.rotation, zIndex: p.summary.zIndex },
+  };
+}
+
 import { getDraftTypography } from '../../../shared/draftTypography';
+
+/**
+ * 템플릿 없이 wireframe + zone 좌표에서 직접 EditorElement[]를 생성한다.
+ * WireframeChoiceCard의 Layout 렌더링과 동일한 결과를 elements 배열로 표현.
+ */
+export function createElementsFromWireframe(projectData: HomeProjectData): EditorElement[] {
+  const draftIndex = projectData.options.draftIndex ?? 0;
+  const typeIndex = (((draftIndex % 4) + 4) % 4) as 0 | 1 | 2 | 3;
+  const ratio = projectData.options.ratio ?? '4:5';
+  const zones = projectData.zonePositions ?? getDefaultZonePositions(draftIndex);
+  const typography = getDraftTypography(draftIndex, ratio);
+
+  const elements: EditorElement[] = [];
+
+  if (projectData.storeName) {
+    elements.push({
+      id: 'fallback-store-name',
+      kind: 'text',
+      label: '가게명',
+      x: zones.store.x,
+      y: zones.store.y,
+      width: zones.store.width,
+      height: 8,
+      rotation: zones.store.rotation ?? 0,
+      zIndex: zones.store.zIndex ?? 13,
+      text: projectData.storeName,
+      fontSize: typography.storeSize,
+      fontWeight: 900,
+      lineHeight: typography.storeLineHeight,
+      letterSpacing: 0,
+      color: projectData.options.brandColor || DEFAULT_TEXT_COLOR,
+      align: zones.store.align ?? 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  if (projectData.mainSlogan) {
+    elements.push({
+      id: 'fallback-main-slogan',
+      kind: 'text',
+      label: '소개 문구',
+      x: zones.slogan.x,
+      y: zones.slogan.y,
+      width: zones.slogan.width,
+      height: 12,
+      rotation: zones.slogan.rotation ?? 0,
+      zIndex: zones.slogan.zIndex ?? 13,
+      text: projectData.mainSlogan,
+      fontSize: typography.sloganSize,
+      fontWeight: 900,
+      lineHeight: typography.sloganLineHeight,
+      letterSpacing: 0,
+      color: DEFAULT_TEXT_COLOR,
+      align: zones.slogan.align ?? 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  if (projectData.details) {
+    elements.push({
+      id: 'fallback-details',
+      kind: 'text',
+      label: '상세 설명',
+      x: zones.details.x,
+      y: zones.details.y,
+      width: zones.details.width,
+      height: 10,
+      rotation: zones.details.rotation ?? 0,
+      zIndex: zones.details.zIndex ?? 12,
+      text: projectData.details,
+      fontSize: typography.detailsSize,
+      fontWeight: 500,
+      lineHeight: 1.3,
+      letterSpacing: 0,
+      color: DEFAULT_TEXT_COLOR,
+      align: zones.details.align ?? 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  const activeProducts = projectData.products.filter((p) => p.image);
+  const productCount = activeProducts.length;
+  const hasSlogan = Boolean(projectData.mainSlogan);
+
+  if (productCount > 0) {
+    const isTall = ratio === '9:16';
+    const defaultMainZone: FrameZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
+    const mainZone: FrameZone =
+      typeIndex === 3
+        ? (() => {
+            const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
+            return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
+          })()
+        : defaultMainZone;
+
+    const rawPlacements = computeWireframeProductPlacements(
+      typeIndex,
+      productCount,
+      hasSlogan,
+      activeProducts,
+    );
+
+    rawPlacements.forEach((p, i) => {
+      const product = activeProducts[i];
+      if (!product) return;
+
+      const rect = {
+        x: mainZone.x + (p.rect.x / 100) * mainZone.w,
+        y: mainZone.y + (p.rect.y / 100) * mainZone.h,
+        width: (p.rect.width / 100) * mainZone.w,
+        height: (p.rect.height / 100) * mainZone.h,
+      };
+
+      elements.push({
+        id: `product-${product.id}`,
+        kind: 'image',
+        label: product.name || `제품 ${i + 1}`,
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+        rotation: 0,
+        zIndex: 10 + (p.zIndex ?? 0),
+        imageUrl: p.imageUrlOverride || product.image || '',
+        imageFit: 'contain',
+        opacity: 1,
+        productName: product.name ?? '',
+        productPrice: product.price ?? '',
+        productDescription: product.description ?? '',
+        priceCurrency: (product.currency === '$' ? '$' : '원') as '원' | '$',
+      });
+    });
+  }
+
+  return elements;
+}
 import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './additionalInfo';
 import { cloneTemplateElements } from './editor';
 
@@ -294,11 +447,22 @@ export function applyDraftLayoutVariant(
   );
   const typeIndex = (((draftIndex % 4) + 4) % 4) as 0 | 1 | 2 | 3;
   const wireframe = deriveWireframeLayout(typeIndex, productCount, hasSlogan);
-  const textPlacements = LEGACY_TEXT_PLACEMENTS[typeIndex];
 
-  // Wireframe-derived overrides for store + slogan only; details/summary stay on LEGACY values.
-  const storeRect = wireframe.storeName;
-  const sloganRect = wireframe.mainSlogan;
+  // zone positions: projectData.zonePositions(state) 우선, 없으면 LEGACY 상수 fallback
+  const zones = projectData?.zonePositions ?? getDefaultZonePositions(draftIndex);
+  const storeRect = zones.store;
+  const sloganRect = zones.slogan;
+
+  // WireframeChoiceCard의 Layout 컴포넌트와 동일한 mainZone 계산
+  const isTall = (projectData?.options.ratio ?? '4:5') === '9:16';
+  const defaultMainZone: FrameZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
+  // Type 4: store/slogan이 상단이므로 제품 영역을 그 아래에 배치 (HalfCropGroupLayout과 동일)
+  const mainZone: FrameZone = typeIndex === 3
+    ? (() => {
+        const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
+        return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
+      })()
+    : defaultMainZone;
 
   // Type 3/4는 제품 natural 크기 + pre-bake 반쪽 이미지가 필요하므로
   // projectData를 직접 전달받아 computeWireframeProductPlacements를 사용한다.
@@ -307,10 +471,22 @@ export function applyDraftLayoutVariant(
   const activeProducts: HomeProductInput[] = (projectData?.products ?? []).filter(
     (product) => product.image,
   );
-  const placements: WireframeProductPlacement[] =
+  const rawPlacements: WireframeProductPlacement[] =
     projectData && activeProducts.length > 0
       ? computeWireframeProductPlacements(typeIndex, productCount, hasSlogan, activeProducts)
       : wireframe.productSlots.map((rect) => ({ rect }));
+
+  // wireframeSlots 좌표(0-100%)를 mainZone 컨테이너 기준에서 전체 캔버스 기준으로 리매핑
+  // (WireframeChoiceCard의 Layout이 mainZone div 안에서 렌더하는 것과 동일한 결과)
+  const placements: WireframeProductPlacement[] = rawPlacements.map((p) => ({
+    ...p,
+    rect: {
+      x: mainZone.x + (p.rect.x / 100) * mainZone.w,
+      y: mainZone.y + (p.rect.y / 100) * mainZone.h,
+      width: (p.rect.width / 100) * mainZone.w,
+      height: (p.rect.height / 100) * mainZone.h,
+    },
+  }));
 
   // When placements is empty (productCount === 0 OR unsupported key), keep
   // existing element coordinates instead of overriding them.
@@ -366,9 +542,9 @@ export function applyDraftLayoutVariant(
         x: sloganRect.x,
         y: sloganRect.y,
         width: sloganRect.width,
-        rotation: textPlacements.slogan.rotation ?? element.rotation,
-        zIndex: textPlacements.slogan.zIndex ?? element.zIndex,
-        align: textPlacements.slogan.align ?? element.align,
+        rotation: sloganRect.rotation ?? element.rotation,
+        zIndex: sloganRect.zIndex ?? element.zIndex,
+        align: sloganRect.align ?? element.align,
       };
     }
 
@@ -378,33 +554,33 @@ export function applyDraftLayoutVariant(
         x: storeRect.x,
         y: storeRect.y,
         width: storeRect.width,
-        rotation: textPlacements.store.rotation ?? element.rotation,
-        zIndex: textPlacements.store.zIndex ?? element.zIndex,
-        align: textPlacements.store.align ?? element.align,
+        rotation: storeRect.rotation ?? element.rotation,
+        zIndex: storeRect.zIndex ?? element.zIndex,
+        align: storeRect.align ?? element.align,
       };
     }
 
     if (element.id === 'fallback-details') {
       return {
         ...element,
-        x: textPlacements.details.x,
-        y: textPlacements.details.y,
-        width: textPlacements.details.width,
-        rotation: textPlacements.details.rotation ?? element.rotation,
-        zIndex: textPlacements.details.zIndex ?? element.zIndex,
-        align: textPlacements.details.align ?? element.align,
+        x: zones.details.x,
+        y: zones.details.y,
+        width: zones.details.width,
+        rotation: zones.details.rotation ?? element.rotation,
+        zIndex: zones.details.zIndex ?? element.zIndex,
+        align: zones.details.align ?? element.align,
       };
     }
 
     if (element.id === 'fallback-product-summary') {
       return {
         ...element,
-        x: textPlacements.summary.x,
-        y: textPlacements.summary.y,
-        width: textPlacements.summary.width,
-        rotation: textPlacements.summary.rotation ?? element.rotation,
-        zIndex: textPlacements.summary.zIndex ?? element.zIndex,
-        align: textPlacements.summary.align ?? element.align,
+        x: zones.summary.x,
+        y: zones.summary.y,
+        width: zones.summary.width,
+        rotation: zones.summary.rotation ?? element.rotation,
+        zIndex: zones.summary.zIndex ?? element.zIndex,
+        align: zones.summary.align ?? element.align,
       };
     }
 
@@ -414,48 +590,62 @@ export function applyDraftLayoutVariant(
       if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel)) {
         return {
           ...element,
-          x: textPlacements.store.x,
-          y: textPlacements.store.y,
-          width: textPlacements.store.width,
-          rotation: textPlacements.store.rotation ?? element.rotation,
-          zIndex: textPlacements.store.zIndex ?? element.zIndex,
-          align: textPlacements.store.align ?? element.align,
+          x: zones.store.x,
+          y: zones.store.y,
+          width: zones.store.width,
+          rotation: zones.store.rotation ?? element.rotation,
+          zIndex: zones.store.zIndex ?? element.zIndex,
+          align: zones.store.align ?? element.align,
         };
       }
 
-      if (/(headline|title|타이틀|subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel)) {
+      if (/(headline|title|타이틀)/.test(normalizedLabel)) {
         return {
           ...element,
-          x: textPlacements.slogan.x,
-          y: textPlacements.slogan.y,
-          width: textPlacements.slogan.width,
-          rotation: textPlacements.slogan.rotation ?? element.rotation,
-          zIndex: textPlacements.slogan.zIndex ?? element.zIndex,
-          align: textPlacements.slogan.align ?? element.align,
+          x: zones.slogan.x,
+          y: zones.slogan.y,
+          width: zones.slogan.width,
+          rotation: zones.slogan.rotation ?? element.rotation,
+          zIndex: zones.slogan.zIndex ?? element.zIndex,
+          align: zones.slogan.align ?? element.align,
+        };
+      }
+
+      if (/(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel)) {
+        const typo = getDraftTypography(draftIndex, projectData?.options?.ratio ?? '4:5');
+        return {
+          ...element,
+          x: zones.slogan.x,
+          y: zones.slogan.y,
+          yOffsetPx: typo.sloganSize * typo.sloganLineHeight + 2,
+          width: zones.slogan.width,
+          rotation: zones.slogan.rotation ?? element.rotation,
+          zIndex: zones.slogan.zIndex ?? element.zIndex,
+          align: zones.slogan.align ?? element.align,
         };
       }
 
       if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel)) {
         return {
           ...element,
-          x: textPlacements.details.x,
-          y: textPlacements.details.y,
-          width: textPlacements.details.width,
-          rotation: textPlacements.details.rotation ?? element.rotation,
-          zIndex: textPlacements.details.zIndex ?? element.zIndex,
-          align: textPlacements.details.align ?? element.align,
+          x: zones.details.x,
+          y: zones.details.y,
+          width: zones.details.width,
+          rotation: zones.details.rotation ?? element.rotation,
+          zIndex: zones.details.zIndex ?? element.zIndex,
+          align: zones.details.align ?? element.align,
         };
       }
 
       if (/(price|가격)/.test(normalizedLabel)) {
         return {
           ...element,
-          x: textPlacements.summary.x,
-          y: textPlacements.summary.y,
-          width: textPlacements.summary.width,
-          rotation: textPlacements.summary.rotation ?? element.rotation,
-          zIndex: textPlacements.summary.zIndex ?? element.zIndex,
-          align: textPlacements.summary.align ?? element.align,
+          x: zones.summary.x,
+          y: zones.summary.y,
+          width: zones.summary.width,
+          rotation: zones.summary.rotation ?? element.rotation,
+          zIndex: zones.summary.zIndex ?? element.zIndex,
+          align: zones.summary.align ?? element.align,
         };
       }
     }

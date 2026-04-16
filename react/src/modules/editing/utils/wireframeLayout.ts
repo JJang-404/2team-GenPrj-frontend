@@ -23,10 +23,11 @@ import {
 } from './wireframeTextPlacements';
 
 /**
- * initPage wireframe canvas는 1000×1250 (4:5) 고정 → CANVAS_HW_RATIO = 1.25.
- * computeSlotStyle.js / OverlapGroupLayout.jsx / HalfCropGroupLayout.jsx와 동일.
+ * slot 좌표는 main zone(1000×850) 내부 기준 → HW ratio = 0.85.
+ * computeSlotStyle.js와 동일한 MAIN_ZONE_HW_RATIO 사용.
  */
-const CANVAS_HW_RATIO = 1.25;
+import { MAIN_ZONE_HW_RATIO } from './wireframeBridge';
+const CANVAS_HW_RATIO = MAIN_ZONE_HW_RATIO;
 const OVERLAP_RATIO = 0.2;
 
 export interface WireframeRect {

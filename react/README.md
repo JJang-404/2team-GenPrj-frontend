@@ -208,6 +208,8 @@ npm run build
 유틸:
 
 - 템플릿/객체 규칙: `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/editorFlow.ts`
+- Wireframe 레이아웃 계산: `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/wireframeLayout.ts`
+- Wireframe 브릿지 (initPage ↔ editing): `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/wireframeBridge.ts`
 - 프로젝트 텍스트/프롬프트 동기화: `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/projectEditor.ts`
 - 초기 배경 생성: `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/initialBackground.ts`
 - 비율 처리: `gen_prj/2team-GenPrj-frontend/react/src/modules/editing/utils/ratio.ts`

@@ -63,6 +63,13 @@ npm run dev
         - 텍스트 박스 너비 로직(`fit-content`) 일원화로 메인 프리뷰와 선택 카드 간의 **위치 정합성(Position Sync)** 확보.
         - 구도 선택(Type 1, 2) 시 제품 이미지의 가로세로비(AR) 스케일링을 `initPage`와 동일하게 적용.
     - 상세 내역은 [`doc/0415/work_summary.md`](doc/0415/work_summary.md) 참조.
+- **United1_8 계층형 Wireframe 구조 (2026-04-16)**:
+    - **계층 구조 전환**: 기존 전체 캔버스(1000×1250) 기준 wireframe을 **outer frame zone + inner wireframe** 계층 구조로 전환. 로고/소개 문구/footer는 독립 요소로 분리하고, 제품 슬롯은 main zone(1000×850) 내부에서만 배치.
+    - **Zone 위치 상태 관리**: `ZonePositions` 타입을 도입하여 각 zone(store, slogan, details, summary)의 위치를 React state로 관리. Type별 기본 위치는 `getDefaultZonePositions()`로 생성.
+    - **EditorElement 직접 생성**: 템플릿 시스템을 거치지 않고 `createElementsFromWireframe()`이 wireframe zone 좌표 + 제품 슬롯에서 직접 `EditorElement[]` 생성. WireframeChoiceCard/main preview/BackgroundCard 간 레이아웃 일관성 확보.
+    - **Type 4 half-crop 간격 수정**: editing 모듈의 `wireframeLayout.ts`에서 `CANVAS_HW_RATIO`를 전체 캔버스 비율(1.25)에서 main zone 비율(0.85)로 수정하여 main preview/BackgroundCard에서 반쪽 크롭 이미지 간 불필요한 간격 제거.
+    - **9:16 Reflow 지원**: 세로 비율에서 로고 상단 고정, footer/소개 문구 하단 앵커, main zone 세로 중앙 배치.
+    - 상세 내역은 [`doc/0416/hierarchical_wireframe_spec.md`](doc/0416/hierarchical_wireframe_spec.md) 참조.
 
 ---
 **Note**: 본 프로젝트는 백엔드 서버(FastAPI 기반)와 함께 구동되어야 AI 생성 기능이 정상적으로 동작합니다. 백엔드 주소는 `.env` 또는 `defines.js`에서 확인하십시오.

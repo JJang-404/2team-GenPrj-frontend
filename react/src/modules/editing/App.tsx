@@ -19,6 +19,8 @@ import {
   buildGuideSummary,
   createCustomImageElement,
   createCustomTextElement,
+  createElementsFromWireframe,
+  getDefaultZonePositions,
   isPrimaryImageElement,
   mapProjectDataToTemplate,
 } from './utils/editorFlow';
@@ -381,6 +383,7 @@ export default function App() {
       setIsPrebakingImages(false);
     }
 
+    baked = { ...baked, zonePositions: getDefaultZonePositions(draftIndex) };
     setProjectData(baked);
     setAdditionalInfoVisibility({});
     const nextBackgroundMode =
@@ -404,13 +407,8 @@ export default function App() {
     const nextTemplate = bootstrap.templates[draftIndex] ?? selectedTemplate ?? bootstrap.templates[0] ?? null;
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
-      setElements(
-        applyDraftTypographyVariant(
-          applyDraftLayoutVariant(mapProjectDataToTemplate(nextTemplate, baked), draftIndex, baked),
-          baked
-        )
-      );
     }
+    setElements(createElementsFromWireframe(baked));
     setStep('background');
     setQueuedBackgroundGeneration(false);
     setSelectedElementIds([]);
@@ -428,15 +426,11 @@ export default function App() {
     const nextProjectData: HomeProjectData = {
       ...projectData,
       options: { ...projectData.options, draftIndex: typeIndex },
+      zonePositions: getDefaultZonePositions(typeIndex),
     };
     setProjectData(nextProjectData);
 
-    const template = selectedTemplate ?? bootstrap.templates[typeIndex] ?? bootstrap.templates[0] ?? null;
-    if (!template) return;
-
-    const mapped = mapProjectDataToTemplate(template, nextProjectData);
-    const withLayout = applyDraftLayoutVariant(mapped, typeIndex, nextProjectData);
-    setElements(applyDraftTypographyVariant(withLayout, nextProjectData));
+    setElements(createElementsFromWireframe(nextProjectData));
     setRightPanelMode('background');
     setSelectedElementIds([]);
   };
