@@ -53,6 +53,22 @@ export interface HomeProjectOptions {
   splitDirection?: 'horizontal' | 'vertical';
 }
 
+export interface ZonePosition {
+  x: number;
+  y: number;
+  width: number;
+  align?: 'left' | 'center' | 'right';
+  rotation?: number;
+  zIndex?: number;
+}
+
+export interface ZonePositions {
+  store: ZonePosition;
+  slogan: ZonePosition;
+  details: ZonePosition;
+  summary: ZonePosition;
+}
+
 export interface HomeProjectData {
   options: HomeProjectOptions;
   storeName: string;
@@ -61,4 +77,5 @@ export interface HomeProjectData {
   details: string;
   products: HomeProductInput[];
   additionalInfo: HomeAdditionalInfo;
+  zonePositions?: ZonePositions;
 }

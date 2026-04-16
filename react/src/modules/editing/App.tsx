@@ -19,6 +19,7 @@ import {
   buildGuideSummary,
   createCustomImageElement,
   createCustomTextElement,
+  getDefaultZonePositions,
   isPrimaryImageElement,
   mapProjectDataToTemplate,
 } from './utils/editorFlow';
@@ -305,6 +306,7 @@ export default function App() {
       setIsPrebakingImages(false);
     }
 
+    baked = { ...baked, zonePositions: getDefaultZonePositions(draftIndex) };
     setProjectData(baked);
     setAdditionalInfoVisibility({});
     const nextBackgroundMode =
@@ -349,6 +351,7 @@ export default function App() {
     const nextProjectData: HomeProjectData = {
       ...projectData,
       options: { ...projectData.options, draftIndex: typeIndex },
+      zonePositions: getDefaultZonePositions(typeIndex),
     };
     setProjectData(nextProjectData);
 

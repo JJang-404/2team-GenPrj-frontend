@@ -178,7 +178,9 @@ export default function EditorCanvas({
               : 'none';
             const base: CSSProperties = {
               left: `${element.x}%`,
-              top: `${element.y}%`,
+              top: element.yOffsetPx
+                ? `calc(${element.y}% + ${element.yOffsetPx * scaleFactor}px)`
+                : `${element.y}%`,
               width: element.kind === 'text' ? 'fit-content' : `${element.width}%`,
               maxWidth: element.kind === 'text' ? `${element.width}%` : undefined,
               height: element.kind === 'text' ? 'auto' : `${element.height}%`,

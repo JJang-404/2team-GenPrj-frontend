@@ -2,6 +2,7 @@ import { StoreTitle, SloganText } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
 import { computeType3Style, getWireframeSlots } from './computeSlotStyle';
+import { MAIN_ZONE_4x5, computeMainZone916 } from './outerFrameZones';
 
 const imgStyle = {
   width: '100%', height: '100%',
@@ -55,8 +56,9 @@ const IndividualSlot = ({ product, slotMeta, isSquare }) => {
  * wireframeSlots.json의 Cx/Cy 좌표 기반 absolute 배치.
  * 높이 고정, 너비만 이미지 AR에 따라 동적 조정.
  */
-export const SingleLargeLayout = ({ products, options, inputData, ratioStyles }) => {
-  const { isSquare, containerPadding } = ratioStyles;
+export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, zonePositions, textStyles }) => {
+  const { isSquare, isTall, containerPadding } = ratioStyles;
+  const mainZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
   const showOverlays = useDecorOverlays(options.bgType);
   const p = products.filter(prod => prod.image).slice(0, 3);
   const count = p.length;
@@ -70,8 +72,12 @@ export const SingleLargeLayout = ({ products, options, inputData, ratioStyles })
 
   return (
     <div className={`w-full h-full relative ${showOverlays ? 'bg-white/5' : ''}`}>
-      {/* 제품 캔버스 */}
-      <div className="absolute inset-0">
+      {/* 제품 캔버스: main zone 영역 */}
+      <div style={{
+        position: 'absolute',
+        left: mainZone.x + '%', top: mainZone.y + '%',
+        width: mainZone.w + '%', height: mainZone.h + '%',
+      }}>
         {slots.map((slotMeta, idx) =>
           idx < p.length ? (
             <IndividualSlot
@@ -85,18 +91,75 @@ export const SingleLargeLayout = ({ products, options, inputData, ratioStyles })
       </div>
 
       {/* 헤더 오버레이 */}
-      <div className={`relative z-30 ${containerPadding}`}>
-        <StoreTitle
-          storeName={inputData.storeName}
-          brandColor={options.brandColor}
-          className={isSquare ? 'text-xl' : 'text-3xl'}
-        />
-      </div>
+      {zonePositions ? (
+        <div style={{
+          position: 'absolute',
+          left: zonePositions.store.x + '%',
+          top: zonePositions.store.y + '%',
+          width: zonePositions.store.width + '%',
+          textAlign: zonePositions.store.align || 'center',
+          transform: zonePositions.store.rotation ? `rotate(${zonePositions.store.rotation}deg)` : undefined,
+          zIndex: zonePositions.store.zIndex || 30,
+        }}>
+          {textStyles ? (
+            <div style={{
+              fontSize: textStyles.store.fontSize + 'px',
+              fontWeight: textStyles.store.fontWeight,
+              fontFamily: textStyles.store.fontFamily,
+              lineHeight: textStyles.store.lineHeight,
+              color: textStyles.store.color,
+            }}>
+              {inputData.storeName || '가게 이름을 입력하세요'}
+            </div>
+          ) : (
+            <StoreTitle
+              storeName={inputData.storeName}
+              brandColor={options.brandColor}
+              className={isSquare ? 'text-xl' : 'text-3xl'}
+            />
+          )}
+        </div>
+      ) : (
+        <div className={`relative z-30 ${containerPadding}`}>
+          <StoreTitle
+            storeName={inputData.storeName}
+            brandColor={options.brandColor}
+            className={isSquare ? 'text-xl' : 'text-3xl'}
+          />
+        </div>
+      )}
 
       {/* 하단 슬로건 오버레이 */}
-      <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
-        <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
-      </div>
+      {zonePositions ? (
+        <div style={{
+          position: 'absolute',
+          left: zonePositions.slogan.x + '%',
+          top: zonePositions.slogan.y + '%',
+          width: zonePositions.slogan.width + '%',
+          textAlign: zonePositions.slogan.align || 'center',
+          transform: zonePositions.slogan.rotation ? `rotate(${zonePositions.slogan.rotation}deg)` : undefined,
+          zIndex: zonePositions.slogan.zIndex || 30,
+        }}>
+          {textStyles && inputData.mainSlogan ? (
+            <div style={{
+              fontSize: textStyles.slogan.fontSize + 'px',
+              fontWeight: textStyles.slogan.fontWeight,
+              fontFamily: textStyles.slogan.fontFamily,
+              lineHeight: textStyles.slogan.lineHeight,
+              color: textStyles.slogan.color,
+              opacity: 0.6,
+            }}>
+              {inputData.mainSlogan}
+            </div>
+          ) : (
+            <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
+          )}
+        </div>
+      ) : (
+        <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
+          <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
+        </div>
+      )}
     </div>
   );
 };

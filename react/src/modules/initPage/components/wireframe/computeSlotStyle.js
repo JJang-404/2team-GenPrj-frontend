@@ -11,7 +11,10 @@ import wireframeSlots from './wireframeSlots.json';
  * AR(=sh/ih)로 계산한 너비는 높이% 단위이므로
  * CSS width/left(너비%)로 쓸 때 canvasH/canvasW 비율로 변환 필요.
  */
-const CANVAS_HW_RATIO = wireframeSlots.canvas.height / wireframeSlots.canvas.width; // 1.25 (4:5)
+import { MAIN_ZONE_HW_RATIO } from './outerFrameZones';
+
+// 계층 구조: slot은 main zone(1000×850) 내부 기준이므로 HW ratio = 0.85
+const CANVAS_HW_RATIO = MAIN_ZONE_HW_RATIO;
 
 /**
  * Type 4 half-crop 또는 single 슬롯의 CSS 스타일 계산

@@ -21,3 +21,10 @@ export {
   getWireframeSlots,
   getWireframeKey,
 } from '../../initPage/components/wireframe/computeSlotStyle';
+
+export {
+  MAIN_ZONE_4x5,
+  MAIN_ZONE_HW_RATIO,
+  computeMainZone916,
+} from '../../initPage/components/wireframe/outerFrameZones';
+export type { FrameZone } from '../../initPage/components/wireframe/outerFrameZones';
