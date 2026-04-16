@@ -35,7 +35,6 @@ export interface EditorElement {
   locked?: boolean;
   border?: string;
   borderRadius?: number;
-  yOffsetPx?: number;
 }
 
 export interface TemplateDefinition {

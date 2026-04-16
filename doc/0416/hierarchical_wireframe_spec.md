@@ -2,7 +2,7 @@
 
 - 작성일: 2026-04-16
 - 최종 갱신: 2026-04-16
-- 대상 브랜치: `feature/United1_7`
+- 대상 브랜치: `feature/United1_7_patch`
 - 상태: 구현 완료 (빌드 통과)
 
 ---
@@ -80,8 +80,8 @@ function getDefaultZonePositions(draftIndex: number): ZonePositions
 handleStartFromHome / handleSelectWireframeType
   → getDefaultZonePositions(typeIndex)
   → projectData.zonePositions에 저장 (React state)
-  → applyDraftLayoutVariant에서 zones 좌표 사용
-  → EditorCanvas에 요소 배치
+  → createElementsFromWireframe(projectData) → EditorElement[] 직접 생성
+  → setElements() → EditorCanvas에 요소 배치
 ```
 
 WireframeChoiceCard에서도 동일한 `getDefaultZonePositions(typeIndex)`로 Layout 컴포넌트에 zonePositions prop 전달 → 카드 프리뷰와 main-preview 일치.
@@ -125,21 +125,22 @@ const sloganBottom = Math.max(zonePositions.store.y, zonePositions.slogan.y) + 7
 <div style={{ position:'absolute', left:'0%', top: sloganBottom+'%', width:'100%', height:(100-sloganBottom-3)+'%' }}>
 ```
 
-### 4.5 구현: EditorCanvas용 (`applyDraftLayoutVariant`)
+### 4.5 구현: EditorCanvas용 (`createElementsFromWireframe`)
 
-`computeWireframeProductPlacements`가 반환하는 wireframe 상대좌표(0-100%)를 mainZone 캔버스 좌표로 리매핑:
+`createElementsFromWireframe(projectData)`가 wireframe zone 좌표 + 제품 슬롯에서 직접 `EditorElement[]`를 생성한다. 템플릿 시스템(`mapProjectDataToTemplate → applyDraftLayoutVariant → applyDraftTypographyVariant`)을 거치지 않는다.
+
+제품 이미지는 `computeWireframeProductPlacements`가 반환하는 wireframe 상대좌표(0-100%)를 mainZone 캔버스 좌표로 리매핑:
 
 ```typescript
-const placements = rawPlacements.map((p) => ({
-  ...p,
-  rect: {
-    x: mainZone.x + (p.rect.x / 100) * mainZone.w,
-    y: mainZone.y + (p.rect.y / 100) * mainZone.h,
-    width: (p.rect.width / 100) * mainZone.w,
-    height: (p.rect.height / 100) * mainZone.h,
-  },
-}));
+const rect = {
+  x: mainZone.x + (p.rect.x / 100) * mainZone.w,
+  y: mainZone.y + (p.rect.y / 100) * mainZone.h,
+  width: (p.rect.width / 100) * mainZone.w,
+  height: (p.rect.height / 100) * mainZone.h,
+};
 ```
+
+텍스트 요소(store, slogan, details)는 `zones` 좌표 + `getDraftTypography` 타이포그래피를 직접 사용하여 생성.
 
 ## 5. 독립 요소 배치
 
@@ -169,71 +170,20 @@ const placements = rawPlacements.map((p) => ({
 )}
 ```
 
-### 5.2 EditorCanvas (`applyDraftLayoutVariant`)
+### 5.2 EditorCanvas (`createElementsFromWireframe`)
 
-fallback 텍스트 요소 + generic 텍스트 매칭 모두 `zones` 객체 사용:
-
-```typescript
-const zones = projectData?.zonePositions ?? getDefaultZonePositions(draftIndex);
-
-// fallback-store-name → zones.store
-// fallback-main-slogan → zones.slogan
-// fallback-details → zones.details
-// fallback-product-summary → zones.summary
-// regex 매칭 텍스트 요소도 동일하게 zones 사용
-```
-
-## 6. Subcopy (광고 문구) 배치
-
-### 6.1 개요
-
-`subcopy`(광고 문구/보조 타이틀)는 wireframe 시스템에 별도 정의되지 않으며, 템플릿(bootstrap) element로만 존재한다. **항상 mainSlogan(소개 문구) 바로 아래에 배치**되는 것이 원칙이다.
-
-- mainSlogan과 subcopy는 같은 **slogan zone**에 속함 (x, width, align, rotation 공유)
-- subcopy의 y 위치만 mainSlogan 아래로 오프셋
-
-### 6.2 위치 계산 방식
-
-subcopy의 y 좌표는 slogan zone의 y(%)와 px 오프셋을 **CSS `calc()`로 혼합**하여 결정한다:
-
-```
-top: calc(${slogan.y}% + ${yOffsetPx * scaleFactor}px)
-```
-
-여기서:
+`createElementsFromWireframe`에서 텍스트 요소를 zone 좌표로 직접 생성:
 
 ```typescript
-yOffsetPx = sloganSize * sloganLineHeight + 2
+const zones = projectData.zonePositions ?? getDefaultZonePositions(draftIndex);
+const typography = getDraftTypography(draftIndex, ratio);
+
+// 'fallback-store-name'  → zones.store  + typography.storeSize
+// 'fallback-main-slogan' → zones.slogan + typography.sloganSize
+// 'fallback-details'     → zones.details + typography.detailsSize
 ```
 
-| 요소 | 의미 |
-|---|---|
-| `sloganSize` | `getDraftTypography(draftIndex, ratio)`에서 가져온 slogan 폰트 크기 (참조 px, 580px 기준) |
-| `sloganLineHeight` | slogan의 줄 높이 배율 |
-| `+ 2` | mainSlogan 하단에서 2px 간격 (참조 px) |
-| `scaleFactor` | 실제 캔버스 너비 / 580 (렌더 타임에 결정) |
-
-### 6.3 구현
-
-| 파일 | 변경 내용 |
-|---|---|
-| `types/editor-core.ts` | `EditorElement`에 `yOffsetPx?: number` 속성 추가 |
-| `editorFlow.ts` | `applyDraftLayoutVariant`에서 subcopy 요소에 `y = zones.slogan.y`, `yOffsetPx = sloganSize * sloganLineHeight + 2` 설정 |
-| `EditorCanvas.tsx` | `yOffsetPx`가 있으면 `top: calc(${y}% + ${yOffsetPx * scaleFactor}px)` 사용 |
-| `BackgroundCard.tsx` | 동일 |
-
-### 6.4 타입별 계산 결과 (4:5 비율)
-
-| Type | sloganSize | lineHeight | yOffsetPx | slogan.y | subcopy top |
-|---|---|---|---|---|---|
-| Type 1 | 14 | 1.15 | 18.1px | 16% | `calc(16% + 18.1 * sf px)` |
-| Type 2 | 20 | 1.1 | 24px | 21% | `calc(21% + 24 * sf px)` |
-| Type 3 | 12 | 1.1 | 15.2px | 90% | `calc(90% + 15.2 * sf px)` |
-| Type 4 | 18 | 1.1 | 21.8px | 23% | `calc(23% + 21.8 * sf px)` |
-
-*sf = scaleFactor (실제 캔버스 너비 / 580)*
-
-## 7. 9:16 Reflow
+## 6. 9:16 Reflow
 
 캔버스 크기: 1000×1778 (폭 고정, 9:16 비율). 내부적으로 % 기준 동작.
 
@@ -270,27 +220,27 @@ main zone: (0%, 20.47%, 100%, 47.81%)
 footer:    (0%, 94.37%, 100%, 5.62%)
 ```
 
-## 8. 변경된 파일 (구현 완료)
+## 7. 변경된 파일 (구현 완료)
 
 | 파일 | 변경 내용 |
 |---|---|
 | `wireframeSlots.json` | 변경 없음 (기존 좌표 유지) |
 | `computeSlotStyle.js` | `CANVAS_HW_RATIO`를 `MAIN_ZONE_HW_RATIO`(0.85)로 변경 |
 | `outerFrameZones.ts` (신규) | `MAIN_ZONE_4x5`, `computeMainZone916()`, `FrameZone` 타입 |
-| `SingleLargeLayout.jsx` | mainZone 컨테이너 + zonePositions prop 지원 |
+| `SingleLargeLayout.jsx` | mainZone 컨테이너 + zonePositions/textStyles prop 지원 |
 | `SingleCompactLayout.jsx` | 동일 |
 | `OverlapGroupLayout.jsx` | 동일 |
-| `HalfCropGroupLayout.jsx` | 동적 productZone + zonePositions prop 지원 + DOM 순서 (store→slogan→products) |
+| `HalfCropGroupLayout.jsx` | 동적 productZone + zonePositions/textStyles prop 지원 + DOM 순서 (store→slogan→products) |
 | `types/home.ts` | `ZonePosition`, `ZonePositions` 인터페이스, `HomeProjectData.zonePositions` 추가 |
-| `editorFlow.ts` | `getDefaultZonePositions()` 추가, `applyDraftLayoutVariant`에서 zones state 사용 + 제품 좌표 mainZone 리매핑 |
+| `editorFlow.ts` | `getDefaultZonePositions()` + `createElementsFromWireframe()` 추가 — wireframe zone 좌표에서 직접 EditorElement[] 생성 |
 | `wireframeBridge.ts` | `MAIN_ZONE_4x5`, `computeMainZone916`, `FrameZone` re-export 추가 |
 | `WireframeChoiceCard.tsx` | `LayoutComponent` 타입에 zonePositions/textStyles 추가, `getDraftTypography` 기반 텍스트 스타일 계산 및 Layout에 전달 |
-| `App.tsx` | `handleStartFromHome`, `handleSelectWireframeType`에서 `zonePositions` 설정 |
-| `types/editor-core.ts` | `EditorElement`에 `yOffsetPx?: number` 추가 (subcopy 배치용 px 오프셋) |
-| `EditorCanvas.tsx` | `yOffsetPx` 지원: `top: calc(${y}% + ${yOffsetPx * scaleFactor}px)` |
+| `App.tsx` | `handleStartFromHome`, `handleSelectWireframeType`에서 템플릿 체인 대신 `createElementsFromWireframe` 사용 |
+| `types/editor-core.ts` | `yOffsetPx` 속성 제거 (subcopy 관련 revert) |
+| `EditorCanvas.tsx` | `calc()`/`yOffsetPx` 제거 → 단순 `top: ${element.y}%` 복원 |
 | `BackgroundCard.tsx` | 동일 |
 
-## 9. 검증 기준
+## 8. 검증 기준
 
 - [x] `npm run build` 성공, TypeScript 에러 0개
 - [ ] 4:5에서 wireframe 선택 시 제품 슬롯이 main zone 내부에만 배치됨
@@ -300,23 +250,23 @@ footer:    (0%, 94.37%, 100%, 5.62%)
 - [ ] 9:16 전환 시 로고 상단 고정, footer/소개 문구 하단 앵커, main zone 세로 중앙
 - [ ] editing 페이지에서 모든 요소의 자유 드래그/리사이즈/회전 기존대로 동작
 
-## 10. 추후 작업: Zone 독립 이동 기능
+## 9. 추후 작업: Zone 독립 이동 기능
 
-### 10.1 목표
+### 9.1 목표
 
 각 zone(로고, 소개 문구, details, summary)의 위치를 **WireframeChoiceCard 또는 EditorCanvas에서 독립적으로 조정** 가능하게 한다. 현재 wireframe type 선택 시 zone 위치가 일괄 초기화되는데, 추후 '...' 메뉴를 통해 개별 zone만 이동할 수 있어야 한다.
 
-### 10.2 현재 구조가 이를 지원하는 이유
+### 9.2 현재 구조가 이를 지원하는 이유
 
 | 설계 요소 | 독립 이동 지원 근거 |
 |---|---|
 | **ZonePositions가 React state** | 개별 zone만 업데이트 가능 (`setProjectData(prev => ({ ...prev, zonePositions: { ...prev.zonePositions, store: newStorePos } }))`) |
 | **각 zone이 별도 ZonePosition 객체** | store/slogan/details/summary를 독립적으로 변경 가능 |
 | **Layout 컴포넌트가 zonePositions prop 사용** | prop 값만 바꾸면 즉시 반영 |
-| **applyDraftLayoutVariant가 zones 객체 사용** | EditorCanvas도 state 변경 즉시 반영 |
+| **createElementsFromWireframe가 zones 객체 사용** | EditorCanvas도 state 변경 즉시 반영 |
 | **main zone은 zone 좌표에서 동적 계산** | zone 이동 시 main zone도 자동 재계산 (Type 4) |
 
-### 10.3 구현 계획
+### 9.3 구현 계획
 
 #### Phase 1: '...' 메뉴 UI
 
@@ -402,7 +352,7 @@ const ZONE_CONSTRAINTS = {
 };
 ```
 
-### 10.4 데이터 흐름 (Zone 독립 이동 시)
+### 9.4 데이터 흐름 (Zone 독립 이동 시)
 
 ```
 사용자: '...' 메뉴 → 로고 위치 → '하단' 프리셋 선택
@@ -417,7 +367,7 @@ setProjectData({
   ↓
 WireframeChoiceCard: Layout 컴포넌트 re-render (zonePositions prop 반영)
   ↓
-applyDraftLayoutVariant: zones.store 변경 반영 → elements 재배치
+createElementsFromWireframe: zones.store 변경 반영 → elements 재생성
   ↓
 EditorCanvas: re-render (main-preview 갱신)
 ```
@@ -426,7 +376,7 @@ EditorCanvas: re-render (main-preview 갱신)
 - wireframe type 선택 → `getDefaultZonePositions(typeIndex)`로 **전체 초기화**
 - zone 독립 이동 → 해당 zone만 **부분 업데이트** (다른 zone/wireframe 유지)
 
-## 11. 기타 추후 작업
+## 10. 기타 추후 작업
 
 - `기본 이미지 2.png` 변형 적용
 - a-b-2 (hasSlogan=false) 변형의 계층 구조 처리

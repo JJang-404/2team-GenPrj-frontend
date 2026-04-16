@@ -62,9 +62,7 @@ export default function BackgroundCard({
 
               const base: CSSProperties = {
                 left: `${element.x}%`,
-                top: element.yOffsetPx
-                  ? `calc(${element.y}% + ${element.yOffsetPx * scaleFactor}px)`
-                  : `${element.y}%`,
+                top: `${element.y}%`,
                 /* 기존 코드 백업 (고객 요청 대응 전):
                 width: `${element.width}%`,
                 height: `${element.height}%`,

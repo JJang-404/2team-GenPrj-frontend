@@ -82,6 +82,145 @@ export function getDefaultZonePositions(draftIndex: number): ZonePositions {
 }
 
 import { getDraftTypography } from '../../../shared/draftTypography';
+
+/**
+ * 템플릿 없이 wireframe + zone 좌표에서 직접 EditorElement[]를 생성한다.
+ * WireframeChoiceCard의 Layout 렌더링과 동일한 결과를 elements 배열로 표현.
+ */
+export function createElementsFromWireframe(projectData: HomeProjectData): EditorElement[] {
+  const draftIndex = projectData.options.draftIndex ?? 0;
+  const typeIndex = (((draftIndex % 4) + 4) % 4) as 0 | 1 | 2 | 3;
+  const ratio = projectData.options.ratio ?? '4:5';
+  const zones = projectData.zonePositions ?? getDefaultZonePositions(draftIndex);
+  const typography = getDraftTypography(draftIndex, ratio);
+
+  const elements: EditorElement[] = [];
+
+  if (projectData.storeName) {
+    elements.push({
+      id: 'fallback-store-name',
+      kind: 'text',
+      label: '가게명',
+      x: zones.store.x,
+      y: zones.store.y,
+      width: zones.store.width,
+      height: 8,
+      rotation: zones.store.rotation ?? 0,
+      zIndex: zones.store.zIndex ?? 13,
+      text: projectData.storeName,
+      fontSize: typography.storeSize,
+      fontWeight: 900,
+      lineHeight: typography.storeLineHeight,
+      letterSpacing: 0,
+      color: projectData.options.brandColor || DEFAULT_TEXT_COLOR,
+      align: zones.store.align ?? 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  if (projectData.mainSlogan) {
+    elements.push({
+      id: 'fallback-main-slogan',
+      kind: 'text',
+      label: '소개 문구',
+      x: zones.slogan.x,
+      y: zones.slogan.y,
+      width: zones.slogan.width,
+      height: 12,
+      rotation: zones.slogan.rotation ?? 0,
+      zIndex: zones.slogan.zIndex ?? 13,
+      text: projectData.mainSlogan,
+      fontSize: typography.sloganSize,
+      fontWeight: 900,
+      lineHeight: typography.sloganLineHeight,
+      letterSpacing: 0,
+      color: DEFAULT_TEXT_COLOR,
+      align: zones.slogan.align ?? 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  if (projectData.details) {
+    elements.push({
+      id: 'fallback-details',
+      kind: 'text',
+      label: '상세 설명',
+      x: zones.details.x,
+      y: zones.details.y,
+      width: zones.details.width,
+      height: 10,
+      rotation: zones.details.rotation ?? 0,
+      zIndex: zones.details.zIndex ?? 12,
+      text: projectData.details,
+      fontSize: typography.detailsSize,
+      fontWeight: 500,
+      lineHeight: 1.3,
+      letterSpacing: 0,
+      color: DEFAULT_TEXT_COLOR,
+      align: zones.details.align ?? 'center',
+      fontFamily: DEFAULT_TITLE_FONT,
+      opacity: 1,
+    });
+  }
+
+  const activeProducts = projectData.products.filter((p) => p.image);
+  const productCount = activeProducts.length;
+  const hasSlogan = Boolean(projectData.mainSlogan);
+
+  if (productCount > 0) {
+    const isTall = ratio === '9:16';
+    const defaultMainZone: FrameZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
+    const mainZone: FrameZone =
+      typeIndex === 3
+        ? (() => {
+            const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
+            return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
+          })()
+        : defaultMainZone;
+
+    const rawPlacements = computeWireframeProductPlacements(
+      typeIndex,
+      productCount,
+      hasSlogan,
+      activeProducts,
+    );
+
+    rawPlacements.forEach((p, i) => {
+      const product = activeProducts[i];
+      if (!product) return;
+
+      const rect = {
+        x: mainZone.x + (p.rect.x / 100) * mainZone.w,
+        y: mainZone.y + (p.rect.y / 100) * mainZone.h,
+        width: (p.rect.width / 100) * mainZone.w,
+        height: (p.rect.height / 100) * mainZone.h,
+      };
+
+      elements.push({
+        id: `product-${product.id}`,
+        kind: 'image',
+        label: product.name || `제품 ${i + 1}`,
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+        rotation: 0,
+        zIndex: 10 + (p.zIndex ?? 0),
+        imageUrl: p.imageUrlOverride || product.image || '',
+        imageFit: 'contain',
+        opacity: 1,
+        productName: product.name ?? '',
+        productPrice: product.price ?? '',
+        productDescription: product.description ?? '',
+        priceCurrency: (product.currency === '$' ? '$' : '원') as '원' | '$',
+      });
+    });
+  }
+
+  return elements;
+}
 import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './additionalInfo';
 import { cloneTemplateElements } from './editor';
 
