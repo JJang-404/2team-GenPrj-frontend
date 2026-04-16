@@ -1,7 +1,7 @@
 import type { BackgroundMode } from '../../types/editor';
 import SidebarBlock from './SidebarBlock';
 import SidebarMiniButton from './SidebarMiniButton';
-import { extractHexColor, parseBackgroundToken, stripBackgroundTokens, withBackgroundToken } from './backgroundTokens';
+import { stripBackgroundTokens } from './backgroundTokens';
 
 const modes: { id: BackgroundMode; label: string }[] = [
   { id: 'solid', label: '단색' },
@@ -14,8 +14,14 @@ interface BackgroundOptionsSectionProps {
   expanded: boolean;
   promptHint: string;
   backgroundMode: BackgroundMode;
+  solidColor: string;
+  gradientColors: [string, string];
+  multiColors: [string, string];
   onPromptHintChange: (value: string) => void;
   onBackgroundModeChange: (mode: BackgroundMode) => void;
+  onSolidColorChange: (color: string) => void;
+  onGradientColorsChange: (colors: [string, string]) => void;
+  onMultiColorsChange: (colors: [string, string]) => void;
   onGenerateBackgrounds: () => void;
   onBackToBackgrounds: () => void;
 }
@@ -24,46 +30,47 @@ export default function BackgroundOptionsSection({
   expanded,
   promptHint,
   backgroundMode,
+  solidColor,
+  gradientColors,
+  multiColors,
   onPromptHintChange,
   onBackgroundModeChange,
+  onSolidColorChange,
+  onGradientColorsChange,
+  onMultiColorsChange,
   onGenerateBackgrounds,
   onBackToBackgrounds,
 }: BackgroundOptionsSectionProps) {
   const freePrompt = stripBackgroundTokens(promptHint);
-  const solidColor = extractHexColor(parseBackgroundToken(promptHint, 'SOLID')?.[0] ?? '', '#60a5fa');
-  const gradientColors = (parseBackgroundToken(promptHint, 'GRADIENT') ?? ['#93c5fd', '#1d4ed8'])
-    .slice(0, 2)
-    .map((color) =>
-    extractHexColor(color, '#93c5fd')
-  );
-  const multiColors = (parseBackgroundToken(promptHint, 'MULTI') ?? ['#c4b5fd', '#93c5fd'])
-    .slice(0, 2)
-    .map((color) =>
-    extractHexColor(color, '#93c5fd')
-  );
-
-  const buildPromptForMode = (mode: BackgroundMode, basePrompt: string, overrides?: string[]) => {
-    if (mode === 'solid') {
-      return withBackgroundToken(basePrompt, `BG_SOLID(${overrides?.[0] ?? solidColor})`);
-    }
-    if (mode === 'gradient') {
-      const colors = overrides?.length ? overrides : gradientColors;
-      return withBackgroundToken(basePrompt, `BG_GRADIENT(${colors.join(',')})`);
-    }
-    if (mode === 'pastel') {
-      const colors = overrides?.length ? overrides : multiColors;
-      return withBackgroundToken(basePrompt, `BG_MULTI(${colors.join(',')})`);
-    }
-    return basePrompt;
-  };
-
-  const setPromptWithToken = (mode: BackgroundMode, basePrompt: string, colors?: string[]) => {
-    onPromptHintChange(buildPromptForMode(mode, basePrompt, colors));
-  };
+  // 기존 promptHint 토큰 파싱/주입 방식. 필요 시 아래 로직으로 원복 가능.
+  // const solidColor = extractHexColor(parseBackgroundToken(promptHint, 'SOLID')?.[0] ?? '', '#60a5fa');
+  // const gradientColors = (parseBackgroundToken(promptHint, 'GRADIENT') ?? ['#93c5fd', '#1d4ed8'])
+  //   .slice(0, 2)
+  //   .map((color) => extractHexColor(color, '#93c5fd'));
+  // const multiColors = (parseBackgroundToken(promptHint, 'MULTI') ?? ['#c4b5fd', '#93c5fd'])
+  //   .slice(0, 2)
+  //   .map((color) => extractHexColor(color, '#93c5fd'));
+  // const buildPromptForMode = (mode: BackgroundMode, basePrompt: string, overrides?: string[]) => {
+  //   if (mode === 'solid') {
+  //     return withBackgroundToken(basePrompt, `BG_SOLID(${overrides?.[0] ?? solidColor})`);
+  //   }
+  //   if (mode === 'gradient') {
+  //     const colors = overrides?.length ? overrides : gradientColors;
+  //     return withBackgroundToken(basePrompt, `BG_GRADIENT(${colors.join(',')})`);
+  //   }
+  //   if (mode === 'pastel') {
+  //     const colors = overrides?.length ? overrides : multiColors;
+  //     return withBackgroundToken(basePrompt, `BG_MULTI(${colors.join(',')})`);
+  //   }
+  //   return basePrompt;
+  // };
+  // const setPromptWithToken = (mode: BackgroundMode, basePrompt: string, colors?: string[]) => {
+  //   onPromptHintChange(buildPromptForMode(mode, basePrompt, colors));
+  // };
 
   const handleModeSelect = (mode: BackgroundMode) => {
     onBackgroundModeChange(mode);
-    setPromptWithToken(mode, freePrompt);
+    onPromptHintChange(freePrompt);
   };
 
   const generationButtonLabel = {
@@ -103,7 +110,7 @@ export default function BackgroundOptionsSection({
       {backgroundMode === 'solid' ? (
         <label className="sidebar-form-row">
           <span>단색</span>
-          <input type="color" value={solidColor} onChange={(event) => setPromptWithToken('solid', freePrompt, [event.target.value])} />
+          <input type="color" value={solidColor} onChange={(event) => onSolidColorChange(event.target.value)} />
         </label>
       ) : null}
       {backgroundMode === 'gradient' ? (
@@ -116,7 +123,7 @@ export default function BackgroundOptionsSection({
                 onChange={(event) => {
                   const next = [...gradientColors];
                   next[index] = event.target.value;
-                  setPromptWithToken('gradient', freePrompt, next);
+                  onGradientColorsChange(next as [string, string]);
                 }}
               />
             </div>
@@ -133,7 +140,7 @@ export default function BackgroundOptionsSection({
                 onChange={(event) => {
                   const next = [...multiColors];
                   next[index] = event.target.value;
-                  setPromptWithToken('pastel', freePrompt, next);
+                  onMultiColorsChange(next as [string, string]);
                 }}
               />
             </div>
@@ -143,7 +150,7 @@ export default function BackgroundOptionsSection({
       <textarea
         className="sidebar__textarea"
         value={freePrompt}
-        onChange={(event) => setPromptWithToken(backgroundMode, event.target.value)}
+        onChange={(event) => onPromptHintChange(event.target.value)}
         placeholder="AI 이미지 생성 프롬프트"
       />
       {backgroundMode === 'ai-image' ? (

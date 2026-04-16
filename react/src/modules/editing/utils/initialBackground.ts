@@ -3,6 +3,12 @@ import type { BackgroundMode } from '../types/editor-core';
 import type { HomeProjectData } from '../types/home';
 import { getSharedBgStyle } from '../../../shared/backgroundStyle';
 
+interface BackgroundColorDraft {
+  solid: [string];
+  gradient: [string, string];
+  pastel: [string, string];
+}
+
 function extractBackgroundToken(promptHint = '', type: 'SOLID' | 'GRADIENT' | 'MULTI') {
   const matched = promptHint.match(new RegExp(`BG_${type}\\(([^)]*)\\)`));
   if (!matched) return null;
@@ -29,7 +35,8 @@ function getConceptCss(concept?: string) {
 export function buildInitialBackgroundCandidate(
   projectData: HomeProjectData,
   backgroundMode?: BackgroundMode,
-  promptHint = ''
+  promptHint = '',
+  colorDraft?: BackgroundColorDraft
 ): BackgroundCandidate {
   const { options } = projectData;
   const normalizedMode = backgroundMode ?? (
@@ -37,6 +44,7 @@ export function buildInitialBackgroundCandidate(
       ? options.concept
       : 'ai-image'
   );
+  // 기존 promptHint 토큰 파싱 방식. 필요 시 이 값들을 다시 우선 사용하도록 원복 가능.
   const tokenSolid = extractBackgroundToken(promptHint, 'SOLID')?.[0];
   const tokenGradient = extractBackgroundToken(promptHint, 'GRADIENT') ?? [];
   const tokenMulti = extractBackgroundToken(promptHint, 'MULTI') ?? [];
@@ -48,7 +56,22 @@ export function buildInitialBackgroundCandidate(
         : normalizedMode === 'pastel'
           ? '다중색'
           : options.bgType ?? 'AI 생성';
+  const draftStartColor =
+    normalizedMode === 'solid'
+      ? colorDraft?.solid?.[0]
+      : normalizedMode === 'gradient'
+        ? colorDraft?.gradient?.[0]
+        : normalizedMode === 'pastel'
+          ? colorDraft?.pastel?.[0]
+          : undefined;
+  const draftEndColor =
+    normalizedMode === 'gradient'
+      ? colorDraft?.gradient?.[1]
+      : normalizedMode === 'pastel'
+        ? colorDraft?.pastel?.[1]
+        : undefined;
   const startColor =
+    draftStartColor ??
     tokenSolid ??
     tokenGradient[0] ??
     tokenMulti[0] ??
@@ -56,6 +79,7 @@ export function buildInitialBackgroundCandidate(
     options.brandColor ??
     '#FF4757';
   const endColor =
+    draftEndColor ??
     tokenGradient[1] ??
     tokenMulti[1] ??
     options.endColor ??

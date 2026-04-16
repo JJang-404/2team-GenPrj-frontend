@@ -40,6 +40,18 @@ const initialBootstrap: BootstrapResponse = {
   sidebarRecommendations: [],
 };
 
+interface BackgroundColorDraft {
+  solid: [string];
+  gradient: [string, string];
+  pastel: [string, string];
+}
+
+const DEFAULT_BACKGROUND_COLOR_DRAFT: BackgroundColorDraft = {
+  solid: ['#60a5fa'],
+  gradient: ['#93c5fd', '#1d4ed8'],
+  pastel: ['#c4b5fd', '#93c5fd'],
+};
+
 // ─── AI 배경 스타일 변형 정의 ──────────────────────────────────────────────────
 // 한국어로 작성하면 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 SD3.5 영문으로 번역합니다.
 // 새 스타일 추가 시 이 배열에만 항목을 추가하면 됩니다.
@@ -110,6 +122,13 @@ export default function App() {
   const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('ai-image');
   const [promptKo, setPromptKo] = useState('');
   const [promptHint, setPromptHint] = useState('');
+  // 기존 인라인 기본값 선언 방식. 필요 시 아래 블록으로 원복 가능.
+  // const [backgroundColorDraft, setBackgroundColorDraft] = useState<BackgroundColorDraft>({
+  //   solid: ['#60a5fa'],
+  //   gradient: ['#93c5fd', '#1d4ed8'],
+  //   pastel: ['#c4b5fd', '#93c5fd'],
+  // });
+  const [backgroundColorDraft, setBackgroundColorDraft] = useState<BackgroundColorDraft>(DEFAULT_BACKGROUND_COLOR_DRAFT);
   const [backgroundCandidates, setBackgroundCandidates] = useState<BackgroundCandidate[]>([]);
   const [selectedBackgroundId, setSelectedBackgroundId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -219,10 +238,10 @@ export default function App() {
     if (suspendInitialBackgroundSyncRef.current) {
       return;
     }
-    const preview = buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint);
+    const preview = buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint, backgroundColorDraft);
     setBackgroundCandidates([preview]);
     setSelectedBackgroundId(preview.id);
-  }, [backgroundMode, promptHint, projectData]);
+  }, [backgroundMode, promptHint, projectData, backgroundColorDraft]);
 
 
   useEffect(() => {
@@ -282,13 +301,70 @@ export default function App() {
 
   /** initPage 옵션에서 편집 사이드바의 초기 색상 토큰을 생성합니다. */
   const buildInitPromptHint = (options: HomeProjectData['options']): string => {
-    const start = options.startColor ?? '#FF4757';
-    const end = options.endColor ?? '#4A90E2';
+    // 기존 기본색(빨강/파랑) fallback. 필요 시 아래 두 줄로 원복 가능.
+    // const start = options.startColor ?? '#FF4757';
+    // const end = options.endColor ?? '#4A90E2';
+    const start = options.startColor ?? DEFAULT_BACKGROUND_COLOR_DRAFT.gradient[0];
+    const end = options.endColor ?? DEFAULT_BACKGROUND_COLOR_DRAFT.gradient[1];
     const concept = options.concept ?? '';
     if (concept === 'solid') return `BG_SOLID(${start})`;
     if (concept === 'gradient') return `BG_GRADIENT(${start},${end})`;
     if (concept === 'pastel') return `BG_MULTI(${start},${end})`;
     return '';
+  };
+
+  const buildInitialColorDraft = (options: HomeProjectData['options']): BackgroundColorDraft => {
+    // 기존 모든 모드 공통 fallback(빨강/파랑). 필요 시 아래 두 줄로 원복 가능.
+    // const start = options.startColor ?? '#FF4757';
+    // const end = options.endColor ?? '#4A90E2';
+    const solidStart = options.startColor ?? DEFAULT_BACKGROUND_COLOR_DRAFT.solid[0];
+    const gradientStart = options.startColor ?? DEFAULT_BACKGROUND_COLOR_DRAFT.gradient[0];
+    const gradientEnd = options.endColor ?? DEFAULT_BACKGROUND_COLOR_DRAFT.gradient[1];
+    const pastelStart = options.startColor ?? DEFAULT_BACKGROUND_COLOR_DRAFT.pastel[0];
+    const pastelEnd = options.endColor ?? DEFAULT_BACKGROUND_COLOR_DRAFT.pastel[1];
+    return {
+      solid: [solidStart],
+      gradient: [gradientStart, gradientEnd],
+      pastel: [pastelStart, pastelEnd],
+    };
+  };
+
+  const handleSolidColorChange = (color: string) => {
+    // 색상 첫 조작 직후에도 미리보기 effect가 동작하도록 동기화 잠금을 해제한다.
+    suspendInitialBackgroundSyncRef.current = false;
+    setBackgroundColorDraft((prev) => ({ ...prev, solid: [color] }));
+  };
+
+  const handleGradientColorsChange = (colors: [string, string]) => {
+    suspendInitialBackgroundSyncRef.current = false;
+    setBackgroundColorDraft((prev) => ({ ...prev, gradient: colors }));
+  };
+
+  const handleMultiColorsChange = (colors: [string, string]) => {
+    suspendInitialBackgroundSyncRef.current = false;
+    setBackgroundColorDraft((prev) => ({ ...prev, pastel: colors }));
+  };
+
+  const buildPromptHintWithColorDraft = (
+    basePromptHint: string,
+    mode: BackgroundMode,
+    colorDraft: BackgroundColorDraft
+  ) => {
+    const freePrompt = basePromptHint.replace(/\s*BG_(?:SOLID|GRADIENT|MULTI)\([^)]*\)/g, '').trim();
+    if (mode === 'solid') {
+      return freePrompt ? `${freePrompt} BG_SOLID(${colorDraft.solid[0]})` : `BG_SOLID(${colorDraft.solid[0]})`;
+    }
+    if (mode === 'gradient') {
+      return freePrompt
+        ? `${freePrompt} BG_GRADIENT(${colorDraft.gradient.join(',')})`
+        : `BG_GRADIENT(${colorDraft.gradient.join(',')})`;
+    }
+    if (mode === 'pastel') {
+      return freePrompt
+        ? `${freePrompt} BG_MULTI(${colorDraft.pastel.join(',')})`
+        : `BG_MULTI(${colorDraft.pastel.join(',')})`;
+    }
+    return freePrompt;
   };
 
   const handleStartFromHome = async (data: HomeProjectData, draftIndex = 0) => {
@@ -317,7 +393,10 @@ export default function App() {
     setBackgroundMode(nextBackgroundMode);
     // initPage 색상을 사이드바 컬러 피커에 반영
     const initPromptHint = buildInitPromptHint(baked.options);
-    setPromptHint(initPromptHint);
+    // 기존 토큰 기반 초기화 방식. 필요 시 이 줄로 원복 가능.
+    // setPromptHint(initPromptHint);
+    setPromptHint(initPromptHint.replace(/\s*BG_(?:SOLID|GRADIENT|MULTI)\([^)]*\)/g, '').trim());
+    setBackgroundColorDraft(buildInitialColorDraft(baked.options));
     const initialBackground = buildPlainWhiteBackground(nextBackgroundMode);
     suspendInitialBackgroundSyncRef.current = true;
     setBackgroundCandidates([initialBackground]);
@@ -376,17 +455,20 @@ export default function App() {
     try {
       // [Case A] 단색/그라데이션/다중색 모드 (로컬 생성)
       if (backgroundMode !== 'ai-image') {
+        const promptHintWithColorDraft = buildPromptHintWithColorDraft(promptHint, backgroundMode, backgroundColorDraft);
         const localResult = await generateBackgrounds({
           templateId: selectedTemplateId,
           backgroundMode,
-          promptKo: buildBackgroundPrompt(projectData, selectedTemplate, promptKo, promptHint),
+          // 기존 promptHint 직접 사용 방식. 필요 시 아래 줄로 원복 가능.
+          // promptKo: buildBackgroundPrompt(projectData, selectedTemplate, promptKo, promptHint),
+          promptKo: buildBackgroundPrompt(projectData, selectedTemplate, promptKo, promptHintWithColorDraft),
           guideImage: '',
           guideSummary: '',
         });
         
         if (backgroundMode === 'solid') {
           const initialBackground = projectData
-            ? buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint)
+            ? buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint, backgroundColorDraft)
             : null;
           if (initialBackground) {
             setBackgroundCandidates([initialBackground]);
@@ -723,7 +805,13 @@ export default function App() {
     if (!mainPreviewRef.current) return;
     setSaving(true);
     try {
-      const dataUrl = await captureElementAsDataUrl(mainPreviewRef.current, 3);
+      // 기존 전체 래퍼 캡처 방식. 필요 시 이 줄로 원복 가능.
+      // const dataUrl = await captureElementAsDataUrl(mainPreviewRef.current, 3);
+      const posterCanvas = mainPreviewRef.current.querySelector('.editor-stage__canvas');
+      if (!(posterCanvas instanceof HTMLElement)) {
+        throw new Error('포스터 저장 대상을 찾을 수 없습니다.');
+      }
+      const dataUrl = await captureElementAsDataUrl(posterCanvas, 3);
       const a = document.createElement('a');
       a.href = dataUrl;
       a.download = `${projectData?.storeName ?? 'design'}_full.png`;
@@ -764,8 +852,16 @@ export default function App() {
         mainSlogan={projectData?.mainSlogan ?? ''}
         promptHint={promptHint}
         backgroundMode={backgroundMode}
+        backgroundColorDraft={backgroundColorDraft}
         recommendations={bootstrap.sidebarRecommendations}
         onPromptHintChange={handlePromptHintChange}
+        // 기존 직접 state 갱신 방식. 필요 시 아래 3줄로 원복 가능.
+        // onSolidColorChange={(color) => setBackgroundColorDraft((prev) => ({ ...prev, solid: [color] }))}
+        // onGradientColorsChange={(colors) => setBackgroundColorDraft((prev) => ({ ...prev, gradient: colors }))}
+        // onMultiColorsChange={(colors) => setBackgroundColorDraft((prev) => ({ ...prev, pastel: colors }))}
+        onSolidColorChange={handleSolidColorChange}
+        onGradientColorsChange={handleGradientColorsChange}
+        onMultiColorsChange={handleMultiColorsChange}
         onStoreNameChange={handleStoreNameChange}
         onMainSloganChange={handleMainSloganChange}
         onGenerateSlogan={handleGenerateSlogan}

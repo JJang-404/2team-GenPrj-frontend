@@ -7,6 +7,12 @@ import BackgroundOptionsSection from './sidebar/BackgroundOptionsSection';
 import { ImageInfoPanel, TextInfoPanel } from './sidebar/ElementInfoPanels';
 import RecommendationsSection from './sidebar/RecommendationsSection';
 
+interface BackgroundColorDraft {
+  solid: [string];
+  gradient: [string, string];
+  pastel: [string, string];
+}
+
 interface SidebarProps {
   expanded: boolean;
   onToggleExpanded: () => void;
@@ -18,8 +24,12 @@ interface SidebarProps {
   mainSlogan: string;
   promptHint: string;
   backgroundMode: BackgroundMode;
+  backgroundColorDraft: BackgroundColorDraft;
   recommendations: SidebarRecommendation[];
   onPromptHintChange: (value: string) => void;
+  onSolidColorChange: (color: string) => void;
+  onGradientColorsChange: (colors: [string, string]) => void;
+  onMultiColorsChange: (colors: [string, string]) => void;
   onStoreNameChange: (value: string) => void;
   onMainSloganChange: (value: string) => void;
   onGenerateSlogan: () => void;
@@ -49,8 +59,12 @@ export default function Sidebar({
   mainSlogan,
   promptHint,
   backgroundMode,
+  backgroundColorDraft,
   recommendations,
   onPromptHintChange,
+  onSolidColorChange,
+  onGradientColorsChange,
+  onMultiColorsChange,
   onStoreNameChange,
   onMainSloganChange,
   onGenerateSlogan,
@@ -97,8 +111,14 @@ export default function Sidebar({
           expanded={expanded}
           promptHint={promptHint}
           backgroundMode={backgroundMode}
+          solidColor={backgroundColorDraft.solid[0]}
+          gradientColors={backgroundColorDraft.gradient}
+          multiColors={backgroundColorDraft.pastel}
           onPromptHintChange={onPromptHintChange}
           onBackgroundModeChange={onBackgroundModeChange}
+          onSolidColorChange={onSolidColorChange}
+          onGradientColorsChange={onGradientColorsChange}
+          onMultiColorsChange={onMultiColorsChange}
           onGenerateBackgrounds={onGenerateBackgrounds}
           onBackToBackgrounds={onBackToBackgrounds}
         />
