@@ -717,7 +717,10 @@ export default function App() {
     if (!mainPreviewRef.current) return;
     setSaving(true);
     try {
-      const dataUrl = await captureElementAsDataUrl(mainPreviewRef.current, 3);
+      // 원본: const dataUrl = await captureElementAsDataUrl(mainPreviewRef.current, 3);
+      // 수정: 컨테이너 전체 대신 실제 캔버스 영역(.editor-stage__canvas)만 캡처하여 여백 제거
+      const canvasElement = mainPreviewRef.current.querySelector('.editor-stage__canvas') as HTMLElement;
+      const dataUrl = await captureElementAsDataUrl(canvasElement || mainPreviewRef.current, 3);
       const a = document.createElement('a');
       a.href = dataUrl;
       a.download = `${projectData?.storeName ?? 'design'}_full.png`;

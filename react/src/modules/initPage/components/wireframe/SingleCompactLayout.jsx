@@ -161,7 +161,9 @@ export const SingleCompactLayout = ({ products, options, inputData, ratioStyles,
               brandColor={options.brandColor}
               className={`${isSquare ? 'text-2xl' : isTall ? 'text-5xl' : 'text-4xl'} mb-1`}
             />
+            {/* 본인 수정 사항: 상단 슬로건 제거
             <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
+            */}
           </div>
           <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
             <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />

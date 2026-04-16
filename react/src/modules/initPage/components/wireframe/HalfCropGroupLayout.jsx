@@ -136,12 +136,17 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
           )}
         </div>
       ) : (
+        /* 팀원 원본 백업: 상단 가게이름
         <div className={`relative z-30 ${containerPadding}`}>
           <StoreTitle
             storeName={inputData.storeName}
             brandColor={options.brandColor}
             className={isSquare ? 'text-xl' : 'text-3xl'}
           />
+        </div>
+        */
+        <div className={`relative z-30 ${containerPadding}`}>
+          <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
         </div>
       )}
 
@@ -172,8 +177,17 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
           )}
         </div>
       ) : (
+        /* 팀원 원본 백업: 하단 슬로건
         <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
           <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
+        </div>
+        */
+        <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-4`}>
+          <StoreTitle
+            storeName={inputData.storeName}
+            brandColor={options.brandColor}
+            className={isSquare ? 'text-2xl' : 'text-6xl'} // 본인 수정본: 글씨 크게
+          />
         </div>
       )}
 
