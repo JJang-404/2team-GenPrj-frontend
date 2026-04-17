@@ -2,10 +2,16 @@ import { useRef, useCallback } from 'react';
 import { CONCEPT_STYLES, ASPECT_CLASSES } from '../../constants/design';
 import { getRatioStyles } from '../../utils/ratioStyles';
 import { getBgStyle } from '../../utils/bgStyles';
-import { SingleLargeLayout, SingleCompactLayout, OverlapGroupLayout, HalfCropGroupLayout } from '../wireframe';
+import { SingleLargeLayout } from '../wireframe';
 import { ExtraInfoStrip } from './DraftShared';
 
-const LAYOUTS = [SingleLargeLayout, SingleCompactLayout, OverlapGroupLayout, HalfCropGroupLayout];
+/** Type 1 기본 zone 위치 (editing의 LEGACY_TEXT_PLACEMENTS[0]과 동일, x:0/w:100 표준) */
+const TYPE1_ZONE_POSITIONS = {
+  store: { x: 0, y: 7, width: 100, align: 'center', rotation: 0, zIndex: 30 },
+  slogan: { x: 0, y: 16, width: 100, align: 'center', rotation: 0, zIndex: 29 },
+  details: { x: 0, y: 74, width: 100, align: 'center', rotation: 0, zIndex: 28 },
+  summary: { x: 0, y: 86, width: 100, align: 'center', rotation: 0, zIndex: 28 },
+};
 
 /**
  * DraftCard
@@ -14,7 +20,7 @@ const LAYOUTS = [SingleLargeLayout, SingleCompactLayout, OverlapGroupLayout, Hal
 const DraftCard = ({ idx, isSelected, onSelect, products, options, inputData, extraInfo, onUpdateOption }) => {
   const activeProducts = products.filter((p) => p.image);
   const ratioStyles = getRatioStyles(options.ratio);
-  const Layout = LAYOUTS[idx % LAYOUTS.length];
+  const Layout = SingleLargeLayout;
   const isSquare = options.ratio === '1:1';
 
   // ── 배경 img.jpg 통일 ──────────────────────────────────────────────────────
@@ -54,6 +60,7 @@ const DraftCard = ({ idx, isSelected, onSelect, products, options, inputData, ex
             options={options}
             inputData={inputData}
             ratioStyles={ratioStyles}
+            zonePositions={TYPE1_ZONE_POSITIONS}
           />
         </div>
 

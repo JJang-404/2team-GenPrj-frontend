@@ -39,33 +39,33 @@ interface LegacyTextPlacements {
   summary: LegacyTextRect;
 }
 const LEGACY_TEXT_PLACEMENTS: LegacyTextPlacements[] = [
-  // draftIndex 0 (Type1)
+  // draftIndex 0 (Type1) — center 요소: x:0, w:100 표준 적용
   {
-    store: { x: 18, y: 7, width: 64, align: 'center', rotation: 0, zIndex: 30 },
-    slogan: { x: 16, y: 16, width: 68, align: 'center', rotation: 0, zIndex: 29 },
-    details: { x: 14, y: 74, width: 72, align: 'center', rotation: 0, zIndex: 28 },
-    summary: { x: 18, y: 86, width: 64, align: 'center', rotation: 0, zIndex: 28 },
+    store: { x: 0, y: 7, width: 100, align: 'center', rotation: 0, zIndex: 30 },
+    slogan: { x: 0, y: 16, width: 100, align: 'center', rotation: 0, zIndex: 29 },
+    details: { x: 0, y: 74, width: 100, align: 'center', rotation: 0, zIndex: 28 },
+    summary: { x: 0, y: 86, width: 100, align: 'center', rotation: 0, zIndex: 28 },
   },
-  // draftIndex 1 (Type2)
+  // draftIndex 1 (Type2) — side 요소 유지, slogan은 center 표준
   {
-    store: { x: 10, y: 10, width: 48, align: 'left', rotation: -3, zIndex: 30 },
-    slogan: { x: 12, y: 21, width: 42, align: 'left', rotation: 0, zIndex: 29 },
+    store: { x: 10, y: 65, width: 48, align: 'left', rotation: -3, zIndex: 30 },
+    slogan: { x: 0, y: 80, width: 100, align: 'center', rotation: 0, zIndex: 29 },
     details: { x: 66, y: 74, width: 24, align: 'right', rotation: 0, zIndex: 28 },
     summary: { x: 64, y: 86, width: 26, align: 'right', rotation: 0, zIndex: 28 },
   },
-  // draftIndex 2 (Type3)
+  // draftIndex 2 (Type3) — center 요소: x:0, w:100 표준 적용
   {
-    store: { x: 22, y: 83, width: 56, align: 'center', rotation: 0, zIndex: 30 },
-    slogan: { x: 24, y: 90, width: 52, align: 'center', rotation: 0, zIndex: 29 },
-    details: { x: 18, y: 12, width: 64, align: 'center', rotation: 0, zIndex: 28 },
-    summary: { x: 26, y: 74, width: 48, align: 'center', rotation: 90, zIndex: 28 },
+    store: { x: 0, y: 83, width: 100, align: 'center', rotation: 0, zIndex: 30 },
+    slogan: { x: 0, y: 90, width: 100, align: 'center', rotation: 0, zIndex: 29 },
+    details: { x: 0, y: 12, width: 100, align: 'center', rotation: 0, zIndex: 28 },
+    summary: { x: 0, y: 74, width: 100, align: 'center', rotation: 90, zIndex: 28 },
   },
-  // draftIndex 3 (Type4)
+  // draftIndex 3 (Type4) — center 요소: x:0, w:100 표준 적용
   {
-    store: { x: 14, y: 11, width: 72, align: 'center', rotation: 0, zIndex: 30 },
-    slogan: { x: 20, y: 23, width: 60, align: 'center', rotation: 0, zIndex: 29 },
-    details: { x: 16, y: 77, width: 68, align: 'center', rotation: 0, zIndex: 28 },
-    summary: { x: 24, y: 88, width: 52, align: 'center', rotation: 0, zIndex: 28 },
+    store: { x: 0, y: 11, width: 100, align: 'center', rotation: 0, zIndex: 30 },
+    slogan: { x: 0, y: 23, width: 100, align: 'center', rotation: 0, zIndex: 29 },
+    details: { x: 0, y: 77, width: 100, align: 'center', rotation: 0, zIndex: 28 },
+    summary: { x: 0, y: 88, width: 100, align: 'center', rotation: 0, zIndex: 28 },
   },
 ];
 import type { ZonePositions } from '../types/home';
@@ -993,23 +993,26 @@ export function updateProjectTextElements(
   }
 
   if (field === 'storeName') {
+    const storeZone = projectData.zonePositions
+      ? projectData.zonePositions.store
+      : getDefaultZonePositions(projectData.options.draftIndex ?? 0).store;
     const fallbackElement: EditorElement = {
       id: fallbackId,
       kind: 'text',
       label: '보조 가게명',
-      x: 8,
-      y: 8,
-      width: 44,
+      x: storeZone.x,
+      y: storeZone.y,
+      width: storeZone.width,
       height: 8,
-      rotation: 0,
-      zIndex: 13,
+      rotation: storeZone.rotation ?? 0,
+      zIndex: storeZone.zIndex ?? 13,
       text: nextValue,
       fontSize: typography.storeSize,
       fontWeight: 900,
       lineHeight: typography.storeLineHeight,
       letterSpacing: 1,
       color: projectData.options.brandColor || DEFAULT_TEXT_COLOR,
-      align: 'left',
+      align: storeZone.align ?? 'center',
       fontFamily: DEFAULT_TITLE_FONT,
       opacity: 1,
     };
@@ -1019,23 +1022,26 @@ export function updateProjectTextElements(
     ];
   }
 
+  const sloganZone = projectData.zonePositions
+    ? projectData.zonePositions.slogan
+    : getDefaultZonePositions(projectData.options.draftIndex ?? 0).slogan;
   const fallbackElement: EditorElement = {
     id: fallbackId,
     kind: 'text',
     label: '보조 메인 문구',
-    x: 8,
-    y: 18,
-    width: 58,
+    x: sloganZone.x,
+    y: sloganZone.y,
+    width: sloganZone.width,
     height: 12,
-    rotation: 0,
-    zIndex: 13,
+    rotation: sloganZone.rotation ?? 0,
+    zIndex: sloganZone.zIndex ?? 13,
     text: nextValue,
     fontSize: typography.sloganSize,
     fontWeight: 900,
     lineHeight: typography.sloganLineHeight,
     letterSpacing: 0,
     color: DEFAULT_TEXT_COLOR,
-    align: 'left',
+    align: sloganZone.align ?? 'center',
     fontFamily: DEFAULT_TITLE_FONT,
     opacity: 1,
   };
