@@ -41,31 +41,33 @@ interface LegacyTextPlacements {
 const LEGACY_TEXT_PLACEMENTS: LegacyTextPlacements[] = [
   // draftIndex 0 (Type1)
   {
-    store:   { x: 18, y: 7,  width: 64, align: 'center', rotation: 0,  zIndex: 30 },
-    slogan:  { x: 16, y: 16, width: 68, align: 'center', rotation: 0,  zIndex: 29 },
-    details: { x: 14, y: 74, width: 72, align: 'center', rotation: 0,  zIndex: 28 },
-    summary: { x: 18, y: 86, width: 64, align: 'center', rotation: 0,  zIndex: 28 },
+    store: { x: 18, y: 7, width: 64, align: 'center', rotation: 0, zIndex: 30 },
+    slogan: { x: 16, y: 16, width: 68, align: 'center', rotation: 0, zIndex: 29 },
+    details: { x: 14, y: 74, width: 72, align: 'center', rotation: 0, zIndex: 28 },
+    summary: { x: 18, y: 86, width: 64, align: 'center', rotation: 0, zIndex: 28 },
   },
   // draftIndex 1 (Type2)
   {
-    store:   { x: 10, y: 80, width: 48, align: 'left',   rotation: -3, zIndex: 30 },
-    slogan:  { x: 0,  y: 92, width: 100, align: 'center', rotation: 0,  zIndex: 29 },
-    details: { x: 66, y: 74, width: 24, align: 'right',  rotation: 0,  zIndex: 28 },
-    summary: { x: 64, y: 86, width: 26, align: 'right',  rotation: 0,  zIndex: 28 },
+    store: { x: 10, y: 68, width: 48, align: 'left', rotation: -3, zIndex: 30 },
+    /* [ORIGINAL] slogan:  { x: 0,  y: 92, width: 100, align: 'center', rotation: 0,  zIndex: 29 }, */
+    /* [MODIFIED] Footer 공간 확보를 위해 y 좌표 상향 조정 (백업 기준) */
+    slogan: { x: 0, y: 80, width: 100, align: 'center', rotation: 0, zIndex: 29 },
+    details: { x: 66, y: 74, width: 24, align: 'right', rotation: 0, zIndex: 28 },
+    summary: { x: 64, y: 86, width: 26, align: 'right', rotation: 0, zIndex: 28 },
   },
   // draftIndex 2 (Type3)
   {
-    store:   { x: 22, y: 83, width: 56, align: 'center', rotation: 0,  zIndex: 30 },
-    slogan:  { x: 24, y: 90, width: 52, align: 'center', rotation: 0,  zIndex: 29 },
-    details: { x: 18, y: 12, width: 64, align: 'center', rotation: 0,  zIndex: 28 },
+    store: { x: 22, y: 83, width: 56, align: 'center', rotation: 0, zIndex: 30 },
+    slogan: { x: 24, y: 90, width: 52, align: 'center', rotation: 0, zIndex: 29 },
+    details: { x: 18, y: 12, width: 64, align: 'center', rotation: 0, zIndex: 28 },
     summary: { x: 26, y: 74, width: 48, align: 'center', rotation: 90, zIndex: 28 },
   },
   // draftIndex 3 (Type4)
   {
-    store:   { x: 14, y: 11, width: 72, align: 'center', rotation: 0,  zIndex: 30 },
-    slogan:  { x: 20, y: 23, width: 60, align: 'center', rotation: 0,  zIndex: 29 },
-    details: { x: 16, y: 77, width: 68, align: 'center', rotation: 0,  zIndex: 28 },
-    summary: { x: 24, y: 88, width: 52, align: 'center', rotation: 0,  zIndex: 28 },
+    store: { x: 14, y: 11, width: 72, align: 'center', rotation: 0, zIndex: 30 },
+    slogan: { x: 20, y: 23, width: 60, align: 'center', rotation: 0, zIndex: 29 },
+    details: { x: 16, y: 77, width: 68, align: 'center', rotation: 0, zIndex: 28 },
+    summary: { x: 24, y: 88, width: 52, align: 'center', rotation: 0, zIndex: 28 },
   },
 ];
 import type { ZonePositions } from '../types/home';
@@ -74,8 +76,8 @@ export function getDefaultZonePositions(draftIndex: number): ZonePositions {
   const typeIndex = (((draftIndex % 4) + 4) % 4) as 0 | 1 | 2 | 3;
   const p = LEGACY_TEXT_PLACEMENTS[typeIndex];
   return {
-    store:   { x: p.store.x,   y: p.store.y,   width: p.store.width,   align: p.store.align,   rotation: p.store.rotation,   zIndex: p.store.zIndex },
-    slogan:  { x: p.slogan.x,  y: p.slogan.y,  width: p.slogan.width,  align: p.slogan.align,  rotation: p.slogan.rotation,  zIndex: p.slogan.zIndex },
+    store: { x: p.store.x, y: p.store.y, width: p.store.width, align: p.store.align, rotation: p.store.rotation, zIndex: p.store.zIndex },
+    slogan: { x: p.slogan.x, y: p.slogan.y, width: p.slogan.width, align: p.slogan.align, rotation: p.slogan.rotation, zIndex: p.slogan.zIndex },
     details: { x: p.details.x, y: p.details.y, width: p.details.width, align: p.details.align, rotation: p.details.rotation, zIndex: p.details.zIndex },
     summary: { x: p.summary.x, y: p.summary.y, width: p.summary.width, align: p.summary.align, rotation: p.summary.rotation, zIndex: p.summary.zIndex },
   };
@@ -175,9 +177,9 @@ export function createElementsFromWireframe(projectData: HomeProjectData): Edito
     const mainZone: FrameZone =
       typeIndex === 3
         ? (() => {
-            const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
-            return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
-          })()
+          const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
+          return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
+        })()
         : defaultMainZone;
 
     const rawPlacements = computeWireframeProductPlacements(
@@ -225,6 +227,24 @@ export function createElementsFromWireframe(projectData: HomeProjectData): Edito
     });
   }
 
+  /* [MODIFIED] 추가 정보(주소/전화번호) 초기 자동 생성 로직 추가 (원복 시 아래 로직 전체 삭제) */
+  additionalInfoLabels.forEach((label) => {
+    if (shouldShowAdditionalInfoText(projectData, label)) {
+      const infoElements = createAdditionalInfoElements(projectData, label);
+      infoElements.forEach(el => {
+        if (el.id.startsWith('info-text-')) {
+          const preset = additionalInfoPresets[label];
+          el.x = preset ? preset.text.x : 5;
+          el.width = preset ? preset.text.width : 90;
+          el.align = 'center';
+          el.fontSize = 11;
+          el.color = DEFAULT_TEXT_COLOR;
+        }
+        elements.push(el);
+      });
+    }
+  });
+
   return elements;
 }
 import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './additionalInfo';
@@ -252,8 +272,13 @@ export const additionalInfoPresets: Record<
   '노키즈존': { text: { x: 10, y: 66, width: 20, height: 6 }, image: { x: 70, y: 88, width: 7, height: 7 } },
   '흡연 구역 존재 여부': { text: { x: 58, y: 66, width: 26, height: 6 }, image: { x: 86, y: 80, width: 7, height: 7 } },
   '엘리베이터 존재 여부': { text: { x: 10, y: 90, width: 26, height: 6 }, image: { x: 78, y: 80, width: 7, height: 7 } },
+  /* [ORIGINAL]
   '전화번호': { text: { x: 56, y: 90, width: 28, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
   주소: { text: { x: 8, y: 56, width: 34, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
+  [MODIFIED] Footer 겹침 방지 및 라운드 테두리 대응 안전 여백 적용 (백업 기준)
+  */
+  '전화번호': { text: { x: 5, y: 96, width: 90, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
+  주소: { text: { x: 5, y: 92.5, width: 90, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
 };
 
 const extraLayoutPresets: Record<
@@ -465,9 +490,9 @@ export function applyDraftLayoutVariant(
   // Type 4: store/slogan이 상단이므로 제품 영역을 그 아래에 배치 (HalfCropGroupLayout과 동일)
   const mainZone: FrameZone = typeIndex === 3
     ? (() => {
-        const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
-        return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
-      })()
+      const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
+      return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
+    })()
     : defaultMainZone;
 
   // Type 3/4는 제품 natural 크기 + pre-bake 반쪽 이미지가 필요하므로
@@ -696,12 +721,12 @@ export function mapProjectDataToTemplate(template: TemplateDefinition, projectDa
         // payload의 transform 좌표가 있으면 템플릿 기본값보다 우선 적용
         const transformOverride = product.transform
           ? {
-              x: product.transform.x,
-              y: product.transform.y,
-              width: product.transform.width,
-              height: product.transform.height,
-              rotation: product.transform.rotation,
-            }
+            x: product.transform.x,
+            y: product.transform.y,
+            width: product.transform.width,
+            height: product.transform.height,
+            rotation: product.transform.rotation,
+          }
           : {};
         return {
           ...element,
@@ -1050,8 +1075,10 @@ export function createAdditionalInfoElements(projectData: HomeProjectData | null
       fontWeight: 800,
       lineHeight: 1.1,
       letterSpacing: 0,
-      color: '#ffffff',
-      align: 'left',
+      /* [ORIGINAL] color: '#ffffff', [MODIFIED] 가독성을 위해 기본 텍스트 색상 적용 */
+      color: DEFAULT_TEXT_COLOR,
+      /* [ORIGINAL] align: 'left', [MODIFIED] 중앙 정렬 고정 */
+      align: 'center',
       opacity: 1,
     });
   }

@@ -10,6 +10,8 @@ const imgStyle = {
   display: 'block',
 };
 
+const DEFAULT_TEXT_COLOR = '#000000';
+
 /**
  * IndividualSlot — 개별 제품 슬롯 (높이 고정, 너비 동적)
  */
@@ -168,6 +170,40 @@ export const SingleCompactLayout = ({ products, options, inputData, ratioStyles,
             <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
           </div>
         </>
+      )}
+
+      {/* [MODIFIED] Footer 정보: 주소 (y: 92.5%) & 전화번호 (y: 96%) - 겹침 및 라운드 테두리 대응 */}
+      {inputData.additionalInfo && inputData.additionalInfo.address && (
+        <div style={{
+          position: 'absolute',
+          left: '5%',
+          top: '92.5%',
+          width: '90%',
+          textAlign: 'center',
+          zIndex: 35,
+          fontSize: isSquare ? '6px' : '9px',
+          fontWeight: 600,
+          color: DEFAULT_TEXT_COLOR,
+          opacity: 0.8
+        }}>
+          {inputData.additionalInfo.address}
+        </div>
+      )}
+      {inputData.additionalInfo && inputData.additionalInfo.phoneNumber && (
+        <div style={{
+          position: 'absolute',
+          left: '5%',
+          top: '96%',
+          width: '90%',
+          textAlign: 'center',
+          zIndex: 35,
+          fontSize: isSquare ? '6px' : '9px',
+          fontWeight: 600,
+          color: DEFAULT_TEXT_COLOR,
+          opacity: 0.8
+        }}>
+          {inputData.additionalInfo.phoneNumber}
+        </div>
       )}
     </div>
   );

@@ -1,49 +1,45 @@
-# 텍스트 중앙 정렬 및 상품 정보 표시 수정 내역 (2026-04-17)
+# 텍스트 레이아웃 최적화 및 정보 표시 수정 상세 (2026-04-17)
 
 ## 1. 개요
-`Main Preview`(EditorCanvas)와 `WireframeChoiceCard` 간의 시각적 불일치(텍스트 정렬 및 상품 정보 누락) 문제를 해결하였습니다.
+`Main Preview`(EditorCanvas)와 `WireframeChoiceCard` 간의 시각적 일치성을 확보하고, 캔버스의 라운드 테두리 및 요소 간 겹침 문제를 해결하기 위해 레이아웃 좌표와 정렬 로직을 최적화하였습니다.
 
-## 2. [수정 1] 가게 이름/슬로건 중앙 정렬 불일치
-- **증상**: 'WireframeChoiceCard'에서는 가게 이름이 중앙에 표시되지만, 메인 프리뷰에서는 왼쪽으로 치우침.
-- **원인**: 
-    - `EditorCanvas`는 텍스트 요소의 너비를 `fit-content`(글자 길이에 맞춤)로 설정하고 있었습니다.
-    - 이로 인해 `textAlign: center` 속성을 적용해도 박스 자체가 글자 크기라 시각적인 정렬 효과가 없었습니다.
-- **수정 내용** (`EditorCanvas.tsx`):
-    - 텍스트 요소의 `width`를 `fit-content` 대신 레이아웃 정의 너비(`${element.width}%`)를 사용하도록 변경하여 내부 정렬이 작동하게 함.
+## 2. [수정 1] 가게 이름/슬로건 중앙 정렬 및 가독성
+- **중앙 정렬 불일치 해결**: 텍스트 박스에 레이아웃 정의 너비(`${element.width}%`)를 강제 적용하여 `textAlign: center`가 캔버스 중앙에 오도록 수정.
+- **색상 버그 수정**: 추가 정보(주소, 전화번호 등)가 흰색 배경에서 보이지 않던 문제를 해결하기 위해 기본 색상을 검정색(`#000000`)으로 통일.
 
-## 3. [수정 2] 상품 정보(명칭/가격) 노출 누락
-- **증상**: 구도 선택 시 대화상자에는 보이던 상품명과 가격 정보가 메인 프리뷰에서는 사라짐.
-- **원인**: 
-    - `createElementsFromWireframe` 함수에서 상품 이미지 요소만 생성하고, 상품명/가격 등의 텍스트 요소를 생성하는 로직이 누락되어 있었음.
+## 3. [수정 2] Type 2 레이아웃 겹침 방지 (컴팩트 헤더)
+- **증상**: 가게 이름(Store Name)과 광고 문구(Slogan)가 동일한 `y` 좌표에 위치하여 겹침 발생.
 - **수정 내용** (`editorFlow.ts`):
-    - 상품 이미지 요소를 생성할 때 `buildProductTextElements`를 호출하여 메타 텍스트 요소를 함께 생성하도록 추가.
-    - `placeProductMetaElement`를 사용하여 상품 이미지 하단에 자동으로 위치를 잡도록 구현.
+    - **가게 이름**: `y: 80` → **`68`**로 상향 조정하여 공간 확보.
+    - **광고 문구**: `y: 92` → **`80`**으로 상향 조정 (하단 Footer 영역 확보 목적).
 
-## 4. 코드 수정 내역 (주석 처리 및 사유 기입)
+## 4. [수정 3] Footer 영역(주소/전화번호) 최적화
+- **라운드 테두리 대응**: 캔버스 하단 모서리의 굴곡에 글자가 잘리지 않도록 좌우 안전 여백 적용 (**`x: 5, width: 90`**).
+- **정보 겹침 방지 (수직 스택)**: 주소와 전화번호가 겹치지 않게 두 줄로 분리 배치.
+    - **가게 주소**: `y: 92.5`
+    - **전화번호**: `y: 96`
+- **중앙 정렬 고정**: 모든 추가 정보 요소의 생성 로직을 `align: 'center'`로 변경.
 
-### EditorCanvas.tsx (정렬 수정)
-```tsx
-/* 기존 코드: 텍스트 너비를 fit-content로 하여 align:center가 무시되는 증상 발생
-width: element.kind === 'text' ? 'fit-content' : `${element.width}%`,
-maxWidth: element.kind === 'text' ? `${element.width}%` : undefined,
-*/
-// 이러한 증상으로 변경: 텍스트 박스에 layout width를 강제하여 내부 textAlign center가 canvas 중앙에 오도록 함
-width: `${element.width}%`,
-maxWidth: undefined,
-```
+## 5. 코드 수정 가이드 (원상복구 시 참고)
 
-### editorFlow.ts (상품 정보 추가)
+### 5.1 editorFlow.ts (좌표 및 정렬)
 ```typescript
-// 상품 이미지 요소를 추가한 직후 아래 로직 추가
-const metaTexts = buildProductTextElements(product, i);
-metaTexts.forEach((te) => {
-  elements.push(placeProductMetaElement(te, rect, typeIndex));
-});
+// [Type 2 수정값]
+store:  { x: 10, y: 68, width: 48, align: 'left',   rotation: -3, zIndex: 30 },
+slogan: { x: 0,  y: 80, width: 100, align: 'center', rotation: 0,  zIndex: 29 },
+
+// [추가 정보 프리셋]
+'전화번호': { text: { x: 5, y: 96, width: 90, height: 7 }, ... },
+주소: { text: { x: 5, y: 92.5, width: 90, height: 7 }, ... },
+
+// [요소 생성 정렬 고정]
+createAdditionalInfoElements 내부: align: 'center' 적용
 ```
 
-## 5. 원상복구 방법
-- `EditorCanvas.tsx`: 주석 처리된 부분을 해제하고 새로 추가된 코드를 제거합니다.
-- `editorFlow.ts`: `createElementsFromWireframe` 함수 내에서 `metaTexts` 관련 루프 코드를 삭제합니다.
+### 5.2 SingleCompactLayout.jsx (프리뷰 동기화)
+- 파일 상단에 `DEFAULT_TEXT_COLOR = '#000000'` 정의.
+- 하단에 주소(92.5%)와 전화번호(96%)를 위한 별도 `absolute div` 추가 (백업 좌표 기준).
 
 ## 6. 검증 결과
-- 모든 구도(Type 1~4)에서 **가게 이름**과 **상품 정보**가 모두 중앙 정렬 기준에 맞춰 정상적으로 표시되는 것을 확인하였습니다.
+- **Type 2**: 가게이름 - 광고문구 - 주소 - 전화번호가 상하 겹침 없이 계층적으로 배치됨.
+- **시각적 가시성**: 캔버스 하단 라운드 굴곡 내에 텍스트가 안전하게 포함되며, 모든 텍스트가 중앙 정렬 기준에 부합함.
