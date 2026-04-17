@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775795479841,
+  "lastScanned": 1776438228354,
   "projectRoot": "/home/codeitDev/project/2team-GenPrj-frontend/react",
   "techStack": {
     "languages": [
@@ -75,29 +75,31 @@
     "dist": {
       "path": "dist",
       "purpose": "Distribution/build output",
-      "fileCount": 3,
-      "lastAccessed": 1775795479808,
+      "fileCount": 4,
+      "lastAccessed": 1776438228324,
       "keyFiles": [
         "favicon.svg",
         "icons.svg",
+        "img.jpg",
         "index.html"
       ]
     },
     "public": {
       "path": "public",
       "purpose": "Public files",
-      "fileCount": 2,
-      "lastAccessed": 1775795479813,
+      "fileCount": 3,
+      "lastAccessed": 1776438228328,
       "keyFiles": [
         "favicon.svg",
-        "icons.svg"
+        "icons.svg",
+        "img.jpg"
       ]
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 3,
-      "lastAccessed": 1775795479818,
+      "lastAccessed": 1776438228334,
       "keyFiles": [
         "App.tsx",
         "main.tsx",
@@ -108,10 +110,10 @@
       "path": "dist/assets",
       "purpose": "Static assets",
       "fileCount": 7,
-      "lastAccessed": 1775795479827,
+      "lastAccessed": 1776438228341,
       "keyFiles": [
-        "index-CF4hOOOf.css",
-        "index-I2LOm5RZ.js",
+        "index-BIdPlvGo.js",
+        "index-kZ13tM8R.css",
         "ort-wasm-simd-threaded.jsep-D5Jk56-t.wasm"
       ]
     },
@@ -119,7 +121,7 @@
       "path": "src/pages",
       "purpose": "Page components",
       "fileCount": 2,
-      "lastAccessed": 1775795479837,
+      "lastAccessed": 1776438228354,
       "keyFiles": [
         "EditingPage.tsx",
         "InitPage.tsx"
@@ -129,8 +131,14 @@
   "hotPaths": [
     {
       "path": "src/modules/editing/App.tsx",
-      "accessCount": 8,
-      "lastAccessed": 1775795695278,
+      "accessCount": 10,
+      "lastAccessed": 1776438258844,
+      "type": "file"
+    },
+    {
+      "path": "src/modules/editing/utils/editorFlow.ts",
+      "accessCount": 9,
+      "lastAccessed": 1776438248079,
       "type": "file"
     },
     {
@@ -150,12 +158,6 @@
       "accessCount": 2,
       "lastAccessed": 1775795785621,
       "type": "directory"
-    },
-    {
-      "path": "src/modules/editing/utils/editorFlow.ts",
-      "accessCount": 2,
-      "lastAccessed": 1776413623957,
-      "type": "file"
     },
     {
       "path": "src/modules/editing/components/TemplateCard.tsx",

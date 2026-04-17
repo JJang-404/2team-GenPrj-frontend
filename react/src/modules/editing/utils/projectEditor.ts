@@ -1,6 +1,11 @@
 import type { BackgroundMode, EditorElement, TemplateDefinition } from '../types/editor-core';
 import type { HomeProjectData } from '../types/home';
-import { createAdditionalInfoElements, updateProjectTextElements } from './editorFlow';
+import {
+  additionalInfoLabels,
+  computeFooterPresets,
+  createAdditionalInfoElements,
+  updateProjectTextElements,
+} from './editorFlow';
 
 export function buildBackgroundPrompt(
   projectData: HomeProjectData | null,
@@ -52,18 +57,43 @@ export function toggleAdditionalInfoElements(
   elements: EditorElement[],
   projectData: HomeProjectData | null,
   label: string,
-  nextVisible: boolean
+  nextVisible: boolean,
+  nextVisibility: Record<string, boolean>,
 ) {
-  const nextInfoElements = createAdditionalInfoElements(projectData, label);
-  const nextIds = new Set(nextInfoElements.map((element) => element.id));
+  // 1. 토글된 label의 기존 elements 제거
   const withoutCurrentInfo = elements.filter(
     (element) => element.label !== label && element.label !== `${label} 아이콘`
   );
 
-  if (!nextVisible) {
-    return withoutCurrentInfo;
-  }
+  // 2. nextVisible=true면 nextVisibility 기준으로 새 elements 생성
+  const newElements = nextVisible
+    ? createAdditionalInfoElements(projectData, label, nextVisibility)
+    : [];
+  const newIds = new Set(newElements.map((el) => el.id));
 
-  return [...withoutCurrentInfo.filter((element) => !nextIds.has(element.id)), ...nextInfoElements];
+  // 3. 나머지 info elements(다른 label)의 좌표를 nextVisibility 기준으로 재배치
+  //    — 우측 정렬 특성상 1개 visible 변경 시 나머지 아이콘 위치가 모두 이동해야 함
+  const presets = computeFooterPresets(projectData, nextVisibility);
+  const repositioned = withoutCurrentInfo
+    .filter((el) => !newIds.has(el.id))
+    .map((el) => {
+      const textMatch = el.id.match(/^info-text-(\d+)$/);
+      if (textMatch) {
+        const idx = Number(textMatch[1]) - 1;
+        const matchLabel = additionalInfoLabels[idx];
+        const p = matchLabel ? presets[matchLabel] : undefined;
+        if (p) return { ...el, x: p.text.x, y: p.text.y, width: p.text.width, height: p.text.height };
+      }
+      const imgMatch = el.id.match(/^info-image-(\d+)$/);
+      if (imgMatch) {
+        const idx = Number(imgMatch[1]) - 1;
+        const matchLabel = additionalInfoLabels[idx];
+        const p = matchLabel ? presets[matchLabel] : undefined;
+        if (p) return { ...el, x: p.image.x, y: p.image.y, width: p.image.width, height: p.image.height };
+      }
+      return el;
+    });
+
+  return [...repositioned, ...newElements];
 }
 

@@ -416,7 +416,7 @@ export default function App() {
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
     }
-    setElements(createElementsFromWireframe(baked));
+    setElements(createElementsFromWireframe(baked, additionalInfoVisibility));
     setStep('background');
     setQueuedBackgroundGeneration(false);
     setSelectedElementIds([]);
@@ -438,7 +438,7 @@ export default function App() {
     };
     setProjectData(nextProjectData);
 
-    setElements(createElementsFromWireframe(nextProjectData));
+    setElements(createElementsFromWireframe(nextProjectData, additionalInfoVisibility));
     setRightPanelMode('background');
     setSelectedElementIds([]);
   };
@@ -647,9 +647,12 @@ export default function App() {
   const handleToggleInfoItem = (label: string) => {
     setAdditionalInfoVisibility((prev) => {
       const nextVisible = !prev[label];
-      setElements((current) => toggleAdditionalInfoElements(current, projectData, label, nextVisible));
+      const nextVisibility = { ...prev, [label]: nextVisible };
+      setElements((current) =>
+        toggleAdditionalInfoElements(current, projectData, label, nextVisible, nextVisibility),
+      );
 
-      return { ...prev, [label]: nextVisible };
+      return nextVisibility;
     });
   };
 
@@ -720,6 +723,7 @@ export default function App() {
             currentElements,
             nextData.options.draftIndex ?? 0,
             nextData,
+            additionalInfoVisibility,
           );
           return applyDraftTypographyVariant(layoutApplied, nextData);
         });
