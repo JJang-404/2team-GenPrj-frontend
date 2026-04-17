@@ -2,7 +2,7 @@ import { StoreTitle, SloganText } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
 import { computeSlotStyle, getFallbackStyle, getWireframeSlots } from './computeSlotStyle';
-import { MAIN_ZONE_4x5, computeMainZone916 } from './outerFrameZones';
+import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones } from './outerFrameZones';
 
 /**
  * HalfCropSlot — 개별 반쪽 크롭 또는 단독 제품 슬롯
@@ -98,11 +98,10 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
   const slots = wireframe?.slots || [];
   const mapped = mapSlotsToProducts(slots, p);
 
-  // zonePositions가 있으면 store/slogan 아래에 main zone 배치 (store → slogan → main zone 순서)
-  const productZone = zonePositions ? (() => {
-    const sloganBottom = Math.max(zonePositions.store.y, zonePositions.slogan.y) + 7;
-    return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
-  })() : defaultMainZone;
+  // zonePositions가 있으면 store/slogan 위치 기반 동적 main zone 계산
+  const productZone = (!isTall && zonePositions)
+    ? computeMainZoneFromZones(zonePositions.store.y, zonePositions.slogan.y)
+    : defaultMainZone;
 
   return (
     <div className={`w-full h-full relative ${showOverlays ? 'bg-white/5' : ''}`}>

@@ -26,5 +26,6 @@ export {
   MAIN_ZONE_4x5,
   MAIN_ZONE_HW_RATIO,
   computeMainZone916,
+  computeMainZoneFromZones,
 } from '../../initPage/components/wireframe/outerFrameZones';
 export type { FrameZone } from '../../initPage/components/wireframe/outerFrameZones';

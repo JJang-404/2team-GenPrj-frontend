@@ -25,6 +25,19 @@ type LayoutComponent = (props: {
   textStyles?: TextStyleSet;
 }) => JSX.Element;
 
+const MIN_ZONE_GAP = 7;
+
+/** store가 항상 slogan 위에 오도록 보장 (겹침 방지) */
+function ensureStoreAboveSlogan(
+  zones: import('../types/home').ZonePositions,
+): import('../types/home').ZonePositions {
+  if (zones.slogan.y >= zones.store.y + MIN_ZONE_GAP) return zones;
+  return {
+    ...zones,
+    slogan: { ...zones.slogan, y: zones.store.y + MIN_ZONE_GAP },
+  };
+}
+
 const LAYOUTS: Record<0 | 1 | 2 | 3, LayoutComponent> = {
   0: SingleLargeLayout as unknown as LayoutComponent,
   1: SingleCompactLayout as unknown as LayoutComponent,
@@ -177,7 +190,7 @@ export default function WireframeChoiceCard({
               options={options}
               inputData={inputData}
               ratioStyles={ratioStyles}
-              zonePositions={getDefaultZonePositions(typeIndex)}
+              zonePositions={ensureStoreAboveSlogan(getDefaultZonePositions(typeIndex))}
               textStyles={textStyles}
             />
           </div>

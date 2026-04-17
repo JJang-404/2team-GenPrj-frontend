@@ -10,7 +10,7 @@ import {
   type WireframeProductPlacement,
 } from './wireframeLayout';
 import { WIREFRAME_TEXT_PLACEMENTS } from './wireframeTextPlacements';
-import { MAIN_ZONE_4x5, computeMainZone916, type FrameZone } from './wireframeBridge';
+import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones, type FrameZone } from './wireframeBridge';
 
 /**
  * Legacy text placement table — bitwise copy of shared/draftLayout.ts DRAFT_LAYOUTS[0..3].{store,slogan,details,summary}.
@@ -48,10 +48,8 @@ const LEGACY_TEXT_PLACEMENTS: LegacyTextPlacements[] = [
   },
   // draftIndex 1 (Type2)
   {
-    store: { x: 10, y: 68, width: 48, align: 'left', rotation: -3, zIndex: 30 },
-    /* [ORIGINAL] slogan:  { x: 0,  y: 92, width: 100, align: 'center', rotation: 0,  zIndex: 29 }, */
-    /* [MODIFIED] Footer 공간 확보를 위해 y 좌표 상향 조정 (백업 기준) */
-    slogan: { x: 0, y: 80, width: 100, align: 'center', rotation: 0, zIndex: 29 },
+    store: { x: 10, y: 10, width: 48, align: 'left', rotation: -3, zIndex: 30 },
+    slogan: { x: 12, y: 21, width: 42, align: 'left', rotation: 0, zIndex: 29 },
     details: { x: 66, y: 74, width: 24, align: 'right', rotation: 0, zIndex: 28 },
     summary: { x: 64, y: 86, width: 26, align: 'right', rotation: 0, zIndex: 28 },
   },
@@ -173,14 +171,9 @@ export function createElementsFromWireframe(projectData: HomeProjectData): Edito
 
   if (productCount > 0) {
     const isTall = ratio === '9:16';
-    const defaultMainZone: FrameZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
-    const mainZone: FrameZone =
-      typeIndex === 3
-        ? (() => {
-          const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
-          return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
-        })()
-        : defaultMainZone;
+    const mainZone: FrameZone = isTall
+      ? computeMainZone916()
+      : computeMainZoneFromZones(zones.store.y, zones.slogan.y);
 
     const rawPlacements = computeWireframeProductPlacements(
       typeIndex,

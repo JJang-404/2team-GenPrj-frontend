@@ -63,12 +63,7 @@ export default function BackgroundCard({
               const base: CSSProperties = {
                 left: `${element.x}%`,
                 top: `${element.y}%`,
-                /* 기존 코드 백업 (고객 요청 대응 전):
                 width: `${element.width}%`,
-                height: `${element.height}%`,
-                */
-                width: element.kind === 'text' ? 'fit-content' : `${element.width}%`,
-                maxWidth: element.kind === 'text' ? `${element.width}%` : undefined,
                 height: element.kind === 'text' ? 'auto' : `${element.height}%`,
                 transform: `rotate(${element.rotation}deg)`,
                 zIndex: element.zIndex,
