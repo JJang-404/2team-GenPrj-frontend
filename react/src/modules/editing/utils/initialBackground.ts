@@ -77,13 +77,13 @@ export function buildInitialBackgroundCandidate(
     tokenMulti[0] ??
     options.startColor ??
     options.brandColor ??
-    '#FF4757';
+    '#ffffff';
   const endColor =
     draftEndColor ??
     tokenGradient[1] ??
     tokenMulti[1] ??
     options.endColor ??
-    '#4A90E2';
+    '#2f2f2f';
   const gradientAngle = options.gradientAngle ?? 135;
   const splitPosition = options.splitPosition ?? 50;
   const splitDirection = options.splitDirection ?? 'horizontal';

@@ -16,8 +16,8 @@ export function getSharedBgStyle(
     splitDirection = 'horizontal',
   } = opts;
 
-  const safeStart = startColor ?? '#FF4757';
-  const safeEnd = endColor ?? '#4A90E2';
+  const safeStart = startColor ?? '#ffffff';
+  const safeEnd = endColor ?? '#2f2f2f';
 
   switch (bgType) {
     case '단색':

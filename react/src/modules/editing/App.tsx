@@ -50,8 +50,8 @@ interface BackgroundColorDraft {
 
 const DEFAULT_BACKGROUND_COLOR_DRAFT: BackgroundColorDraft = {
   solid: ['#60a5fa'],
-  gradient: ['#93c5fd', '#1d4ed8'],
-  pastel: ['#c4b5fd', '#93c5fd'],
+  gradient: ['#ffffff', '#2f2f2f'],
+  pastel: ['#ffffff', '#1f1f1f'],
 };
 
 // ─── AI 배경 스타일 변형 정의 ──────────────────────────────────────────────────
@@ -243,6 +243,14 @@ export default function App() {
     const preview = buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint, backgroundColorDraft);
     setBackgroundCandidates([preview]);
     setSelectedBackgroundId(preview.id);
+  }, [backgroundMode, promptHint, projectData, backgroundColorDraft]);
+
+  useEffect(() => {
+    if (!projectData) return;
+    if (backgroundMode === 'gradient' || backgroundMode === 'pastel') {
+      setRightPanelMode('background');
+      setQueuedBackgroundGeneration(true);
+    }
   }, [backgroundMode, promptHint, projectData, backgroundColorDraft]);
 
 
@@ -568,7 +576,7 @@ export default function App() {
 
     if (mode === 'gradient' || mode === 'pastel') {
       setRightPanelMode('background');
-      setQueuedBackgroundGeneration(false);
+      setQueuedBackgroundGeneration(true);
       return;
     }
 

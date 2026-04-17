@@ -139,7 +139,7 @@ function createLocalColorCandidates(payload: GenerateBackgroundRequest): Generat
       negativePrompt,
     }];
   } else if (payload.backgroundMode === 'gradient') {
-    const colors = (gradient ?? ['#93c5fd', '#1d4ed8']).slice(0, 2);
+    const colors = (gradient ?? ['#ffffff', '#2f2f2f']).slice(0, 2);
     candidates = [
       {
         id: 'gradient-local-1',
@@ -179,7 +179,7 @@ function createLocalColorCandidates(payload: GenerateBackgroundRequest): Generat
       },
     ];
   } else if (payload.backgroundMode === 'pastel') {
-    const colors = (multi ?? ['#c4b5fd', '#93c5fd']).slice(0, 2);
+    const colors = (multi ?? ['#ffffff', '#1f1f1f']).slice(0, 2);
     const variants = [
       { id: 'multi-local-1', name: '사용자 다중색 1', variant: 'split', css: `linear-gradient(90deg, ${colors[0]} 50%, ${colors[1]} 50%)`, note: '좌우 분할형 다중색' },
       { id: 'multi-local-2', name: '사용자 다중색 2', variant: 'cornerArc', css: `radial-gradient(circle at 0 0, ${colors[0]} 0 63%, ${colors[1]} 64% 100%)`, note: '코너 아크형 다중색' },
