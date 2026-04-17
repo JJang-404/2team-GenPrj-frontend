@@ -1,4 +1,4 @@
-import { StoreTitle, SloganText } from '../draft/DraftShared';
+import { StoreTitle, SloganText, FooterInfo } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
 import { computeSlotStyle, getFallbackStyle, getWireframeSlots } from './computeSlotStyle';
@@ -107,7 +107,7 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
   return (
     <div className={`w-full h-full relative ${showOverlays ? 'bg-white/5' : ''}`}>
       {/* store (로고) */}
-      {zonePositions ? (
+      {zonePositions && (
         <div style={{
           position: 'absolute',
           left: zonePositions.store.x + '%',
@@ -135,23 +135,10 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
             />
           )}
         </div>
-      ) : (
-        /* 팀원 원본 백업: 상단 가게이름
-        <div className={`relative z-30 ${containerPadding}`}>
-          <StoreTitle
-            storeName={inputData.storeName}
-            brandColor={options.brandColor}
-            className={isSquare ? 'text-xl' : 'text-3xl'}
-          />
-        </div>
-        */
-        <div className={`relative z-30 ${containerPadding}`}>
-          <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
-        </div>
       )}
 
       {/* slogan (슬로건) */}
-      {zonePositions ? (
+      {zonePositions && (
         <div style={{
           position: 'absolute',
           left: zonePositions.slogan.x + '%',
@@ -176,19 +163,6 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
             <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
           )}
         </div>
-      ) : (
-        /* 팀원 원본 백업: 하단 슬로건
-        <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
-          <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
-        </div>
-        */
-        <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-4`}>
-          <StoreTitle
-            storeName={inputData.storeName}
-            brandColor={options.brandColor}
-            className={isSquare ? 'text-2xl' : 'text-6xl'} // 본인 수정본: 글씨 크게
-          />
-        </div>
       )}
 
       {/* 제품 캔버스: store/slogan 아래 영역 */}
@@ -207,6 +181,9 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
           />
         ))}
       </div>
+
+      {/* [MODIFIED] Footer 정보: 공통 컴포넌트 사용 (설계도 통합) */}
+      <FooterInfo additionalInfo={inputData.additionalInfo} isSquare={isSquare} />
     </div>
   );
 };

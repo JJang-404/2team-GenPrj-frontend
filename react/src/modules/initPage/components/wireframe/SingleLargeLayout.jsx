@@ -1,4 +1,4 @@
-import { StoreTitle, SloganText } from '../draft/DraftShared';
+import { StoreTitle, SloganText, FooterInfo } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
 import { computeType3Style, getWireframeSlots } from './computeSlotStyle';
@@ -52,12 +52,9 @@ const IndividualSlot = ({ product, slotMeta, isSquare }) => {
 
 /**
  * Type 1 — 클래식 (대형, 개별 배치)
- *
- * wireframeSlots.json의 Cx/Cy 좌표 기반 absolute 배치.
- * 높이 고정, 너비만 이미지 AR에 따라 동적 조정.
  */
 export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, zonePositions, textStyles }) => {
-  const { isSquare, isTall, containerPadding } = ratioStyles;
+  const { isSquare, isTall } = ratioStyles;
   const mainZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
   const showOverlays = useDecorOverlays(options.bgType);
   const p = products.filter(prod => prod.image).slice(0, 3);
@@ -65,9 +62,6 @@ export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, z
 
   const hasSlogan = Boolean(inputData.mainSlogan);
   const wireframe = count > 0 ? getWireframeSlots(1, count, hasSlogan) : null;
-  if (!wireframe && count > 0 && import.meta.env.DEV) {
-    console.warn('[Type1] Missing wireframe key:', count, hasSlogan);
-  }
   const slots = wireframe?.slots || [];
 
   return (
@@ -90,8 +84,8 @@ export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, z
         )}
       </div>
 
-      {/* 헤더 오버레이 */}
-      {zonePositions ? (
+      {/* 헤더 오버레이 (가게명) */}
+      {zonePositions && (
         <div style={{
           position: 'absolute',
           left: zonePositions.store.x + '%',
@@ -119,18 +113,10 @@ export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, z
             />
           )}
         </div>
-      ) : (
-        <div className={`relative z-30 ${containerPadding}`}>
-          <StoreTitle
-            storeName={inputData.storeName}
-            brandColor={options.brandColor}
-            className={isSquare ? 'text-xl' : 'text-3xl'}
-          />
-        </div>
       )}
 
       {/* 하단 슬로건 오버레이 */}
-      {zonePositions ? (
+      {zonePositions && (
         <div style={{
           position: 'absolute',
           left: zonePositions.slogan.x + '%',
@@ -155,11 +141,10 @@ export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, z
             <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
           )}
         </div>
-      ) : (
-        <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
-          <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
-        </div>
       )}
+
+      {/* [MODIFIED] Footer 정보: 공통 컴포넌트 사용 (설계도 통합) */}
+      <FooterInfo additionalInfo={inputData.additionalInfo} isSquare={isSquare} />
     </div>
   );
 };

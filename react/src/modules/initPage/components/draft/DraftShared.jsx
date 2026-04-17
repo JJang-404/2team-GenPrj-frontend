@@ -24,9 +24,8 @@ export const ProductInfo = ({ p, isSquare }) => {
 
   return (
     <div
-      className={`bg-white/80 backdrop-blur-md ${
-        isSquare ? 'p-2 rounded-lg' : 'p-4 rounded-2xl'
-      } text-black z-20 shadow-xl border border-slate-200/70`}
+      className={`bg-white/80 backdrop-blur-md ${isSquare ? 'p-2 rounded-lg' : 'p-4 rounded-2xl'
+        } text-black z-20 shadow-xl border border-slate-200/70`}
     >
       {p.showName && p.name && (
         <p className={`${isSquare ? 'text-[10px]' : 'text-[14px]'} font-black font-zen`}>{p.name}</p>
@@ -38,9 +37,8 @@ export const ProductInfo = ({ p, isSquare }) => {
       )}
       {p.showDesc && p.description && (
         <p
-          className={`${
-            isSquare ? 'text-[10px]' : 'text-[14px]'
-          } font-zen opacity-90 mt-1 leading-tight border-t border-slate-300 pt-1`}
+          className={`${isSquare ? 'text-[10px]' : 'text-[14px]'
+            } font-zen opacity-90 mt-1 leading-tight border-t border-slate-300 pt-1`}
         >
           {p.description}
         </p>
@@ -105,12 +103,12 @@ export const ExtraInfoStrip = ({ extraInfo, isSquare }) => {
 
   const badges = [
     extraInfo.showParkingCount && extraInfo.parkingCount > 0 && `주차장 ${extraInfo.parkingCount}대`,
-    extraInfo.showPhone   && extraInfo.phone    && extraInfo.phone,
-    extraInfo.showAddress && extraInfo.address  && extraInfo.address,
+    extraInfo.showPhone && extraInfo.phone && extraInfo.phone,
+    extraInfo.showAddress && extraInfo.address && extraInfo.address,
     extraInfo.petFriendly && extraInfo.showPetFriendly && '애견 동반',
-    extraInfo.isNoKids       && extraInfo.showIsNoKids    && '노키즈존',
+    extraInfo.isNoKids && extraInfo.showIsNoKids && '노키즈존',
     extraInfo.hasSmokingArea && extraInfo.showSmokingArea && '흡연 구역',
-    extraInfo.hasElevator    && extraInfo.showHasElevator   && '엘레베이터',
+    extraInfo.hasElevator && extraInfo.showHasElevator && '엘레베이터',
   ].filter(Boolean);
 
   if (badges.length === 0) return null;
@@ -121,9 +119,8 @@ export const ExtraInfoStrip = ({ extraInfo, isSquare }) => {
       {badges.map((text) => (
         <span
           key={text}
-          className={`shrink-0 bg-white/25 text-white font-bold rounded-md whitespace-nowrap ${
-            isSquare ? 'text-[8px] px-1.5 py-0.5' : 'text-[10px] px-2 py-1'
-          }`}
+          className={`shrink-0 bg-white/25 text-white font-bold rounded-md whitespace-nowrap ${isSquare ? 'text-[8px] px-1.5 py-0.5' : 'text-[10px] px-2 py-1'
+            }`}
         >
           {text}
         </span>
@@ -132,3 +129,51 @@ export const ExtraInfoStrip = ({ extraInfo, isSquare }) => {
   );
 };
 import { getDraftProductSlots } from '../../../../shared/draftLayout';
+
+// ─── FooterInfo ────────────────────────────────────────────────────────────
+/**
+ * 주소와 전화번호를 캔버스의 고정된 수직 위치(92.5%, 96%)에 출력합니다.
+ * 모든 레이아웃 구도에서 하드코딩 없이 동일한 하단 정보를 보장합니다.
+ */
+export const FooterInfo = ({ additionalInfo, isSquare }) => {
+  if (!additionalInfo) return null;
+  const { address, phoneNumber } = additionalInfo;
+  const DEFAULT_TEXT_COLOR = '#000000';
+
+  return (
+    <>
+      {address && (
+        <div style={{
+          position: 'absolute',
+          left: '5%',
+          top: '92.5%',
+          width: '90%',
+          textAlign: 'center',
+          zIndex: 35,
+          fontSize: isSquare ? '6px' : '9px',
+          fontWeight: 600,
+          color: DEFAULT_TEXT_COLOR,
+          opacity: 0.8
+        }}>
+          {address}
+        </div>
+      )}
+      {phoneNumber && (
+        <div style={{
+          position: 'absolute',
+          left: '5%',
+          top: '96%',
+          width: '90%',
+          textAlign: 'center',
+          zIndex: 35,
+          fontSize: isSquare ? '6px' : '9px',
+          fontWeight: 600,
+          color: DEFAULT_TEXT_COLOR,
+          opacity: 0.8
+        }}>
+          {phoneNumber}
+        </div>
+      )}
+    </>
+  );
+};

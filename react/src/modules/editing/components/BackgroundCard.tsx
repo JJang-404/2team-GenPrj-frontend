@@ -63,12 +63,9 @@ export default function BackgroundCard({
               const base: CSSProperties = {
                 left: `${element.x}%`,
                 top: `${element.y}%`,
-                /* 기존 코드 백업 (고객 요청 대응 전):
+                // [FIX] 텍스트 박스 너비를 메인 프리뷰와 동일하게 %로 강제하여 중앙 정렬 보장
                 width: `${element.width}%`,
-                height: `${element.height}%`,
-                */
-                width: element.kind === 'text' ? 'fit-content' : `${element.width}%`,
-                maxWidth: element.kind === 'text' ? `${element.width}%` : undefined,
+                maxWidth: undefined,
                 height: element.kind === 'text' ? 'auto' : `${element.height}%`,
                 transform: `rotate(${element.rotation}deg)`,
                 zIndex: element.zIndex,
@@ -83,10 +80,6 @@ export default function BackgroundCard({
                     style={{
                       ...base,
                       color: element.color,
-                      /* 기존 코드 백업 (절대 px):
-                      fontSize: `${element.fontSize ?? 24}px`,
-                      letterSpacing: `${element.letterSpacing ?? 0}px`,
-                      */
                       fontSize: `${(element.fontSize ?? 24) * scaleFactor}px`,
                       fontWeight: element.fontWeight,
                       fontFamily: element.fontFamily,
