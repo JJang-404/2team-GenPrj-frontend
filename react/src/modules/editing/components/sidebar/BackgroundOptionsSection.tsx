@@ -85,18 +85,18 @@ export default function BackgroundOptionsSection({
       </div>
 
       {backgroundMode === 'ai-image' && (
-        <div className="sidebar__hint" style={{ 
-          marginTop: '4px', 
-          padding: '12px', 
-          backgroundColor: '#fffbeb', 
-          border: '1px solid #fef3c7', 
+        <div className="sidebar__hint" style={{
+          marginTop: '4px',
+          padding: '12px',
+          backgroundColor: '#fffbeb',
+          border: '1px solid #fef3c7',
           borderRadius: '12px',
           color: '#b45309',
           fontSize: '11px',
           lineHeight: '1.5'
         }}>
           <strong>⚠ AI 배경 생성 주의사항</strong><br />
-          생성 시 약 10~20초 정도 소요될 수 있습니다. 현재 배치된 상품의 위치와 텍스트 레이아웃을 가이드로 삼아 최적의 배경을 생성합니다.
+          생성 시 약 3~10분 정도 소요될 수 있습니다. 현재 배치된 상품의 위치와 텍스트 레이아웃을 가이드로 삼아 최적의 배경을 생성합니다.
         </div>
       )}
 

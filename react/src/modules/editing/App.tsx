@@ -2,6 +2,7 @@ import { callApi } from "../../server/api/callApi";
 import { adverApi } from "../../server/api/adverApi";
 import { storeInfo } from "../../server/api/storeInfo";
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { getAverageLuminance, getRecommendedTextColor } from './utils/imageAnalysis';
 import { fetchBootstrap, generateBackgrounds } from './api/client';
 import BackgroundCard from './components/BackgroundCard';
 import EditorCanvas from './components/EditorCanvas';
@@ -399,17 +400,37 @@ export default function App() {
       const activeVariants = BACKGROUND_VARIANTS.slice(0, GENERATE_VARIANT_COUNT);
       console.log(`[Editing] AI 이미지 생성 시작 (${activeVariants.length}개 요청)`);
 
+      // [NEW] 메인 제품 이미지 추출 및 Base64 변환 (changeImage 가이드용)
+      let primaryImageBase64 = '';
+      const primaryProduct = projectData.products.find((p) => p.image);
+      if (primaryProduct?.image) {
+        try {
+          const response = await fetch(primaryProduct.image);
+          const blob = await response.blob();
+          primaryImageBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+          console.log('[Editing] 제품 이미지 가이드 준비 완료');
+        } catch (imageError) {
+          console.warn('[Editing] 제품 이미지 Base64 변환 실패, 텍스트 전용 모드로 전환:', imageError);
+        }
+      }
+
       // 각 스타일별 생성 태스크 구성
-      // - 사용자 입력 프롬프트(promptKo)를 최우선으로 배치하고 스타일 키워드를 보조로 결합
-      // - 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 한국어 → SD3.5 영문으로 번역
       const generateTasks = activeVariants.map((variant, idx) => {
         const combinedPrompt = promptKo.trim()
           ? `${promptKo}, ${variant.style}`
           : variant.style;
 
-        console.log(`[Editing] 배경 요청 #${idx + 1} (${variant.label}) 준비...`);
+        console.log(`[Editing] 배경 요청 #${idx + 1} (${variant.label}) 준비... [업종: ${projectData.industry || '미지정'}]`);
 
-        return callApi.generateBackground({ customPrompt: combinedPrompt })
+        return callApi.generateBackground({ 
+          customPrompt: combinedPrompt,
+          imageBase64: primaryImageBase64,
+          industry: projectData.industry || '' // [NEW] 업종별 프롬프트 최적화 연동
+        })
           .then(res => {
             console.log(`[Editing] 배경 요청 #${idx + 1} [${variant.label}]:`, res.ok ? '성공' : '실패');
             return { res, variant, idx };
@@ -497,6 +518,55 @@ export default function App() {
     suspendInitialBackgroundSyncRef.current = false;
     setPromptHint(value);
   };
+
+  /**
+   * [NEW] 배경 밝기 분석 및 텍스트 색상 자동 전환
+   * 배경이 변경될 때마다 실행되어 가독성을 확보합니다.
+   */
+  useEffect(() => {
+    if (!selectedBackground) return;
+
+    const updateTextContrast = async () => {
+      let luminance = 255; // 기본값: 밝음
+      let shouldAnalyze = true;
+
+      // [UPDATE] 그라데이션과 다중색(파스텔) 모드에서는 분석의 정확도가 낮으므로 기본색 유지
+      if (selectedBackground.mode === 'gradient' || selectedBackground.mode === 'pastel') {
+        shouldAnalyze = false;
+        luminance = 255; // 밝은 배경으로 간주하여 검정색 유도
+      }
+
+      if (shouldAnalyze) {
+        if (selectedBackground.imageUrl) {
+          // AI 이미지 모드: 실제 픽셀 데이터 분석
+          luminance = await getAverageLuminance(selectedBackground.imageUrl);
+        } else if (selectedBackground.cssBackground) {
+          // 단색 모드: CSS 문자열 분석
+          const css = selectedBackground.cssBackground.toLowerCase();
+          if (css.startsWith('#')) {
+            const r = parseInt(css.slice(1, 3), 16) || 0;
+            const g = parseInt(css.slice(3, 5), 16) || 0;
+            const b = parseInt(css.slice(5, 7), 16) || 0;
+            luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+          }
+        }
+      }
+
+      const recommendedColor = getRecommendedTextColor(luminance);
+      console.log(`[Auto-Contrast] 모드: ${selectedBackground.mode}, 휘도: ${shouldAnalyze ? luminance.toFixed(2) : '분석 생략'}, 추천 색상: ${recommendedColor}`);
+
+      setElements((prevElements) =>
+        prevElements.map((el) => {
+          if (el.kind === 'text') {
+            return { ...el, color: recommendedColor };
+          }
+          return el;
+        })
+      );
+    };
+
+    updateTextContrast();
+  }, [selectedBackgroundId, selectedBackground?.imageUrl, selectedBackground?.cssBackground]);
 
   const handleStoreNameChange = (value: string) => {
     setProjectData((prev) => {
