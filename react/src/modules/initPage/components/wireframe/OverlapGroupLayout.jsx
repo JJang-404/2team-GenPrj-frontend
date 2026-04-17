@@ -1,8 +1,8 @@
 import { StoreTitle, SloganText } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
-import { computeType3Style, getWireframeSlots } from './computeSlotStyle';
-import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones } from './outerFrameZones';
+import { computeType3Style, getWireframeSlots, centerSlotsVertically } from './computeSlotStyle';
+import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones, computeMainZoneDynamic } from './outerFrameZones';
 
 const OVERLAP_RATIO = 0.2;
 
@@ -148,10 +148,9 @@ const groupSlots = (slots, products) => {
  */
 export const OverlapGroupLayout = ({ products, options, inputData, ratioStyles, zonePositions, textStyles }) => {
   const { isSquare, isTall, containerPadding } = ratioStyles;
-  const defaultMainZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
-  const mainZone = (!isTall && zonePositions)
-    ? computeMainZoneFromZones(zonePositions.store.y, zonePositions.slogan.y)
-    : defaultMainZone;
+  const mainZone = zonePositions
+    ? computeMainZoneDynamic(zonePositions)
+    : (isTall ? computeMainZone916() : MAIN_ZONE_4x5);
   const showOverlays = useDecorOverlays(options.bgType);
   const p = products.filter(prod => prod.image).slice(0, 6);
   const count = p.length;
@@ -161,7 +160,7 @@ export const OverlapGroupLayout = ({ products, options, inputData, ratioStyles, 
   if (!wireframe && count > 0 && import.meta.env.DEV) {
     console.warn('[Type3] Missing wireframe key:', count, hasSlogan);
   }
-  const slots = wireframe?.slots || [];
+  const slots = centerSlotsVertically(wireframe?.slots || []);
   const groups = groupSlots(slots, p);
 
   return (

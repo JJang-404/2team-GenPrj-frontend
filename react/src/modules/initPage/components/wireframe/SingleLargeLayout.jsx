@@ -1,8 +1,8 @@
 import { StoreTitle, SloganText } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
-import { computeType3Style, getWireframeSlots } from './computeSlotStyle';
-import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones } from './outerFrameZones';
+import { computeType3Style, getWireframeSlots, centerSlotsVertically } from './computeSlotStyle';
+import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones, computeMainZoneDynamic } from './outerFrameZones';
 
 const imgStyle = {
   width: '100%', height: '100%',
@@ -58,10 +58,9 @@ const IndividualSlot = ({ product, slotMeta, isSquare }) => {
  */
 export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, zonePositions, textStyles }) => {
   const { isSquare, isTall, containerPadding } = ratioStyles;
-  const defaultMainZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
-  const mainZone = (!isTall && zonePositions)
-    ? computeMainZoneFromZones(zonePositions.store.y, zonePositions.slogan.y)
-    : defaultMainZone;
+  const mainZone = zonePositions
+    ? computeMainZoneDynamic(zonePositions)
+    : (isTall ? computeMainZone916() : MAIN_ZONE_4x5);
   const showOverlays = useDecorOverlays(options.bgType);
   const p = products.filter(prod => prod.image).slice(0, 3);
   const count = p.length;
@@ -71,7 +70,7 @@ export const SingleLargeLayout = ({ products, options, inputData, ratioStyles, z
   if (!wireframe && count > 0 && import.meta.env.DEV) {
     console.warn('[Type1] Missing wireframe key:', count, hasSlogan);
   }
-  const slots = wireframe?.slots || [];
+  const slots = centerSlotsVertically(wireframe?.slots || []);
 
   return (
     <div className={`w-full h-full relative ${showOverlays ? 'bg-white/5' : ''}`}>

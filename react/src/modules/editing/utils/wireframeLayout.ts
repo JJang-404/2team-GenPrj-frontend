@@ -16,18 +16,19 @@
  */
 
 import type { HomeProductInput } from '../types/home';
-import { getWireframeSlots } from './wireframeBridge';
+import { getWireframeSlots, centerSlotsVertically } from './wireframeBridge';
 import {
   WIREFRAME_TEXT_PLACEMENTS,
   type WireframeTextRect,
 } from './wireframeTextPlacements';
 
 /**
- * slot 좌표는 main zone(1000×850) 내부 기준 → HW ratio = 0.85.
- * computeSlotStyle.js와 동일한 MAIN_ZONE_HW_RATIO 사용.
+ * slot 좌표는 main zone 내부 기준 (0-100%).
+ * HW ratio는 mainZone.h와 캔버스 종횡비에 따라 동적 계산.
+ * 기본값(MAIN_ZONE_HW_RATIO = 0.85)은 mainZone.h=68% + 4:5 캔버스일 때만 정확.
  */
 import { MAIN_ZONE_HW_RATIO } from './wireframeBridge';
-const CANVAS_HW_RATIO = MAIN_ZONE_HW_RATIO;
+const DEFAULT_HW_RATIO = MAIN_ZONE_HW_RATIO;
 const OVERLAP_RATIO = 0.2;
 
 export interface WireframeRect {
@@ -101,7 +102,7 @@ export function deriveWireframeLayout(
     return { productSlots: [], storeName, mainSlogan };
   }
 
-  const productSlots = (wireframe.slots as SlotMeta[]).map(slotToRect);
+  const productSlots = (centerSlotsVertically(wireframe.slots) as SlotMeta[]).map(slotToRect);
   return { productSlots, storeName, mainSlogan };
 }
 
@@ -152,13 +153,16 @@ function groupPairs<T>(items: T[]): Array<{ type: 'pair'; left: T; right: T } | 
 /**
  * fallback: natural 크기가 없을 때 슬롯 sw/sh를 그대로 사용.
  * (이미지 프리베이크가 실패한 제품을 위한 안전망)
+ *
+ * @param hwRatio - mainZone의 실제 HW 비율 (= mainZone.h * canvasAR / 100).
+ *                  기본값 0.85는 mainZone.h=68% + 4:5 캔버스 전용.
  */
-function scaledWidthOrFallback(slot: SlotMeta, product: HomeProductInput): number {
+function scaledWidthOrFallback(slot: SlotMeta, product: HomeProductInput, hwRatio: number): number {
   const iw = product.imageNaturalWidth;
   const ih = product.imageNaturalHeight;
   if (!iw || !ih) return slot.sw;
   const AR = slot.sh / ih;
-  return iw * AR * CANVAS_HW_RATIO;
+  return iw * AR * hwRatio;
 }
 
 /**
@@ -176,6 +180,7 @@ function scaledWidthOrFallback(slot: SlotMeta, product: HomeProductInput): numbe
 export function computeType3PairLayout(
   slots: SlotMeta[],
   products: HomeProductInput[],
+  hwRatio: number = DEFAULT_HW_RATIO,
 ): WireframeProductPlacement[] {
   const placements: WireframeProductPlacement[] = [];
   const paired: PairSlotProduct[] = [];
@@ -188,7 +193,7 @@ export function computeType3PairLayout(
   groups.forEach((group) => {
     if (group.type === 'single') {
       const { slot, product } = group.item;
-      const wScaled = scaledWidthOrFallback(slot, product);
+      const wScaled = scaledWidthOrFallback(slot, product, hwRatio);
       placements.push({
         rect: {
           x: slot.Cx - wScaled / 2,
@@ -201,8 +206,8 @@ export function computeType3PairLayout(
       return;
     }
     const { left, right } = group;
-    const wL = scaledWidthOrFallback(left.slot, left.product);
-    const wR = scaledWidthOrFallback(right.slot, right.product);
+    const wL = scaledWidthOrFallback(left.slot, left.product, hwRatio);
+    const wR = scaledWidthOrFallback(right.slot, right.product, hwRatio);
     const Ow = (wL + wR) * OVERLAP_RATIO;
     const pairCx = (left.slot.Cx + right.slot.Cx) / 2;
     const top = left.slot.Cy - left.slot.sh / 2;
@@ -248,6 +253,7 @@ export function computeType3PairLayout(
 export function computeType4HalfCropLayout(
   slots: SlotMeta[],
   products: HomeProductInput[],
+  hwRatio: number = DEFAULT_HW_RATIO,
 ): WireframeProductPlacement[] {
   const placements: WireframeProductPlacement[] = [];
   const n = Math.min(slots.length, products.length);
@@ -260,7 +266,7 @@ export function computeType4HalfCropLayout(
 
     if (isLastAndOdd) {
       // HalfCropGroupLayout의 single 분기: 원본 이미지 + wScaled 폭
-      const wScaled = scaledWidthOrFallback(slot, product);
+      const wScaled = scaledWidthOrFallback(slot, product, hwRatio);
       placements.push({
         rect: {
           x: slot.Cx - wScaled / 2,
@@ -273,7 +279,7 @@ export function computeType4HalfCropLayout(
       continue;
     }
 
-    const W_scaled = scaledWidthOrFallback(slot, product);
+    const W_scaled = scaledWidthOrFallback(slot, product, hwRatio);
     const w_final = W_scaled / 2;
     const top = slot.Cy - slot.sh / 2;
 
@@ -318,6 +324,7 @@ export function computeWireframeProductPlacements(
   productCount: number,
   hasSlogan: boolean,
   products: HomeProductInput[],
+  hwRatio: number = DEFAULT_HW_RATIO,
 ): WireframeProductPlacement[] {
   if (productCount <= 0) return [];
   const type = (draftIndex + 1) as 1 | 2 | 3 | 4;
@@ -325,13 +332,13 @@ export function computeWireframeProductPlacements(
   if (!wireframe || !Array.isArray(wireframe.slots) || wireframe.slots.length === 0) {
     return [];
   }
-  const slots = wireframe.slots as SlotMeta[];
+  const slots = centerSlotsVertically(wireframe.slots) as SlotMeta[];
 
   if (draftIndex === 2) {
-    return computeType3PairLayout(slots, products);
+    return computeType3PairLayout(slots, products, hwRatio);
   }
   if (draftIndex === 3) {
-    return computeType4HalfCropLayout(slots, products);
+    return computeType4HalfCropLayout(slots, products, hwRatio);
   }
 
   // Type 1 & 2: Individual slots with AR scaling (matching initPage IndividualSlot/computeSlotStyle 'single')
@@ -342,7 +349,7 @@ export function computeWireframeProductPlacements(
     const product = products[i];
     if (!product) return { rect: slotToRect(slot) };
 
-    const wScaled = scaledWidthOrFallback(slot, product);
+    const wScaled = scaledWidthOrFallback(slot, product, hwRatio);
     return {
       rect: {
         x: slot.Cx - wScaled / 2,

@@ -1,8 +1,8 @@
 import { StoreTitle, SloganText } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
-import { computeSlotStyle, getFallbackStyle, getWireframeSlots } from './computeSlotStyle';
-import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones } from './outerFrameZones';
+import { computeSlotStyle, getFallbackStyle, getWireframeSlots, centerSlotsVertically } from './computeSlotStyle';
+import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones, computeMainZoneDynamic } from './outerFrameZones';
 
 /**
  * HalfCropSlot — 개별 반쪽 크롭 또는 단독 제품 슬롯
@@ -85,7 +85,6 @@ const mapSlotsToProducts = (slots, products) => {
  */
 export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles, zonePositions, textStyles }) => {
   const { isSquare, isTall, containerPadding } = ratioStyles;
-  const defaultMainZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
   const showOverlays = useDecorOverlays(options.bgType);
   const p = products.filter(prod => prod.image).slice(0, 6);
   const count = p.length;
@@ -95,13 +94,12 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
   if (!wireframe && count > 0 && import.meta.env.DEV) {
     console.warn('[Type4] Missing wireframe key:', count, hasSlogan);
   }
-  const slots = wireframe?.slots || [];
+  const slots = centerSlotsVertically(wireframe?.slots || []);
   const mapped = mapSlotsToProducts(slots, p);
 
-  // zonePositions가 있으면 store/slogan 위치 기반 동적 main zone 계산
-  const productZone = (!isTall && zonePositions)
-    ? computeMainZoneFromZones(zonePositions.store.y, zonePositions.slogan.y)
-    : defaultMainZone;
+  const productZone = zonePositions
+    ? computeMainZoneDynamic(zonePositions)
+    : (isTall ? computeMainZone916() : MAIN_ZONE_4x5);
 
   return (
     <div className={`w-full h-full relative ${showOverlays ? 'bg-white/5' : ''}`}>

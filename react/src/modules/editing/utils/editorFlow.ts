@@ -10,7 +10,26 @@ import {
   type WireframeProductPlacement,
 } from './wireframeLayout';
 import { WIREFRAME_TEXT_PLACEMENTS } from './wireframeTextPlacements';
-import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones, type FrameZone } from './wireframeBridge';
+import { computeMainZoneDynamic, type FrameZone } from './wireframeBridge';
+import { ratioToCanvasAR } from './ratio';
+
+/** zone 좌표를 element에 적용하는 공통 헬퍼 */
+function applyZoneToElement(
+  element: EditorElement,
+  zone: LegacyTextRect,
+  extra?: Record<string, unknown>,
+): EditorElement {
+  return {
+    ...element,
+    x: zone.x,
+    y: zone.y,
+    width: zone.width,
+    rotation: zone.rotation ?? element.rotation,
+    zIndex: zone.zIndex ?? element.zIndex,
+    align: zone.align ?? element.align,
+    ...extra,
+  };
+}
 
 /**
  * Legacy text placement table — bitwise copy of shared/draftLayout.ts DRAFT_LAYOUTS[0..3].{store,slogan,details,summary}.
@@ -170,16 +189,15 @@ export function createElementsFromWireframe(projectData: HomeProjectData): Edito
   const hasSlogan = Boolean(projectData.mainSlogan);
 
   if (productCount > 0) {
-    const isTall = ratio === '9:16';
-    const mainZone: FrameZone = isTall
-      ? computeMainZone916()
-      : computeMainZoneFromZones(zones.store.y, zones.slogan.y);
+    const mainZone: FrameZone = computeMainZoneDynamic(zones);
+    const hwRatio = mainZone.h * ratioToCanvasAR(ratio) / 100;
 
     const rawPlacements = computeWireframeProductPlacements(
       typeIndex,
       productCount,
       hasSlogan,
       activeProducts,
+      hwRatio,
     );
 
     rawPlacements.forEach((p, i) => {
@@ -477,16 +495,9 @@ export function applyDraftLayoutVariant(
   const storeRect = zones.store;
   const sloganRect = zones.slogan;
 
-  // WireframeChoiceCard의 Layout 컴포넌트와 동일한 mainZone 계산
-  const isTall = (projectData?.options.ratio ?? '4:5') === '9:16';
-  const defaultMainZone: FrameZone = isTall ? computeMainZone916() : MAIN_ZONE_4x5;
-  // Type 4: store/slogan이 상단이므로 제품 영역을 그 아래에 배치 (HalfCropGroupLayout과 동일)
-  const mainZone: FrameZone = typeIndex === 3
-    ? (() => {
-      const sloganBottom = Math.max(zones.store.y, zones.slogan.y) + 7;
-      return { x: 0, y: sloganBottom, w: 100, h: 100 - sloganBottom - 3 };
-    })()
-    : defaultMainZone;
+  // 4개 text zone 경계 기반 동적 mainZone 계산 (비율 무관)
+  const mainZone: FrameZone = computeMainZoneDynamic(zones);
+  const hwRatio = mainZone.h * ratioToCanvasAR(projectData?.options?.ratio) / 100;
 
   // Type 3/4는 제품 natural 크기 + pre-bake 반쪽 이미지가 필요하므로
   // projectData를 직접 전달받아 computeWireframeProductPlacements를 사용한다.
@@ -497,7 +508,7 @@ export function applyDraftLayoutVariant(
   );
   const rawPlacements: WireframeProductPlacement[] =
     projectData && activeProducts.length > 0
-      ? computeWireframeProductPlacements(typeIndex, productCount, hasSlogan, activeProducts)
+      ? computeWireframeProductPlacements(typeIndex, productCount, hasSlogan, activeProducts, hwRatio)
       : wireframe.productSlots.map((rect) => ({ rect }));
 
   // wireframeSlots 좌표(0-100%)를 mainZone 컨테이너 기준에서 전체 캔버스 기준으로 리매핑
@@ -561,116 +572,45 @@ export function applyDraftLayoutVariant(
     }
 
     if (element.id === 'fallback-main-slogan') {
-      return {
-        ...element,
-        x: sloganRect.x,
-        y: sloganRect.y,
-        width: sloganRect.width,
-        rotation: sloganRect.rotation ?? element.rotation,
-        zIndex: sloganRect.zIndex ?? element.zIndex,
-        align: sloganRect.align ?? element.align,
-      };
+      return applyZoneToElement(element, sloganRect);
     }
 
     if (element.id === 'fallback-store-name') {
-      return {
-        ...element,
-        x: storeRect.x,
-        y: storeRect.y,
-        width: storeRect.width,
-        rotation: storeRect.rotation ?? element.rotation,
-        zIndex: storeRect.zIndex ?? element.zIndex,
-        align: storeRect.align ?? element.align,
-      };
+      return applyZoneToElement(element, storeRect);
     }
 
     if (element.id === 'fallback-details') {
-      return {
-        ...element,
-        x: zones.details.x,
-        y: zones.details.y,
-        width: zones.details.width,
-        rotation: zones.details.rotation ?? element.rotation,
-        zIndex: zones.details.zIndex ?? element.zIndex,
-        align: zones.details.align ?? element.align,
-      };
+      return applyZoneToElement(element, zones.details);
     }
 
     if (element.id === 'fallback-product-summary') {
-      return {
-        ...element,
-        x: zones.summary.x,
-        y: zones.summary.y,
-        width: zones.summary.width,
-        rotation: zones.summary.rotation ?? element.rotation,
-        zIndex: zones.summary.zIndex ?? element.zIndex,
-        align: zones.summary.align ?? element.align,
-      };
+      return applyZoneToElement(element, zones.summary);
     }
 
     if (element.kind === 'text') {
       const normalizedLabel = `${element.id} ${element.label}`.toLowerCase();
 
       if (/(store|brand|가게명|브랜드명)/.test(normalizedLabel)) {
-        return {
-          ...element,
-          x: zones.store.x,
-          y: zones.store.y,
-          width: zones.store.width,
-          rotation: zones.store.rotation ?? element.rotation,
-          zIndex: zones.store.zIndex ?? element.zIndex,
-          align: zones.store.align ?? element.align,
-        };
+        return applyZoneToElement(element, zones.store);
       }
 
       if (/(headline|title|타이틀)/.test(normalizedLabel)) {
-        return {
-          ...element,
-          x: zones.slogan.x,
-          y: zones.slogan.y,
-          width: zones.slogan.width,
-          rotation: zones.slogan.rotation ?? element.rotation,
-          zIndex: zones.slogan.zIndex ?? element.zIndex,
-          align: zones.slogan.align ?? element.align,
-        };
+        return applyZoneToElement(element, zones.slogan);
       }
 
       if (/(subcopy|광고 문구|보조 타이틀|copy)/.test(normalizedLabel)) {
         const typo = getDraftTypography(draftIndex, projectData?.options?.ratio ?? '4:5');
-        return {
-          ...element,
-          x: zones.slogan.x,
-          y: zones.slogan.y,
+        return applyZoneToElement(element, zones.slogan, {
           yOffsetPx: typo.sloganSize * typo.sloganLineHeight + 2,
-          width: zones.slogan.width,
-          rotation: zones.slogan.rotation ?? element.rotation,
-          zIndex: zones.slogan.zIndex ?? element.zIndex,
-          align: zones.slogan.align ?? element.align,
-        };
+        });
       }
 
       if (/(description|설명|footer|cta|하단 문구)/.test(normalizedLabel)) {
-        return {
-          ...element,
-          x: zones.details.x,
-          y: zones.details.y,
-          width: zones.details.width,
-          rotation: zones.details.rotation ?? element.rotation,
-          zIndex: zones.details.zIndex ?? element.zIndex,
-          align: zones.details.align ?? element.align,
-        };
+        return applyZoneToElement(element, zones.details);
       }
 
       if (/(price|가격)/.test(normalizedLabel)) {
-        return {
-          ...element,
-          x: zones.summary.x,
-          y: zones.summary.y,
-          width: zones.summary.width,
-          rotation: zones.summary.rotation ?? element.rotation,
-          zIndex: zones.summary.zIndex ?? element.zIndex,
-          align: zones.summary.align ?? element.align,
-        };
+        return applyZoneToElement(element, zones.summary);
       }
     }
 

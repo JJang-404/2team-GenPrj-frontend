@@ -20,6 +20,7 @@ export {
 export {
   getWireframeSlots,
   getWireframeKey,
+  centerSlotsVertically,
 } from '../../initPage/components/wireframe/computeSlotStyle';
 
 export {
@@ -27,5 +28,6 @@ export {
   MAIN_ZONE_HW_RATIO,
   computeMainZone916,
   computeMainZoneFromZones,
+  computeMainZoneDynamic,
 } from '../../initPage/components/wireframe/outerFrameZones';
 export type { FrameZone } from '../../initPage/components/wireframe/outerFrameZones';

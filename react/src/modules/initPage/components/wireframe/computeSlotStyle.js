@@ -157,3 +157,33 @@ export const getWireframeSlots = (type, productCount, hasSlogan) => {
   const key = getWireframeKey(type, productCount, hasSlogan);
   return wireframeSlots.wireframes[key] || null;
 };
+
+/**
+ * 슬롯 그룹을 mainZone 내에서 수직 중앙 정렬
+ *
+ * 전체 슬롯의 bounding box를 계산하고,
+ * mainZone(0–100%) 내에서 수직 중앙에 오도록 Cy를 조정.
+ */
+export const centerSlotsVertically = (slots) => {
+  if (!slots || slots.length === 0) return slots;
+
+  let topMost = Infinity;
+  let bottomMost = -Infinity;
+
+  for (const slot of slots) {
+    const top = slot.Cy - slot.sh / 2;
+    const bottom = slot.Cy + slot.sh / 2;
+    if (top < topMost) topMost = top;
+    if (bottom > bottomMost) bottomMost = bottom;
+  }
+
+  const contentHeight = bottomMost - topMost;
+  const yOffset = (100 - contentHeight) / 2 - topMost;
+
+  if (Math.abs(yOffset) < 0.5) return slots;
+
+  return slots.map(slot => ({
+    ...slot,
+    Cy: slot.Cy + yOffset,
+  }));
+};
