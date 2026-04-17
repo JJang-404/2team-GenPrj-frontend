@@ -1,0 +1,13 @@
+`Main Preview` 과 '구도선택' 'WireframeChoiceCard' 의 텍스트가 비율이 맞는지 확인해주세요
+'WireframeChoiceCard' 에서는 '가게 이름' 이 중앙으로 표시되어보이는데 막상 Type 을 클릭하면
+`Main Preview` 의 텍스트는 왼쪽으로 치우쳐져 있습니다.
+
+@text_alignment_fix.md
+
+---
+
+'WireframeChoiceCard' '구도 선택'에서 텍스트 중앙과 `Main Preview` 는 작동이 잘 됩니다.
+하지만 'WireframeChoiceCard'  에서 상품 사진 정보 '이름' 이 들어가있는데, `Main Preview` 에서는 '이름' 이 표시되지 않습니다.
+어떻게 해야하는지 알려주세요.
+
+@text_alignment_fix.md

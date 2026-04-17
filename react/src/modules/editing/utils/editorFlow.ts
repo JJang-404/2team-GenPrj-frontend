@@ -48,8 +48,8 @@ const LEGACY_TEXT_PLACEMENTS: LegacyTextPlacements[] = [
   },
   // draftIndex 1 (Type2)
   {
-    store:   { x: 10, y: 10, width: 48, align: 'left',   rotation: -3, zIndex: 30 },
-    slogan:  { x: 12, y: 21, width: 42, align: 'left',   rotation: 0,  zIndex: 29 },
+    store:   { x: 10, y: 80, width: 48, align: 'left',   rotation: -3, zIndex: 30 },
+    slogan:  { x: 0,  y: 92, width: 100, align: 'center', rotation: 0,  zIndex: 29 },
     details: { x: 66, y: 74, width: 24, align: 'right',  rotation: 0,  zIndex: 28 },
     summary: { x: 64, y: 86, width: 26, align: 'right',  rotation: 0,  zIndex: 28 },
   },
@@ -215,6 +215,12 @@ export function createElementsFromWireframe(projectData: HomeProjectData): Edito
         productPrice: product.price ?? '',
         productDescription: product.description ?? '',
         priceCurrency: (product.currency === '$' ? '$' : '원') as '원' | '$',
+      });
+
+      // 상품 정보(이름, 가격 등) 텍스트 요소 추가
+      const metaTexts = buildProductTextElements(product, i);
+      metaTexts.forEach((te) => {
+        elements.push(placeProductMetaElement(te, rect, typeIndex));
       });
     });
   }

@@ -179,8 +179,13 @@ export default function EditorCanvas({
             const base: CSSProperties = {
               left: `${element.x}%`,
               top: `${element.y}%`,
+              /* 기존 코드: 텍스트 너비를 fit-content로 하여 align:center가 무시되는 증상 발생
               width: element.kind === 'text' ? 'fit-content' : `${element.width}%`,
               maxWidth: element.kind === 'text' ? `${element.width}%` : undefined,
+              */
+              // 이러한 증상으로 변경: 텍스트 박스에 layout width를 강제하여 내부 textAlign center가 canvas 중앙에 오도록 함
+              width: `${element.width}%`,
+              maxWidth: undefined,
               height: element.kind === 'text' ? 'auto' : `${element.height}%`,
               transform: `rotate(${element.rotation}deg)`,
               zIndex: element.zIndex,

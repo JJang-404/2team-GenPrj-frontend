@@ -155,13 +155,14 @@ export const SingleCompactLayout = ({ products, options, inputData, ratioStyles,
         </>
       ) : (
         <>
-          <div className={`relative z-30 ${containerPadding}`}>
+          {/* Fallback: zonePositions가 없을 경우 하단에 배치 */}
+          <div className={`absolute bottom-10 left-0 w-full z-30 ${containerPadding} text-left`}>
             <StoreTitle
               storeName={inputData.storeName}
               brandColor={options.brandColor}
               className={`${isSquare ? 'text-2xl' : isTall ? 'text-5xl' : 'text-4xl'} mb-1`}
+              style={{ transform: 'rotate(-3deg)', transformOrigin: 'left bottom' }}
             />
-            <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />
           </div>
           <div className={`absolute bottom-0 w-full text-center z-30 ${containerPadding} py-2`}>
             <SloganText slogan={inputData.mainSlogan} className={`${isSquare ? 'text-[8px]' : 'text-xs'} opacity-60`} />

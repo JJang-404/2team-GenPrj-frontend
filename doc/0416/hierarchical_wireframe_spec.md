@@ -2,7 +2,7 @@
 
 - 작성일: 2026-04-16
 - 최종 갱신: 2026-04-16
-- 대상 브랜치: `feature/United1_8`
+- 대상 브랜치: `feature/United1_7_patch`
 - 상태: 구현 완료 (빌드 통과)
 
 ---
@@ -233,8 +233,7 @@ footer:    (0%, 94.37%, 100%, 5.62%)
 | `HalfCropGroupLayout.jsx` | 동적 productZone + zonePositions/textStyles prop 지원 + DOM 순서 (store→slogan→products) |
 | `types/home.ts` | `ZonePosition`, `ZonePositions` 인터페이스, `HomeProjectData.zonePositions` 추가 |
 | `editorFlow.ts` | `getDefaultZonePositions()` + `createElementsFromWireframe()` 추가 — wireframe zone 좌표에서 직접 EditorElement[] 생성 |
-| `wireframeBridge.ts` | `MAIN_ZONE_4x5`, `computeMainZone916`, `FrameZone`, `MAIN_ZONE_HW_RATIO` re-export 추가 |
-| `wireframeLayout.ts` | `CANVAS_HW_RATIO`를 `MAIN_ZONE_HW_RATIO`(0.85)로 변경 — editing 모듈의 제품 배치 계산(`computeType4HalfCropLayout` 등)이 main zone 기준 좌표계와 일치하도록 수정 |
+| `wireframeBridge.ts` | `MAIN_ZONE_4x5`, `computeMainZone916`, `FrameZone` re-export 추가 |
 | `WireframeChoiceCard.tsx` | `LayoutComponent` 타입에 zonePositions/textStyles 추가, `getDraftTypography` 기반 텍스트 스타일 계산 및 Layout에 전달 |
 | `App.tsx` | `handleStartFromHome`, `handleSelectWireframeType`에서 템플릿 체인 대신 `createElementsFromWireframe` 사용 |
 | `types/editor-core.ts` | `yOffsetPx` 속성 제거 (subcopy 관련 revert) |

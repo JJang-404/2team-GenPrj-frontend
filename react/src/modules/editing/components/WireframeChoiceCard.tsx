@@ -37,7 +37,7 @@ const REFERENCE_CANVAS_WIDTH = 580;
 
 const LABELS: Record<0 | 1 | 2 | 3, { title: string; note: string }> = {
   0: { title: 'Type 1 · 클래식 대형', note: '상단 로고 + 대형 단일/소수 제품' },
-  1: { title: 'Type 2 · 컴팩트 헤더', note: '상단 헤더 블록 + 컴팩트 제품 배치' },
+  1: { title: 'Type 2 · 하단 헤더', note: '하단 헤더 블록 + 컴팩트 제품 배치' },
   2: { title: 'Type 3 · 오버랩 그룹', note: '겹치는 제품 그룹 + 상/하 텍스트' },
   3: { title: 'Type 4 · 하프크롭 그룹', note: '반쪽 크롭 제품 전폭 구도' },
 };
@@ -161,9 +161,9 @@ export default function WireframeChoiceCard({
                 className="background-swatch__image"
               />
             )}
-          <div 
-            style={{ 
-              position: 'absolute', 
+          <div
+            style={{
+              position: 'absolute',
               inset: 0,
               // scaleFactor를 이용해 내부 Tailwind 레이아웃(텍스트 크기 등)을 메인 프리뷰와 동일 비율로 축소
               transform: `scale(${scaleFactor})`,
