@@ -1,18 +1,74 @@
 import { StoreTitle, SloganText } from '../draft/DraftShared';
 import { useDecorOverlays } from './utils';
 import { useImageAR } from './useImageAR';
-import { computeSlotStyle, getFallbackStyle, getWireframeSlots, centerSlotsVertically } from './computeSlotStyle';
+import { getFallbackStyle, getWireframeSlots, centerSlotsVertically } from './computeSlotStyle';
 import { MAIN_ZONE_4x5, computeMainZone916, computeMainZoneFromZones, computeMainZoneDynamic } from './outerFrameZones';
+import { ratioToCanvasAR } from '../../../editing/utils/ratio';
+
+/**
+ * Type 4 전용 인라인 스타일 계산 — productZone에 맞는 동적 hwRatio 사용
+ *
+ * WireframeChoiceCard의 productZone이 고정 MAIN_ZONE_4x5(0.85)와 다를 수 있어
+ * main preview(wireframeLayout.ts)의 참조 공식과 일치시킨다.
+ *   hwRatio = productZone.h * ratioToCanvasAR(ratio) / 100
+ *
+ * 공유 computeSlotStyle.js의 하드코딩 CANVAS_HW_RATIO(0.85)는 건드리지 않는다.
+ */
+const computeSlotStyleDynamic = (slotMeta, imageNaturals, side, hwRatio) => {
+  const { naturalWidth: iw, naturalHeight: ih } = imageNaturals;
+  if (!iw || !ih) return getFallbackStyle(slotMeta, side);
+
+  const { Cx, Cy, sh } = slotMeta;
+  const AR = sh / ih;
+
+  if (side === 'single') {
+    const wScaled = iw * AR * hwRatio;
+    return {
+      containerStyle: {
+        left: (Cx - wScaled / 2) + '%',
+        top: (Cy - sh / 2) + '%',
+        width: wScaled + '%',
+        height: sh + '%',
+      },
+      imgStyle: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        objectPosition: 'center center',
+        display: 'block',
+      },
+    };
+  }
+
+  const W_scaled = iw * AR * hwRatio;
+  const w_final = W_scaled / 2;
+
+  return {
+    containerStyle: {
+      left: (side === 'left' ? Cx - w_final : Cx) + '%',
+      top: (Cy - sh / 2) + '%',
+      width: w_final + '%',
+      height: sh + '%',
+    },
+    imgStyle: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      objectPosition: side === 'left' ? 'left center' : 'right center',
+      display: 'block',
+    },
+  };
+};
 
 /**
  * HalfCropSlot — 개별 반쪽 크롭 또는 단독 제품 슬롯
  * 각 인스턴스는 독립적인 absolute positioned DOM 요소
  * 라벨은 overflow:hidden 외부에 렌더링 (잘리지 않음)
  */
-const HalfCropSlot = ({ product, slotMeta, side, isSquare }) => {
+const HalfCropSlot = ({ product, slotMeta, side, isSquare, hwRatio }) => {
   const dims = useImageAR(product?.image);
   const { containerStyle, imgStyle } = dims
-    ? computeSlotStyle(slotMeta, dims, side)
+    ? computeSlotStyleDynamic(slotMeta, dims, side, hwRatio)
     : getFallbackStyle(slotMeta, side);
 
   return (
@@ -101,6 +157,10 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
     ? computeMainZoneDynamic(zonePositions)
     : (isTall ? computeMainZone916() : MAIN_ZONE_4x5);
 
+  // main preview(wireframeLayout.ts)와 동일한 공식으로 Type 4 폭을 계산.
+  // productZone이 고정 MAIN_ZONE_HW_RATIO(0.85)와 다를 수 있어 매 렌더 재계산.
+  const hwRatio = productZone.h * ratioToCanvasAR(options.ratio) / 100;
+
   return (
     <div className={`w-full h-full relative ${showOverlays ? 'bg-white/5' : ''}`}>
       {/* store (로고) */}
@@ -187,6 +247,7 @@ export const HalfCropGroupLayout = ({ products, options, inputData, ratioStyles,
             slotMeta={slotMeta}
             side={side}
             isSquare={isSquare}
+            hwRatio={hwRatio}
           />
         ))}
       </div>
