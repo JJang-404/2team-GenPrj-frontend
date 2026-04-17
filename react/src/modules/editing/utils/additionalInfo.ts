@@ -101,8 +101,10 @@ export function getAdditionalInfoDisplayText(projectData: HomeProjectData | null
   if (!info) return '';
 
   switch (label) {
-    case '주차 공간 수':
-      return '';
+    case '주차 공간 수': {
+      const n = Number(info.parkingSpaces);
+      return n > 0 ? `주차장 ${info.parkingSpaces} 대까지 수용 가능` : '';
+    }
     case '애견 동반 가능 여부':
       return '';
     case '노키즈존':

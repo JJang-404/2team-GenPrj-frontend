@@ -240,20 +240,8 @@ export function createElementsFromWireframe(projectData: HomeProjectData): Edito
 
   /* [MODIFIED] 추가 정보(주소/전화번호) 초기 자동 생성 로직 추가 (원복 시 아래 로직 전체 삭제) */
   additionalInfoLabels.forEach((label) => {
-    if (shouldShowAdditionalInfoText(projectData, label)) {
-      const infoElements = createAdditionalInfoElements(projectData, label);
-      infoElements.forEach(el => {
-        if (el.id.startsWith('info-text-')) {
-          const preset = additionalInfoPresets[label];
-          el.x = preset ? preset.text.x : 5;
-          el.width = preset ? preset.text.width : 90;
-          el.align = 'center';
-          el.fontSize = 11;
-          el.color = DEFAULT_TEXT_COLOR;
-        }
-        elements.push(el);
-      });
-    }
+    const infoElements = createAdditionalInfoElements(projectData, label);
+    infoElements.forEach(el => elements.push(el));
   });
 
   return elements;
@@ -271,26 +259,87 @@ export const additionalInfoLabels = [
   '주소',
 ] as const;
 
-export const additionalInfoPresets: Record<
-  string,
-  {
-    text: { x: number; y: number; width: number; height: number };
-    image: { x: number; y: number; width: number; height: number };
-  }
-> = {
-  '주차 공간 수': { text: { x: 10, y: 78, width: 24, height: 6 }, image: { x: 86, y: 88, width: 7, height: 7 } },
-  '애견 동반 가능 여부': { text: { x: 58, y: 78, width: 26, height: 6 }, image: { x: 78, y: 88, width: 7, height: 7 } },
-  '노키즈존': { text: { x: 10, y: 66, width: 20, height: 6 }, image: { x: 70, y: 88, width: 7, height: 7 } },
-  '흡연 구역 존재 여부': { text: { x: 58, y: 66, width: 26, height: 6 }, image: { x: 86, y: 80, width: 7, height: 7 } },
-  '엘리베이터 존재 여부': { text: { x: 10, y: 90, width: 26, height: 6 }, image: { x: 78, y: 80, width: 7, height: 7 } },
-  /* [ORIGINAL]
-  '전화번호': { text: { x: 56, y: 90, width: 28, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
-  주소: { text: { x: 8, y: 56, width: 34, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
-  [MODIFIED] Footer 겹침 방지 및 라운드 테두리 대응 안전 여백 적용 (백업 기준)
-  */
-  '전화번호': { text: { x: 5, y: 96, width: 90, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
-  주소: { text: { x: 5, y: 92.5, width: 90, height: 7 }, image: { x: 0, y: 0, width: 0, height: 0 } },
+type FooterPreset = {
+  text: { x: number; y: number; width: number; height: number };
+  image: { x: number; y: number; width: number; height: number };
 };
+
+/**
+ * Footer 1줄 동적 레이아웃 계산.
+ *
+ * 좌측: 텍스트 항목 (전화번호, 주소, 주차장) 수직 스택
+ * 우측: 아이콘 5개 수평 1줄, footer 하단 정렬
+ * footer 하단 = FOOTER_BOTTOM(96%), 위로 텍스트 줄 수만큼 확장
+ */
+const FOOTER_BOTTOM = 96;      // 캔버스 하단 안전 영역 y%
+const FOOTER_X = 5;             // 좌측 마진 %
+const FOOTER_W = 90;            // 전체 너비 %
+const LINE_H = 2.5;             // 텍스트 1줄 높이 %
+const ICON_SIZE = LINE_H;       // 아이콘 = 텍스트 1줄 높이 (정사각형)
+const ICON_GAP = 0.5;           // 아이콘 간 간격 %
+const TEXT_ICON_GAP = 2;        // 텍스트-아이콘 영역 간격 %
+const ICON_STEP = ICON_SIZE + ICON_GAP;  // 3.0
+const ICON_AREA_W = 5 * ICON_STEP;      // 15 (항상 5개 기준)
+const TEXT_W = FOOTER_W - ICON_AREA_W - TEXT_ICON_GAP; // 73
+
+/** 텍스트로 표시되는 항목 (순서 = 표시 순서) */
+const FOOTER_TEXT_LABELS: readonly string[] = ['전화번호', '주소', '주차 공간 수'];
+/** 아이콘으로 표시되는 항목 (순서 = 좌→우) */
+const FOOTER_ICON_LABELS: readonly string[] = [
+  '주차 공간 수', '애견 동반 가능 여부', '노키즈존', '흡연 구역 존재 여부', '엘리베이터 존재 여부',
+];
+
+const EMPTY_RECT = { x: 0, y: 0, width: 0, height: 0 };
+
+export function computeFooterPresets(
+  projectData: HomeProjectData | null,
+): Record<string, FooterPreset> {
+  // 활성 텍스트 줄 수 계산
+  const activeTextLabels = FOOTER_TEXT_LABELS.filter(
+    (label) => shouldShowAdditionalInfoText(projectData, label),
+  );
+  const lineCount = activeTextLabels.length;
+  const footerH = Math.max(lineCount, 1) * LINE_H;
+  const footerTopY = FOOTER_BOTTOM - footerH;
+
+  // 아이콘 영역: 우측 정렬, footer 하단 정렬
+  const iconAreaX = FOOTER_X + FOOTER_W - ICON_AREA_W;
+  const iconY = FOOTER_BOTTOM - ICON_SIZE;
+
+  const presets: Record<string, FooterPreset> = {};
+
+  // 텍스트 항목 preset (활성 항목만 y 좌표 배정)
+  let textIdx = 0;
+  for (const label of FOOTER_TEXT_LABELS) {
+    if (shouldShowAdditionalInfoText(projectData, label)) {
+      presets[label] = {
+        text: { x: FOOTER_X, y: footerTopY + textIdx * LINE_H, width: TEXT_W, height: LINE_H },
+        image: EMPTY_RECT,
+      };
+      textIdx++;
+    } else {
+      // 비활성 텍스트: 좌표 0 (element가 생성되지 않으므로 사용되지 않음)
+      presets[label] = { text: EMPTY_RECT, image: EMPTY_RECT };
+    }
+  }
+
+  // 주차장은 텍스트+아이콘 양쪽 — 텍스트 preset이 이미 설정되었으면 image만 추가
+  // 아이콘 항목 preset
+  FOOTER_ICON_LABELS.forEach((label, idx) => {
+    const iconPreset: FooterPreset = {
+      text: presets[label]?.text ?? EMPTY_RECT,
+      image: {
+        x: iconAreaX + idx * ICON_STEP,
+        y: iconY,
+        width: ICON_SIZE,
+        height: ICON_SIZE,
+      },
+    };
+    presets[label] = iconPreset;
+  });
+
+  return presets;
+}
 
 const extraLayoutPresets: Record<
   string,
@@ -470,6 +519,8 @@ export function shouldShowAdditionalInfoText(projectData: HomeProjectData | null
       return Boolean(info.phoneNumber.trim());
     case '주소':
       return Boolean(info.address.trim());
+    case '주차 공간 수':
+      return Boolean(info.parkingSpaces?.trim()) && Number(info.parkingSpaces) > 0;
     default:
       return false;
   }
@@ -611,6 +662,31 @@ export function applyDraftLayoutVariant(
 
       if (/(price|가격)/.test(normalizedLabel)) {
         return applyZoneToElement(element, zones.summary);
+      }
+    }
+
+    // info element 재배치: computeFooterPresets 좌표로 업데이트
+    const infoTextMatch = element.id.match(/^info-text-(\d+)$/);
+    if (infoTextMatch) {
+      const idx = Number(infoTextMatch[1]) - 1;
+      const label = additionalInfoLabels[idx];
+      if (label) {
+        const preset = computeFooterPresets(projectData ?? null)[label];
+        if (preset) {
+          return { ...element, x: preset.text.x, y: preset.text.y, width: preset.text.width, height: preset.text.height };
+        }
+      }
+    }
+
+    const infoImageMatch = element.id.match(/^info-image-(\d+)$/);
+    if (infoImageMatch) {
+      const idx = Number(infoImageMatch[1]) - 1;
+      const label = additionalInfoLabels[idx];
+      if (label) {
+        const preset = computeFooterPresets(projectData ?? null)[label];
+        if (preset) {
+          return { ...element, x: preset.image.x, y: preset.image.y, width: preset.image.width, height: preset.image.height };
+        }
       }
     }
 
@@ -992,7 +1068,7 @@ export function updateProjectTextElements(
 }
 
 export function createAdditionalInfoElements(projectData: HomeProjectData | null, label: string) {
-  const preset = additionalInfoPresets[label];
+  const preset = computeFooterPresets(projectData)[label];
   const slug = slugInfoLabel(label);
   const elements: EditorElement[] = [];
 
