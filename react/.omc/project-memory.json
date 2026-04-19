@@ -131,32 +131,32 @@
   "hotPaths": [
     {
       "path": "src/modules/editing/App.tsx",
-      "accessCount": 10,
-      "lastAccessed": 1776438258844,
+      "accessCount": 12,
+      "lastAccessed": 1776518193333,
       "type": "file"
     },
     {
       "path": "src/modules/editing/utils/editorFlow.ts",
-      "accessCount": 9,
-      "lastAccessed": 1776438248079,
+      "accessCount": 10,
+      "lastAccessed": 1776518190009,
       "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 5,
+      "lastAccessed": 1776568215717,
+      "type": "directory"
+    },
+    {
+      "path": "src/modules/editing",
+      "accessCount": 3,
+      "lastAccessed": 1776518187083,
+      "type": "directory"
     },
     {
       "path": "src/modules/editing/types/home.ts",
       "accessCount": 2,
       "lastAccessed": 1775795545475,
-      "type": "directory"
-    },
-    {
-      "path": "src/modules/editing",
-      "accessCount": 2,
-      "lastAccessed": 1775795784995,
-      "type": "directory"
-    },
-    {
-      "path": "src",
-      "accessCount": 2,
-      "lastAccessed": 1775795785621,
       "type": "directory"
     },
     {
@@ -218,6 +218,18 @@
       "accessCount": 1,
       "lastAccessed": 1775795598706,
       "type": "file"
+    },
+    {
+      "path": "src/server/common/defines.js",
+      "accessCount": 1,
+      "lastAccessed": 1776568209398,
+      "type": "file"
+    },
+    {
+      "path": "src/server",
+      "accessCount": 1,
+      "lastAccessed": 1776568222192,
+      "type": "directory"
     }
   ],
   "userDirectives": []

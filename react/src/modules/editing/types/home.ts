@@ -10,7 +10,7 @@ export interface HomeProductInput {
   id: number;
   name: string;
   price: string;
-  currency?: string;
+  currency: string;
   description: string;
   image: string | null;
   isAiGen: boolean;
@@ -30,19 +30,25 @@ export interface HomeProductInput {
 }
 
 export interface HomeAdditionalInfo {
-  parkingSpaces: string;
+  parkingSpaces: number;
   petFriendly: boolean;
   noKidsZone: boolean;
   smokingArea: boolean;
   elevator: boolean;
   phoneNumber: string;
   address: string;
+  viewParking: boolean;
+  viewPet: boolean;
+  viewPhone: boolean;
+  viewAddress: boolean;
+  viewIsNoKids: boolean;
+  viewSmokingArea: boolean;
+  viewHasElevator: boolean;
 }
 
 export interface HomeProjectOptions {
   draftIndex?: number;
   ratio: string;
-  sampleCount: number;
   concept: string;
   brandColor: string;
   bgType?: string;

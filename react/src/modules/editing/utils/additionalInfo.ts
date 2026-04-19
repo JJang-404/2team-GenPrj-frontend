@@ -46,15 +46,12 @@ function circleBadge({
   `);
 }
 
-function parkingIcon(count: string) {
-  const trimmed = count.trim();
-  const normalized = Number(trimmed);
-  const hasParking = Number.isFinite(normalized) ? normalized > 0 : Boolean(trimmed);
-  if (!hasParking) {
+function parkingIcon(count: number) {
+  if (!(count > 0)) {
     return INFO_ICON_PATHS.parkingNo;
   }
 
-  const badgeText = trimmed.slice(0, 2);
+  const badgeText = String(count).slice(0, 2);
   return svgDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
       <image href="${INFO_ICON_PATHS.parkingYes}" x="0" y="0" width="96" height="96" preserveAspectRatio="xMidYMid meet"/>
@@ -69,7 +66,7 @@ export function getAdditionalInfoIcon(projectData: HomeProjectData | null, label
 
   switch (label) {
     case '주차 공간 수':
-      return parkingIcon(info?.parkingSpaces ?? '');
+      return parkingIcon(info?.parkingSpaces ?? 0);
     case '애견 동반 가능 여부':
       return info?.petFriendly ? INFO_ICON_PATHS.petFriendlyYes : INFO_ICON_PATHS.petFriendlyNo;
     case '노키즈존':
@@ -101,10 +98,8 @@ export function getAdditionalInfoDisplayText(projectData: HomeProjectData | null
   if (!info) return '';
 
   switch (label) {
-    case '주차 공간 수': {
-      const n = Number(info.parkingSpaces);
-      return n > 0 ? `주차장 ${info.parkingSpaces} 대까지 수용 가능` : '';
-    }
+    case '주차 공간 수':
+      return info.parkingSpaces > 0 ? `주차장 ${info.parkingSpaces} 대까지 수용 가능` : '';
     case '애견 동반 가능 여부':
       return '';
     case '노키즈존':
