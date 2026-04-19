@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775810509428,
-  "projectRoot": "/home/codeitDev/project/2team-GenPrj-frontend",
+  "lastScanned": 1776561044342,
+  "projectRoot": "D:\\01.project\\2team-GenPrj-frontend",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -38,70 +38,50 @@
       "path": "doc",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775810509385,
+      "lastAccessed": 1776561044306,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 4,
-      "lastAccessed": 1775810509390,
+      "lastAccessed": 1776561044307,
       "keyFiles": [
         "EDITING_MODULE.md",
         "EDITING_RIGHT_PANEL_TOGGLE.md",
-        "WIREFRAME_ARCHITECTURE.md",
-        "wireframe-prebake-halfcrop-report.md"
-      ]
-    },
-    "example": {
-      "path": "example",
-      "purpose": null,
-      "fileCount": 2,
-      "lastAccessed": 1775810509396,
-      "keyFiles": [
-        "desired_image.jpg",
-        "error_image.jpg"
+        "wireframe-prebake-halfcrop-report.md",
+        "WIREFRAME_ARCHITECTURE.md"
       ]
     },
     "react": {
       "path": "react",
       "purpose": null,
       "fileCount": 9,
-      "lastAccessed": 1775810509401,
+      "lastAccessed": 1776561044308,
       "keyFiles": [
-        "README.md",
         "index.html",
         "package-lock.json",
         "package.json",
-        "postcss.config.js"
+        "postcss.config.js",
+        "README.md"
       ]
     },
-    "react/dist": {
-      "path": "react/dist",
-      "purpose": "Distribution/build output",
+    "react\\node_modules": {
+      "path": "react\\node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1776561044310,
+      "keyFiles": []
+    },
+    "react\\public": {
+      "path": "react\\public",
+      "purpose": "Public files",
       "fileCount": 3,
-      "lastAccessed": 1775810509418,
+      "lastAccessed": 1776561044311,
       "keyFiles": [
         "favicon.svg",
         "icons.svg",
-        "index.html"
-      ]
-    },
-    "react/node_modules": {
-      "path": "react/node_modules",
-      "purpose": "Dependencies",
-      "fileCount": 1,
-      "lastAccessed": 1775810509423,
-      "keyFiles": []
-    },
-    "react/public": {
-      "path": "react/public",
-      "purpose": "Public files",
-      "fileCount": 2,
-      "lastAccessed": 1775810509428,
-      "keyFiles": [
-        "favicon.svg",
-        "icons.svg"
+        "img.jpg"
       ]
     }
   },
@@ -111,6 +91,84 @@
       "accessCount": 7,
       "lastAccessed": 1775889332480,
       "type": "directory"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\components\\sidebar\\BackgroundOptionsSection.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776584798322,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\App.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776585135544,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\utils\\initialBackground.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776584792527,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\components\\Sidebar.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776582996048,
+      "type": "file"
+    },
+    {
+      "path": "doc\\0419\\bg_sync_fix_plan.md",
+      "accessCount": 1,
+      "lastAccessed": 1776583068007,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\utils\\backgroundGeneration.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776583537540,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\shared\\backgroundStyle.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776583537622,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\initPage\\constants\\design.js",
+      "accessCount": 1,
+      "lastAccessed": 1776583538048,
+      "type": "file"
+    },
+    {
+      "path": "doc\\0419\\bg_sync_fix_report.md",
+      "accessCount": 1,
+      "lastAccessed": 1776583732395,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1776584798677,
+      "type": "directory"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\components\\WireframeChoiceCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776584801915,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\components\\BackgroundCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776584997116,
+      "type": "file"
+    },
+    {
+      "path": "doc\\0419\\background_flicker_fix.md",
+      "accessCount": 1,
+      "lastAccessed": 1776585172798,
+      "type": "file"
     }
   ],
   "userDirectives": []

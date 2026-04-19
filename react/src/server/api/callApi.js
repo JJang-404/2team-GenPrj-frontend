@@ -7,6 +7,7 @@ import { adverApi } from './adverApi';
 import {
   EMPTY_INPUT_FALLBACK,
 } from '../common/defines';
+import { SCENE_PROMPTS, COFFEE_RELATED_KEYWORDS } from '../../modules/editing/constants/prompts';
 
 const normalizeValue = (value) => {
   const text = String(value ?? '').trim();
@@ -267,13 +268,20 @@ class CallApi extends BaseApi {
 
   /**
    * AI 배경 생성용 포지티브 프롬프트를 조립합니다.
-   * - 사용자 입력 프롬프트(customPrompt)를 최우선으로 배치합니다.
-   * - 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 한국어 → 영문 SD3.5 프롬프트로 번역합니다.
+   * - 업종(industry)에 따라 커피/디저트용 다크 씬 또는 범용 브라이트 미니멀 씬을 자동으로 선택합니다. [NEW]
    */
-  _buildBackgroundPrompt(customPrompt = '') {
+  _buildBackgroundPrompt(customPrompt = '', industry = '') {
+    const isCoffeeIndustry = COFFEE_RELATED_KEYWORDS.some(kw => 
+      industry.toLowerCase().includes(kw.toLowerCase())
+    );
+
+    const baseScene = isCoffeeIndustry ? SCENE_PROMPTS.COFFEE : SCENE_PROMPTS.GENERAL;
+    
+    console.log(`[CallApi] 씬 선택 완료: ${isCoffeeIndustry ? 'DARK MOODY (Coffee)' : 'BRIGHT MINIMAL (General)'}`);
+
     return [
       customPrompt.trim(),
-      'Generate only the poster background, without including any products or objects',
+      `Scene: ${baseScene}`,
     ].filter(Boolean).join(', ');
   }
 
@@ -283,29 +291,28 @@ class CallApi extends BaseApi {
    */
   _buildBackgroundNegativePrompt() {
     return [
-      'text', 'letters', 'numbers', 'digits', 'typography', 'logo', 'watermark',
-      'brand name', 'label', 'sign', 'banner',
-      'people', 'person', 'face', 'hands', 'body parts',
-      'product', 'cup', 'bottle', 'food', 'packaging',
+      'any object:2.0', 'cup:2.0', 'glass:2.0', 'beverage:2.0', 'drink:2.0', 'food:2.0', 'bottle:2.0', 'people:1.5', 'centered objects', 'items on table', 'clutter', 'indoor', 'text', 'watermark'
     ].join(', ');
   }
 
   /**
-   * AI 배경 이미지를 순수 생성(text-to-image)합니다.
-   * - 사용자 프롬프트(customPrompt)를 최우선으로 반영합니다.
-   * - 백엔드 /model/generate → GPT 번역 → 이미지 엔진 순서로 처리됩니다.
+   * AI 배경 이미지를 생성합니다.
+   * - industry가 제공되면 업종별 최적화된 베이스 프롬프트를 적용합니다. [NEW]
    *
-   * @param {{ customPrompt?: string }} [options]
+   * @param {{ customPrompt?: string, imageBase64?: string, industry?: string }} [options]
    */
   async generateBackground(options = {}) {
-    const { customPrompt = '' } = options;
-    const prompt = this._buildBackgroundPrompt(customPrompt);
+    const { customPrompt = '', imageBase64 = '', industry = '' } = options;
+    const prompt = this._buildBackgroundPrompt(customPrompt, industry);
     const negativePrompt = this._buildBackgroundNegativePrompt();
 
-    console.log('[CallApi] generateBackground 시작');
-    console.log('[CallApi] 프롬프트 (백엔드 GPT 번역 예정):', prompt);
+    console.log('[CallApi] generateBackground 시작', imageBase64 ? '(제품 가이드 모드)' : '(텍스트 전용 모드)');
+    console.log('[CallApi] 타겟 업종:', industry || '미지정');
 
-    const result = await modelApi.generateImage(prompt, '', negativePrompt);
+    // 노이즈 제거(Denoising) 강도를 1.0으로 설정하여 제품 이미지를 가이드로 쓰되 배경은 100% 새로 생성 [MODIFIED]
+    const result = imageBase64
+      ? await modelApi.changeImage(prompt, imageBase64, 1.0, '', negativePrompt)
+      : await modelApi.generateImage(prompt, '', negativePrompt);
 
     if (result.ok) {
       console.log('[CallApi] AI 배경 생성 성공:', result.blobUrl);
@@ -353,7 +360,7 @@ class CallApi extends BaseApi {
       This should look like a clean commercial product photo of the same object.`;
 
 
-      // 3. AI 모델 서버 호출 (strength 0.3 적용)
+      // 3. AI 모델 서버 호출 (strength 0.3 적용하여 제품 디자인 보존) [UPDATED]
       console.log('[CallApi] AI 정면 변환 요청 중...');
       const result = await modelApi.changeImage(prompt, base64, 0.3, '', negativePrompt);
 

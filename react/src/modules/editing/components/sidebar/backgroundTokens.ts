@@ -5,7 +5,7 @@ export function extractHexColor(value: string, fallback: string) {
 }
 
 export function stripBackgroundTokens(value: string) {
-  return value.replace(/\s*BG_(?:SOLID|GRADIENT|MULTI)\([^)]*\)/g, '').trim();
+  return value.replace(/\s*BG_(?:SOLID|GRADIENT|MULTI)\([^)]*\)/g, '');
 }
 
 export function parseBackgroundToken(promptHint: string, type: 'SOLID' | 'GRADIENT' | 'MULTI') {
@@ -20,5 +20,5 @@ export function parseBackgroundToken(promptHint: string, type: 'SOLID' | 'GRADIE
 
 export function withBackgroundToken(promptHint: string, token: string) {
   const base = stripBackgroundTokens(promptHint);
-  return base ? `${base} ${token}`.trim() : token;
+  return base ? `${base} ${token}` : token;
 }

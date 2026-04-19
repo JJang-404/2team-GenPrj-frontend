@@ -88,7 +88,7 @@ export function buildInitialBackgroundCandidate(
   const splitPosition = options.splitPosition ?? 50;
   const splitDirection = options.splitDirection ?? 'horizontal';
 
-  let cssBackground = getConceptCss(options.concept);
+  let cssBackground = '#ffffff';
   const sharedStyle = getSharedBgStyle(bgType, startColor, endColor, {
     gradientAngle,
     splitPosition,
