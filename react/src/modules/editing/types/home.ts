@@ -41,9 +41,9 @@ export interface HomeAdditionalInfo {
   viewPet: boolean;
   viewPhone: boolean;
   viewAddress: boolean;
-  viewIsNoKids: boolean;
-  viewSmokingArea: boolean;
-  viewHasElevator: boolean;
+  viewNoKids: boolean;
+  viewSmoking: boolean;
+  viewElevator: boolean;
 }
 
 export interface HomeProjectOptions {

@@ -104,13 +104,13 @@ export const ExtraInfoStrip = ({ extraInfo, isSquare }) => {
   if (!extraInfo) return null;
 
   const badges = [
-    extraInfo.showParkingCount && extraInfo.parkingCount > 0 && `주차장 ${extraInfo.parkingCount}대`,
-    extraInfo.showPhone   && extraInfo.phone    && extraInfo.phone,
-    extraInfo.showAddress && extraInfo.address  && extraInfo.address,
-    extraInfo.petFriendly && extraInfo.showPetFriendly && '애견 동반',
-    extraInfo.isNoKids       && extraInfo.showIsNoKids    && '노키즈존',
-    extraInfo.hasSmokingArea && extraInfo.showSmokingArea && '흡연 구역',
-    extraInfo.hasElevator    && extraInfo.showHasElevator   && '엘레베이터',
+    extraInfo.viewParking && extraInfo.parkingCount > 0 && `주차장 ${extraInfo.parkingCount}대`,
+    extraInfo.viewPhone   && extraInfo.phone    && extraInfo.phone,
+    extraInfo.viewAddress && extraInfo.address  && extraInfo.address,
+    extraInfo.petFriendly && extraInfo.viewPet && '애견 동반',
+    extraInfo.isNoKids       && extraInfo.viewNoKids    && '노키즈존',
+    extraInfo.hasSmokingArea && extraInfo.viewSmoking && '흡연 구역',
+    extraInfo.hasElevator    && extraInfo.viewElevator   && '엘레베이터',
   ].filter(Boolean);
 
   if (badges.length === 0) return null;

@@ -1,7 +1,11 @@
 import type { BackgroundMode, EditorElement, TemplateDefinition } from '../types/editor-core';
 import type { HomeProjectData } from '../types/home';
 import {
-  additionalInfoLabels,
+  ADDITIONAL_INFO_KEYS,
+  getAdditionalInfoLabel,
+  type AdditionalInfoKey,
+} from './additionalInfo';
+import {
   computeFooterPresets,
   createAdditionalInfoElements,
   updateProjectTextElements,
@@ -56,22 +60,23 @@ export function applyProjectTextField(
 export function toggleAdditionalInfoElements(
   elements: EditorElement[],
   projectData: HomeProjectData | null,
-  label: string,
+  viewKey: AdditionalInfoKey,
   nextVisible: boolean,
   nextVisibility: Record<string, boolean>,
 ) {
-  // 1. 토글된 label의 기존 elements 제거
+  // EditorElement.label 은 UI 레이블(한국어)이므로 key → label 변환하여 필터링.
+  const uiLabel = getAdditionalInfoLabel(viewKey);
   const withoutCurrentInfo = elements.filter(
-    (element) => element.label !== label && element.label !== `${label} 아이콘`
+    (element) => element.label !== uiLabel && element.label !== `${uiLabel} 아이콘`
   );
 
   // 2. nextVisible=true면 nextVisibility 기준으로 새 elements 생성
   const newElements = nextVisible
-    ? createAdditionalInfoElements(projectData, label, nextVisibility)
+    ? createAdditionalInfoElements(projectData, viewKey, nextVisibility)
     : [];
   const newIds = new Set(newElements.map((el) => el.id));
 
-  // 3. 나머지 info elements(다른 label)의 좌표를 nextVisibility 기준으로 재배치
+  // 3. 나머지 info elements(다른 항목)의 좌표를 nextVisibility 기준으로 재배치
   //    — 우측 정렬 특성상 1개 visible 변경 시 나머지 아이콘 위치가 모두 이동해야 함
   const presets = computeFooterPresets(projectData, nextVisibility);
   const repositioned = withoutCurrentInfo
@@ -80,15 +85,15 @@ export function toggleAdditionalInfoElements(
       const textMatch = el.id.match(/^info-text-(\d+)$/);
       if (textMatch) {
         const idx = Number(textMatch[1]) - 1;
-        const matchLabel = additionalInfoLabels[idx];
-        const p = matchLabel ? presets[matchLabel] : undefined;
+        const matchKey = ADDITIONAL_INFO_KEYS[idx];
+        const p = matchKey ? presets[matchKey] : undefined;
         if (p) return { ...el, x: p.text.x, y: p.text.y, width: p.text.width, height: p.text.height };
       }
       const imgMatch = el.id.match(/^info-image-(\d+)$/);
       if (imgMatch) {
         const idx = Number(imgMatch[1]) - 1;
-        const matchLabel = additionalInfoLabels[idx];
-        const p = matchLabel ? presets[matchLabel] : undefined;
+        const matchKey = ADDITIONAL_INFO_KEYS[idx];
+        const p = matchKey ? presets[matchKey] : undefined;
         if (p) return { ...el, x: p.image.x, y: p.image.y, width: p.image.width, height: p.image.height };
       }
       return el;

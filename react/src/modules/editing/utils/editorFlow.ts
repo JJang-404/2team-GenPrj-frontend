@@ -242,25 +242,21 @@ export function createElementsFromWireframe(
   }
 
   /* [MODIFIED] 추가 정보(주소/전화번호) 초기 자동 생성 로직 추가 (원복 시 아래 로직 전체 삭제) */
-  additionalInfoLabels.forEach((label) => {
-    const infoElements = createAdditionalInfoElements(projectData, label, visibility);
+  ADDITIONAL_INFO_KEYS.forEach((viewKey) => {
+    const infoElements = createAdditionalInfoElements(projectData, viewKey, visibility);
     infoElements.forEach(el => elements.push(el));
   });
 
   return elements;
 }
-import { getAdditionalInfoDisplayText, getAdditionalInfoIcon } from './additionalInfo';
+import {
+  ADDITIONAL_INFO_KEYS,
+  getAdditionalInfoDisplayText,
+  getAdditionalInfoIcon,
+  getAdditionalInfoLabel,
+  type AdditionalInfoKey,
+} from './additionalInfo';
 import { cloneTemplateElements } from './editor';
-
-export const additionalInfoLabels = [
-  '주차 공간 수',
-  '애견 동반 가능 여부',
-  '노키즈존',
-  '흡연 구역 존재 여부',
-  '엘리베이터 존재 여부',
-  '전화번호',
-  '주소',
-] as const;
 
 type FooterPreset = {
   text: { x: number; y: number; width: number; height: number };
@@ -286,56 +282,56 @@ const ICON_AREA_W = 5 * ICON_STEP;      // 15 (항상 5개 기준)
 const TEXT_W = FOOTER_W - ICON_AREA_W - TEXT_ICON_GAP; // 73
 
 /** 텍스트로 표시되는 항목 (순서 = 표시 순서) */
-const FOOTER_TEXT_LABELS: readonly string[] = ['전화번호', '주소', '주차 공간 수'];
+const FOOTER_TEXT_KEYS: readonly AdditionalInfoKey[] = ['viewPhone', 'viewAddress', 'viewParking'];
 /** 아이콘으로 표시되는 항목 (순서 = 좌→우) */
-const FOOTER_ICON_LABELS: readonly string[] = [
-  '주차 공간 수', '애견 동반 가능 여부', '노키즈존', '흡연 구역 존재 여부', '엘리베이터 존재 여부',
+const FOOTER_ICON_KEYS: readonly AdditionalInfoKey[] = [
+  'viewParking', 'viewPet', 'viewNoKids', 'viewSmoking', 'viewElevator',
 ];
 
 const EMPTY_RECT = { x: 0, y: 0, width: 0, height: 0 };
 
 export function computeFooterPresets(
   projectData: HomeProjectData | null, visibility?: Record<string, boolean>
-): Record<string, FooterPreset> {
+): Record<AdditionalInfoKey, FooterPreset> {
   // 활성 텍스트 줄 수 계산
-  const activeTextLabels = FOOTER_TEXT_LABELS.filter(
-    (label) => shouldShowAdditionalInfoText(projectData, label, visibility),
+  const activeTextKeys = FOOTER_TEXT_KEYS.filter(
+    (key) => shouldShowAdditionalInfoText(projectData, key, visibility),
   );
-  const lineCount = activeTextLabels.length;
+  const lineCount = activeTextKeys.length;
   const footerH = Math.max(lineCount, 1) * LINE_H;
   const footerTopY = FOOTER_BOTTOM - footerH;
 
   // 활성 아이콘: visible만 우측 정렬 (마지막 아이콘 right edge = FOOTER_X + FOOTER_W)
-  const activeIconLabels = FOOTER_ICON_LABELS.filter(
-    (label) => shouldShowAdditionalInfoIcon(projectData, label, visibility),
+  const activeIconKeys = FOOTER_ICON_KEYS.filter(
+    (key) => shouldShowAdditionalInfoIcon(projectData, key, visibility),
   );
-  const iconCount = activeIconLabels.length;
+  const iconCount = activeIconKeys.length;
   const usedIconWidth = iconCount > 0 ? iconCount * ICON_SIZE + (iconCount - 1) * ICON_GAP : 0;
   const iconLeftmostX = FOOTER_X + FOOTER_W - usedIconWidth;
   const iconY = FOOTER_BOTTOM - ICON_SIZE;
 
-  const presets: Record<string, FooterPreset> = {};
+  const presets = {} as Record<AdditionalInfoKey, FooterPreset>;
+  for (const key of ADDITIONAL_INFO_KEYS) {
+    presets[key] = { text: EMPTY_RECT, image: EMPTY_RECT };
+  }
 
   // 텍스트 항목 preset (활성 항목만 y 좌표 배정)
   let textIdx = 0;
-  for (const label of FOOTER_TEXT_LABELS) {
-    if (shouldShowAdditionalInfoText(projectData, label, visibility)) {
-      presets[label] = {
+  for (const key of FOOTER_TEXT_KEYS) {
+    if (shouldShowAdditionalInfoText(projectData, key, visibility)) {
+      presets[key] = {
         text: { x: FOOTER_X, y: footerTopY + textIdx * LINE_H, width: TEXT_W, height: LINE_H },
         image: EMPTY_RECT,
       };
       textIdx++;
-    } else {
-      presets[label] = { text: EMPTY_RECT, image: EMPTY_RECT };
     }
   }
 
   // 아이콘 항목 preset — visible만 우측 정렬로 배치
   // (주차장은 텍스트+아이콘 양쪽이므로 위에서 설정된 text preset 유지)
-  const activeIconSet = new Set(activeIconLabels);
-  activeIconLabels.forEach((label, idx) => {
-    presets[label] = {
-      text: presets[label]?.text ?? EMPTY_RECT,
+  activeIconKeys.forEach((key, idx) => {
+    presets[key] = {
+      text: presets[key]?.text ?? EMPTY_RECT,
       image: {
         x: iconLeftmostX + idx * ICON_STEP,
         y: iconY,
@@ -344,16 +340,6 @@ export function computeFooterPresets(
       },
     };
   });
-
-  // 비활성 아이콘: image preset을 EMPTY_RECT로 고정 (element 생성 안됨)
-  for (const label of FOOTER_ICON_LABELS) {
-    if (!activeIconSet.has(label)) {
-      presets[label] = {
-        text: presets[label]?.text ?? EMPTY_RECT,
-        image: EMPTY_RECT,
-      };
-    }
-  }
 
   return presets;
 }
@@ -488,8 +474,8 @@ function normalizePriceCurrency(currency?: string): '원' | '$' {
   return currency === '$' || currency === '달러' ? '$' : '원';
 }
 
-export function slugInfoLabel(label: string) {
-  return String(additionalInfoLabels.indexOf(label as (typeof additionalInfoLabels)[number]) + 1);
+export function slugInfoKey(key: AdditionalInfoKey) {
+  return String(ADDITIONAL_INFO_KEYS.indexOf(key) + 1);
 }
 
 export function isPrimaryImageElement(element: EditorElement) {
@@ -510,33 +496,32 @@ function isDecorativeElement(element: EditorElement) {
   return false;
 }
 
-export function shouldShowAdditionalInfoIcon(projectData: HomeProjectData | null, label: string, visibility?: Record<string, boolean>) {
+export function shouldShowAdditionalInfoIcon(projectData: HomeProjectData | null, key: AdditionalInfoKey, visibility?: Record<string, boolean>) {
   const info = projectData?.additionalInfo;
   if (!info) return false;
-  if (visibility && !visibility[label]) return false;
-  switch (label) {
-    case '주차 공간 수':
-      return true;
-    case '애견 동반 가능 여부':
-    case '노키즈존':
-    case '흡연 구역 존재 여부':
-    case '엘리베이터 존재 여부':
+  if (visibility && !visibility[key]) return false;
+  switch (key) {
+    case 'viewParking':
+    case 'viewPet':
+    case 'viewNoKids':
+    case 'viewSmoking':
+    case 'viewElevator':
       return true;
     default:
       return false;
   }
 }
 
-export function shouldShowAdditionalInfoText(projectData: HomeProjectData | null, label: string, visibility?: Record<string, boolean>) {
+export function shouldShowAdditionalInfoText(projectData: HomeProjectData | null, key: AdditionalInfoKey, visibility?: Record<string, boolean>) {
   const info = projectData?.additionalInfo;
   if (!info) return false;
-  if (visibility && !visibility[label]) return false;
-  switch (label) {
-    case '전화번호':
+  if (visibility && !visibility[key]) return false;
+  switch (key) {
+    case 'viewPhone':
       return Boolean(info.phoneNumber.trim());
-    case '주소':
+    case 'viewAddress':
       return Boolean(info.address.trim());
-    case '주차 공간 수':
+    case 'viewParking':
       return info.parkingSpaces > 0;
     default:
       return false;
@@ -687,9 +672,9 @@ export function applyDraftLayoutVariant(
     const infoTextMatch = element.id.match(/^info-text-(\d+)$/);
     if (infoTextMatch) {
       const idx = Number(infoTextMatch[1]) - 1;
-      const label = additionalInfoLabels[idx];
-      if (label) {
-        const preset = computeFooterPresets(projectData ?? null, visibility)[label];
+      const key = ADDITIONAL_INFO_KEYS[idx];
+      if (key) {
+        const preset = computeFooterPresets(projectData ?? null, visibility)[key];
         if (preset) {
           return { ...element, x: preset.text.x, y: preset.text.y, width: preset.text.width, height: preset.text.height };
         }
@@ -699,9 +684,9 @@ export function applyDraftLayoutVariant(
     const infoImageMatch = element.id.match(/^info-image-(\d+)$/);
     if (infoImageMatch) {
       const idx = Number(infoImageMatch[1]) - 1;
-      const label = additionalInfoLabels[idx];
-      if (label) {
-        const preset = computeFooterPresets(projectData ?? null, visibility)[label];
+      const key = ADDITIONAL_INFO_KEYS[idx];
+      if (key) {
+        const preset = computeFooterPresets(projectData ?? null, visibility)[key];
         if (preset) {
           return { ...element, x: preset.image.x, y: preset.image.y, width: preset.image.width, height: preset.image.height };
         }
@@ -1087,21 +1072,22 @@ export function updateProjectTextElements(
 
 export function createAdditionalInfoElements(
   projectData: HomeProjectData | null,
-  label: string,
+  key: AdditionalInfoKey,
   visibility?: Record<string, boolean>,
 ) {
-  const preset = computeFooterPresets(projectData, visibility)[label];
-  const slug = slugInfoLabel(label);
+  const preset = computeFooterPresets(projectData, visibility)[key];
+  const slug = slugInfoKey(key);
+  const uiLabel = getAdditionalInfoLabel(key);
   const elements: EditorElement[] = [];
 
   if (!preset) return elements;
 
-  if (shouldShowAdditionalInfoText(projectData, label, visibility)) {
+  if (shouldShowAdditionalInfoText(projectData, key, visibility)) {
     elements.push({
       id: `info-text-${slug}`,
       kind: 'text',
-      label,
-      text: getAdditionalInfoDisplayText(projectData, label),
+      label: uiLabel,
+      text: getAdditionalInfoDisplayText(projectData, key),
       x: preset.text.x,
       y: preset.text.y,
       width: preset.text.width,
@@ -1119,18 +1105,18 @@ export function createAdditionalInfoElements(
     });
   }
 
-  if (shouldShowAdditionalInfoIcon(projectData, label, visibility)) {
+  if (shouldShowAdditionalInfoIcon(projectData, key, visibility)) {
     elements.push({
       id: `info-image-${slug}`,
       kind: 'image',
-      label: `${label} 아이콘`,
+      label: `${uiLabel} 아이콘`,
       x: preset.image.x,
       y: preset.image.y,
       width: preset.image.width,
       height: preset.image.height,
       rotation: 0,
       zIndex: 21,
-      imageUrl: getAdditionalInfoIcon(projectData, label),
+      imageUrl: getAdditionalInfoIcon(projectData, key),
       imageFit: 'contain',
       opacity: 1,
       hidden: false,

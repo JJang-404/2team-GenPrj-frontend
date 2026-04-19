@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
+import type { AdditionalInfoKey } from '../../utils/additionalInfo';
 import SidebarBlock from './SidebarBlock';
 import SidebarMiniButton from './SidebarMiniButton';
 
 interface AdditionalInfoSectionProps {
   expanded: boolean;
-  infoItems: Array<{ label: string; visible: boolean }>;
-  onToggleInfoItem: (label: string) => void;
+  infoItems: Array<{ viewKey: AdditionalInfoKey; label: string; visible: boolean }>;
+  onToggleInfoItem: (viewKey: AdditionalInfoKey) => void;
 }
 
 export default function AdditionalInfoSection({
@@ -18,12 +19,12 @@ export default function AdditionalInfoSection({
   return (
     <SidebarBlock title="추가 정보">
       <div className={`sidebar-info-grid ${expanded ? 'sidebar-info-grid--expanded' : ''}`}>
-        {infoItems.map(({ label, visible }) => (
-          <div key={label} className="sidebar-info-item">
+        {infoItems.map(({ viewKey, label, visible }) => (
+          <div key={viewKey} className="sidebar-info-item">
             <span>{label}</span>
             <SidebarMiniButton
               active={visible}
-              onClick={() => onToggleInfoItem(label)}
+              onClick={() => onToggleInfoItem(viewKey)}
               aria-label={`${label} ${visible ? '숨기기' : '표시하기'}`}
               title={visible ? '숨기기' : '표시하기'}
             >

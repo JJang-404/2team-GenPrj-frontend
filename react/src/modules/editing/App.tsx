@@ -12,7 +12,6 @@ import type { BackgroundMode, EditorElement, EditorStep } from './types/editor-c
 import type { HomeProjectData } from './types/home';
 import { cloneTemplateElements, updateElement } from './utils/editor';
 import {
-  additionalInfoLabels,
   applyDraftLayoutVariant,
   applyDraftTypographyVariant,
   applyElementVisibilityRules,
@@ -24,6 +23,10 @@ import {
   isPrimaryImageElement,
   mapProjectDataToTemplate,
 } from './utils/editorFlow';
+import {
+  ADDITIONAL_INFO_ITEMS,
+  type AdditionalInfoKey,
+} from './utils/additionalInfo';
 import { captureElementAsDataUrl } from './utils/canvas';
 import { readFileAsDataUrl } from './utils/file';
 import { removeBgPipeline } from '../initPage/utils/removeBackground';
@@ -138,7 +141,15 @@ export default function App() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projectData, setProjectData] = useState<HomeProjectData | null>(null);
-  const [additionalInfoVisibility, setAdditionalInfoVisibility] = useState<Record<string, boolean>>({});
+  const [additionalInfoVisibility, setAdditionalInfoVisibility] = useState<Record<AdditionalInfoKey, boolean>>({
+    viewParking: false,
+    viewPet: false,
+    viewNoKids: false,
+    viewSmoking: false,
+    viewElevator: false,
+    viewPhone: false,
+    viewAddress: false,
+  });
   const [queuedBackgroundGeneration, setQueuedBackgroundGeneration] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [bridgeResolved, setBridgeResolved] = useState(false);
@@ -413,18 +424,18 @@ export default function App() {
 
     baked = { ...baked, zonePositions: getDefaultZonePositions(draftIndex) };
     setProjectData(baked);
-    // bridge payload의 view* 플래그 → additionalInfoVisibility(한국어 레이블 key)로 seed.
+    // bridge payload의 view* 플래그를 그대로 additionalInfoVisibility 로 seed (1:1 pass-through).
     // 로컬 변수로 캡처해 같은 함수 scope의 createElementsFromWireframe 호출에 그대로 전달
     // (setAdditionalInfoVisibility 직후 state는 stale이므로 state 읽기 대신 이 변수 사용).
     const info = baked.additionalInfo;
-    const seededVisibility: Record<string, boolean> = {
-      '주차 공간 수': Boolean(info.viewParking),
-      '애견 동반 가능 여부': Boolean(info.viewPet),
-      '노키즈존': Boolean(info.viewIsNoKids),
-      '흡연 구역 존재 여부': Boolean(info.viewSmokingArea),
-      '엘리베이터 존재 여부': Boolean(info.viewHasElevator),
-      '전화번호': Boolean(info.viewPhone),
-      '주소': Boolean(info.viewAddress),
+    const seededVisibility: Record<AdditionalInfoKey, boolean> = {
+      viewParking: Boolean(info.viewParking),
+      viewPet: Boolean(info.viewPet),
+      viewNoKids: Boolean(info.viewNoKids),
+      viewSmoking: Boolean(info.viewSmoking),
+      viewElevator: Boolean(info.viewElevator),
+      viewPhone: Boolean(info.viewPhone),
+      viewAddress: Boolean(info.viewAddress),
     };
     setAdditionalInfoVisibility(seededVisibility);
     const nextBackgroundMode =
@@ -680,12 +691,12 @@ export default function App() {
     }
   };
 
-  const handleToggleInfoItem = (label: string) => {
+  const handleToggleInfoItem = (viewKey: AdditionalInfoKey) => {
     setAdditionalInfoVisibility((prev) => {
-      const nextVisible = !prev[label];
-      const nextVisibility = { ...prev, [label]: nextVisible };
+      const nextVisible = !prev[viewKey];
+      const nextVisibility: Record<AdditionalInfoKey, boolean> = { ...prev, [viewKey]: nextVisible };
       setElements((current) =>
-        toggleAdditionalInfoElements(current, projectData, label, nextVisible, nextVisibility),
+        toggleAdditionalInfoElements(current, projectData, viewKey, nextVisible, nextVisibility),
       );
 
       return nextVisibility;
@@ -889,7 +900,11 @@ export default function App() {
         templateId={selectedTemplateId}
         selectedElement={selectedElement}
         selectionCount={selectedElementIds.length}
-        infoItems={additionalInfoLabels.map((label) => ({ label, visible: additionalInfoVisibility[label] ?? false }))}
+        infoItems={ADDITIONAL_INFO_ITEMS.map(({ viewKey, label }) => ({
+          viewKey,
+          label,
+          visible: additionalInfoVisibility[viewKey] ?? false,
+        }))}
         storeName={projectData?.storeName ?? ''}
         mainSlogan={projectData?.mainSlogan ?? ''}
         promptHint={promptHint}

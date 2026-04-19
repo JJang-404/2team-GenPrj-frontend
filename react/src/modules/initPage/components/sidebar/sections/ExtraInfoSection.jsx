@@ -12,7 +12,7 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
       <label className="text-xs font-bold text-slate-400 uppercase block">추가 정보</label>
 
       {/* 주차장 공간 수 */}
-      <Row label="주차장 공간 수" visible={extraInfo.showParkingCount} onToggle={upd('showParkingCount')}>
+      <Row label="주차장 공간 수" visible={extraInfo.viewParking} onToggle={upd('viewParking')}>
         <input
           type="number"
           min="0"
@@ -25,7 +25,7 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
       </Row>
 
       {/* 연락처 */}
-      <Row label="연락처" visible={extraInfo.showPhone} onToggle={upd('showPhone')}>
+      <Row label="연락처" visible={extraInfo.viewPhone} onToggle={upd('viewPhone')}>
         <input
           placeholder="연락처"
           value={extraInfo.phone}
@@ -35,7 +35,7 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
       </Row>
 
       {/* 주소 */}
-      <Row label="주소" visible={extraInfo.showAddress} onToggle={upd('showAddress')}>
+      <Row label="주소" visible={extraInfo.viewAddress} onToggle={upd('viewAddress')}>
         <input
           placeholder="주소"
           value={extraInfo.address}
@@ -50,8 +50,8 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
         label="애견 동반 가능 여부"
         checked={extraInfo.petFriendly}
         onCheck={(v) => updateExtraInfo('petFriendly', v)}
-        visible={extraInfo.showPetFriendly}
-        onToggle={upd('showPetFriendly')}
+        visible={extraInfo.viewPet}
+        onToggle={upd('viewPet')}
       />
 
       {/* 노키즈존 */}
@@ -60,8 +60,8 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
         label="노키즈존"
         checked={extraInfo.isNoKids}
         onCheck={(v) => updateExtraInfo('isNoKids', v)}
-        visible={extraInfo.showIsNoKids}
-        onToggle={upd('showIsNoKids')}
+        visible={extraInfo.viewNoKids}
+        onToggle={upd('viewNoKids')}
       />
 
       {/* 흡연 구역 존재 여부 */}
@@ -70,8 +70,8 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
         label="흡연 구역 존재 여부"
         checked={extraInfo.hasSmokingArea}
         onCheck={(v) => updateExtraInfo('hasSmokingArea', v)}
-        visible={extraInfo.showSmokingArea}
-        onToggle={upd('showSmokingArea')}
+        visible={extraInfo.viewSmoking}
+        onToggle={upd('viewSmoking')}
       />
 
       {/* 엘레베이터 여부 */}
@@ -80,8 +80,8 @@ const ExtraInfoSection = ({ extraInfo, updateExtraInfo }) => {
         label="엘레베이터"
         checked={extraInfo.hasElevator}
         onCheck={(v) => updateExtraInfo('hasElevator', v)}
-        visible={extraInfo.showHasElevator}
-        onToggle={upd('showHasElevator')}
+        visible={extraInfo.viewElevator}
+        onToggle={upd('viewElevator')}
       />
     </section>
   );

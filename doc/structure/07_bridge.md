@@ -66,9 +66,9 @@ interface EditingBridgePayload {
 | | `address` | `string` | 주소 |
 | **가시성(view*)** | `viewParking` | `boolean` | 주차 정보 canvas 표시 여부 |
 | | `viewPet` | `boolean` | 반려동물 정보 표시 여부 |
-| | `viewIsNoKids` | `boolean` | 노키즈존 표시 여부 |
-| | `viewSmokingArea` | `boolean` | 흡연 구역 표시 여부 |
-| | `viewHasElevator` | `boolean` | 엘리베이터 표시 여부 |
+| | `viewNoKids` | `boolean` | 노키즈존 표시 여부 |
+| | `viewSmoking` | `boolean` | 흡연 구역 표시 여부 |
+| | `viewElevator` | `boolean` | 엘리베이터 표시 여부 |
 | | `viewPhone` | `boolean` | 전화번호 표시 여부 |
 | | `viewAddress` | `boolean` | 주소 표시 여부 |
 
@@ -79,39 +79,44 @@ interface EditingBridgePayload {
 > **`viewHasDelivery` 는 없다** — editing 측에 대응 레이블이 없으므로
 > bridge 계층에서 애초에 필드 자체를 생성하지 않는다. 7:7 대응 유지.
 
-### 2.2 view* (bridge) ↔ Korean label (editing state) 변환
+### 2.2 view* 키 통일 (InitPage / bridge / editing 3축 1:1 pass-through)
 
 **책임 위치**: `editing/App.tsx` 의 `handleStartFromHome` inline.
 Helper/bridge 수신 계층 분리 없음 (의도적 선택 — 03 보고서 § 2.1, § 3.3).
 
+과거에는 bridge 경계와 editing 런타임이 서로 다른 이름 규약을
+썼으나(한국어 레이블 key), 현재는 `view*` 단일 규약으로 통일된 뒤
+**1:1 pass-through 로 복사**만 수행한다. 즉 state key 자체에는 변환이
+없고, UI 표시용 한국어 라벨은 별도 조회(`getAdditionalInfoLabel(viewKey)`)
+로 파생한다.
+
 ```ts
 // editing/App.tsx handleStartFromHome 내부
 const info = baked.additionalInfo;
-const seededVisibility: Record<string, boolean> = {
-  '주차 공간 수':       Boolean(info.viewParking),
-  '애견 동반 가능 여부': Boolean(info.viewPet),
-  '노키즈존':           Boolean(info.viewIsNoKids),
-  '흡연 구역 존재 여부': Boolean(info.viewSmokingArea),
-  '엘리베이터 존재 여부': Boolean(info.viewHasElevator),
-  '전화번호':           Boolean(info.viewPhone),
-  '주소':               Boolean(info.viewAddress),
+const seededVisibility: Record<AdditionalInfoKey, boolean> = {
+  viewParking:  Boolean(info.viewParking),
+  viewPet:      Boolean(info.viewPet),
+  viewNoKids:   Boolean(info.viewNoKids),
+  viewSmoking:  Boolean(info.viewSmoking),
+  viewElevator: Boolean(info.viewElevator),
+  viewPhone:    Boolean(info.viewPhone),
+  viewAddress:  Boolean(info.viewAddress),
 };
 setAdditionalInfoVisibility(seededVisibility);
 setElements(createElementsFromWireframe(baked, seededVisibility));  // ← 같은 로컬 변수 재사용
 ```
 
-**왜 이 방향의 변환만 있는가?**
+**3축 흐름**
 
-- InitPage → Editing: **camelCase → Korean label** (seed 1회)
-- Editing 내부 toggle: **Korean label key 유지** (state 가 label-key 맵이므로)
+- InitPage → bridge: `extraInfo.view*` → `additionalInfo.view*` (identity)
+- bridge → editing seed: `additionalInfo.view*` → `additionalInfoVisibility[view*]` (identity)
+- Editing 내부 toggle: 같은 `AdditionalInfoKey` state 유지
 - Editing → InitPage 되돌아가기: 없음 (단방향 flow, 상세는 03 § 3.2)
-
-즉 camelCase 는 **bridge 경계에서만** 등장하고, editing 런타임은 한국어
-레이블 문자열로만 동작. 레이블이 bridge 로 다시 나가는 경로는 없다.
 
 **누락 필드 처리** — bridge payload 의 `view*` 가 하나라도 누락되면 JS 의
 `Boolean(undefined) === false` 규약으로 자동 off 처리. 런타임 에러 없음.
-과거 payload (view* 미도입 버전) 를 열어도 안전.
+과거 payload (view* 미도입 / 이름이 달랐던 버전) 를 열면 누락된 키는 단순히
+off 로 seed 된다.
 
 ---
 
@@ -150,24 +155,24 @@ buildEditingPayload()
             parkingSpaces: Number(extraInfo.parkingCount) || 0,          # number (과거 string → 변경)
             petFriendly, noKidsZone, smokingArea, elevator,
             phoneNumber, address,
-            // 가시성 플래그 (§ 2.1) — extraInfo.show* → view*
-            viewParking:      Boolean(extraInfo.showParkingCount),
-            viewPet:          Boolean(extraInfo.showPetFriendly),
-            viewIsNoKids:     Boolean(extraInfo.showIsNoKids),
-            viewSmokingArea:  Boolean(extraInfo.showSmokingArea),
-            viewHasElevator:  Boolean(extraInfo.showHasElevator),
-            viewPhone:        Boolean(extraInfo.showPhone),
-            viewAddress:      Boolean(extraInfo.showAddress),
+            // 가시성 플래그 (§ 2.1) — InitPage `extraInfo.view*` 그대로 pass-through
+            viewParking:  Boolean(extraInfo.viewParking),
+            viewPet:      Boolean(extraInfo.viewPet),
+            viewNoKids:   Boolean(extraInfo.viewNoKids),
+            viewSmoking:  Boolean(extraInfo.viewSmoking),
+            viewElevator: Boolean(extraInfo.viewElevator),
+            viewPhone:    Boolean(extraInfo.viewPhone),
+            viewAddress:  Boolean(extraInfo.viewAddress),
           },
         }
       }
 ```
 
-> `extraInfo.show*` 는 InitPage 내부 state 의 네이밍, `view*` 는 bridge
-> 계약 필드명. 두 네이밍 사이에도 1:1 매핑이 존재 —
-> `showParkingCount → viewParking`, `showPetFriendly → viewPet` 등.
-> Bridge 는 이 경계에서 한 번 rename 한 뒤, editing 진입 시 다시 한 번
-> 한국어 레이블로 rename 된다 (§ 2.2).
+> `extraInfo.view*` 는 InitPage state 의 네이밍이자 bridge 계약 필드명이며,
+> editing `additionalInfoVisibility` 의 key 이기도 하다. 세 축이 모두 동일한
+> `view*` (AdditionalInfoKey) 를 공유하므로 bridge 에서는 rename 없이 **순수
+> 1:1 pass-through** 만 수행하고, editing 진입 시에도 `seededVisibility` 는
+> identity copy 로 구성된다 (§ 2.2).
 
 ### 3.2 핵심 변환
 
@@ -442,7 +447,7 @@ InitPage 의 "다음 단계" 버튼 클릭 시 로딩 스피너로 가려진다.
 | 변경 목적 | 수정 위치 | 주의 |
 |-----------|-----------|------|
 | payload 에 새 필드 추가 (e.g. `promotionDate`) | init `buildEditingPayload` 의 `projectData` + edit `types/home.ts` `HomeProjectData` | 양쪽 동시 수정. init 은 JS 이므로 누락해도 컴파일 에러 안 남 — 런타임에만 `undefined` 로 드러남 |
-| 새 부가정보 가시성 플래그 (`view*`) 추가 | init `buildEditingPayload.additionalInfo` (`viewX: Boolean(extraInfo.showX)`) + edit `types/home.HomeAdditionalInfo` + `editorFlow.additionalInfoLabels` (한국어 레이블) + `App.tsx handleStartFromHome` 의 `seededVisibility` 매핑 + `additionalInfo.getAdditionalInfoIcon/DisplayText` | § 2.1-2.2 참조. **5곳 동시 수정**. camelCase(bridge) ↔ 한국어 레이블(editing state) 매핑은 `handleStartFromHome` inline 에만 존재. 누락 시 bridge 는 통과하지만 editing 에서 해당 항목만 항상 off 로 보임 |
+| 새 부가정보 가시성 플래그 (`view*`) 추가 | `editing/utils/additionalInfo.ADDITIONAL_INFO_ITEMS` 에 `{viewKey, label, dataField}` 추가 + init `buildEditingPayload.additionalInfo` 에 `viewX: Boolean(extraInfo.viewX)` 추가 + edit `types/home.HomeAdditionalInfo` 에 `view*` + 데이터 필드 추가 + `initPage/constants/design.DEFAULT_EXTRA_INFO` seed + `App.tsx handleStartFromHome` 의 `seededVisibility` 에 identity copy 추가 + `additionalInfo.getAdditionalInfoIcon/DisplayText` 에 아이콘/표시 케이스 추가 | § 2.1-2.2 참조. 세 축이 동일한 `view*` 키를 공유하므로 bridge·state·sidebar 는 rename 없이 그대로 이어진다. 누락하면 bridge 는 통과하지만 editing 의 해당 항목이 타입 에러 또는 항상 off 로 드러남 |
 | sessionStorage 키 변경 | `EDITING_BRIDGE_KEY` **양쪽** + window.name `WINDOW_NAME_PREFIX` | 기존 키로 저장된 payload 는 사용자가 다시 편집 진입할 때 건너뛸 수 없어짐. 배포 주기 안에서 한 번에 롤아웃. |
 | 백엔드 엔드포인트 변경 (`/api/bridge/editing`) | init `storeEditingPayload` + edit `readEditingBridgePayload` + 백엔드 route | 3 곳 |
 | 폴백 제거 (e.g. window.name 삭제) | 양쪽 해당 블록 | 일부 Safari 모드에서 payload 소실 가능 — 사전 QA 필요 |
@@ -496,12 +501,12 @@ InitPage 의 "다음 단계" 버튼 클릭 시 로딩 스피너로 가려진다.
 ### 관련 타입/상수
 - [editing/types/home.ts](../../react/src/modules/editing/types/home.ts) — `HomeProjectData` (payload 구조)
 - [shared/draftLayout.ts](../../react/src/shared/draftLayout.ts) — `getDraftProductSlots` (transform 시드)
-- [editing/utils/editorFlow.ts:255-263](../../react/src/modules/editing/utils/editorFlow.ts#L255-L263) — `additionalInfoLabels` (한국어 레이블 single source of truth)
+- [editing/utils/additionalInfo.ts](../../react/src/modules/editing/utils/additionalInfo.ts) — `ADDITIONAL_INFO_ITEMS` / `AdditionalInfoKey` (7개 `view*` 키 + UI 레이블 single source of truth)
 
 ### 관련 섹션
 - [03 § 2.1 `handleStartFromHome` 상세](03_editing_module.md#21-handlestartfromhome-상세--진입-1회-seed-지점)
-- [03 § 3.2 `additionalInfoVisibility` 계약 — 한국어 레이블 key 규약](03_editing_module.md#32-additionalinfovisibility-계약--한국어-레이블-key-규약)
-- [03 § 3.3 view* ↔ 한국어 레이블 매핑표](03_editing_module.md#33-view-bridge--한국어-레이블-editing-state-매핑표)
+- [03 § 3.2 `additionalInfoVisibility` 계약 — `view*` key 규약](03_editing_module.md#32-additionalinfovisibility-계약--view-key-규약)
+- [08 § 6.2 `ADDITIONAL_INFO_ITEMS` — `view*` 통일 state key 체계](08_data_interfaces.md#62-additional_info_items--view-통일-state-key-체계)
 
 ### 환경 변수
 - `VITE_EDITING_URL` — editing 앱 URL (default `/editing`)

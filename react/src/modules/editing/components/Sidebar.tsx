@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { BackgroundMode, EditorElement, SidebarRecommendation } from '../types/editor';
+import type { AdditionalInfoKey } from '../utils/additionalInfo';
 import AdInfoSection from './sidebar/AdInfoSection';
 import AddElementSection from './sidebar/AddElementSection';
 import AdditionalInfoSection from './sidebar/AdditionalInfoSection';
@@ -19,7 +20,7 @@ interface SidebarProps {
   templateId?: string | null;
   selectedElement: EditorElement | null;
   selectionCount?: number;
-  infoItems: Array<{ label: string; visible: boolean }>;
+  infoItems: Array<{ viewKey: AdditionalInfoKey; label: string; visible: boolean }>;
   storeName: string;
   mainSlogan: string;
   promptHint: string;
@@ -33,7 +34,7 @@ interface SidebarProps {
   onStoreNameChange: (value: string) => void;
   onMainSloganChange: (value: string) => void;
   onGenerateSlogan: () => void;
-  onToggleInfoItem: (label: string) => void;
+  onToggleInfoItem: (viewKey: AdditionalInfoKey) => void;
   onAddTextElement: (label: string) => void;
   onAddImageElement: (file: File, label: string) => void;
   onBackgroundModeChange: (mode: BackgroundMode) => void;

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776438228354,
+  "lastScanned": 1776607696180,
   "projectRoot": "/home/codeitDev/project/2team-GenPrj-frontend/react",
   "techStack": {
     "languages": [
@@ -76,7 +76,7 @@
       "path": "dist",
       "purpose": "Distribution/build output",
       "fileCount": 4,
-      "lastAccessed": 1776438228324,
+      "lastAccessed": 1776607696154,
       "keyFiles": [
         "favicon.svg",
         "icons.svg",
@@ -88,7 +88,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 3,
-      "lastAccessed": 1776438228328,
+      "lastAccessed": 1776607696159,
       "keyFiles": [
         "favicon.svg",
         "icons.svg",
@@ -99,7 +99,7 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 3,
-      "lastAccessed": 1776438228334,
+      "lastAccessed": 1776607696164,
       "keyFiles": [
         "App.tsx",
         "main.tsx",
@@ -110,10 +110,10 @@
       "path": "dist/assets",
       "purpose": "Static assets",
       "fileCount": 7,
-      "lastAccessed": 1776438228341,
+      "lastAccessed": 1776607696169,
       "keyFiles": [
-        "index-BIdPlvGo.js",
-        "index-kZ13tM8R.css",
+        "index-D9IOhx8Z.js",
+        "index-DUmQZWuK.css",
         "ort-wasm-simd-threaded.jsep-D5Jk56-t.wasm"
       ]
     },
@@ -121,7 +121,7 @@
       "path": "src/pages",
       "purpose": "Page components",
       "fileCount": 2,
-      "lastAccessed": 1776438228354,
+      "lastAccessed": 1776607696177,
       "keyFiles": [
         "EditingPage.tsx",
         "InitPage.tsx"
@@ -130,105 +130,9 @@
   },
   "hotPaths": [
     {
-      "path": "src/modules/editing/App.tsx",
-      "accessCount": 12,
-      "lastAccessed": 1776518193333,
-      "type": "file"
-    },
-    {
       "path": "src/modules/editing/utils/editorFlow.ts",
-      "accessCount": 10,
-      "lastAccessed": 1776518190009,
-      "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 5,
-      "lastAccessed": 1776568215717,
-      "type": "directory"
-    },
-    {
-      "path": "src/modules/editing",
-      "accessCount": 3,
-      "lastAccessed": 1776518187083,
-      "type": "directory"
-    },
-    {
-      "path": "src/modules/editing/types/home.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775795545475,
-      "type": "directory"
-    },
-    {
-      "path": "src/modules/editing/components/TemplateCard.tsx",
       "accessCount": 1,
-      "lastAccessed": 1775795498749,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/editing/components/BackgroundCard.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1775795499563,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/initPage/components/wireframe",
-      "accessCount": 1,
-      "lastAccessed": 1775795508272,
-      "type": "directory"
-    },
-    {
-      "path": "src/modules/initPage/components/wireframe/SingleLargeLayout.jsx",
-      "accessCount": 1,
-      "lastAccessed": 1775795513092,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/initPage/components/wireframe/SingleCompactLayout.jsx",
-      "accessCount": 1,
-      "lastAccessed": 1775795513437,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/initPage/utils/editingBridge.js",
-      "accessCount": 1,
-      "lastAccessed": 1775795513943,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/initPage/components/draft/DraftShared.jsx",
-      "accessCount": 1,
-      "lastAccessed": 1775795523985,
-      "type": "directory"
-    },
-    {
-      "path": "src/modules/initPage",
-      "accessCount": 1,
-      "lastAccessed": 1775795525887,
-      "type": "directory"
-    },
-    {
-      "path": "src/modules/initPage/utils/ratioStyles.js",
-      "accessCount": 1,
-      "lastAccessed": 1775795535245,
-      "type": "file"
-    },
-    {
-      "path": "src/modules/editing/components/WireframeChoiceCard.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1775795598706,
-      "type": "file"
-    },
-    {
-      "path": "src/server/common/defines.js",
-      "accessCount": 1,
-      "lastAccessed": 1776568209398,
-      "type": "file"
-    },
-    {
-      "path": "src/server",
-      "accessCount": 1,
-      "lastAccessed": 1776568222192,
+      "lastAccessed": 1776608002607,
       "type": "directory"
     }
   ],
