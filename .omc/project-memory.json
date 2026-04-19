@@ -100,14 +100,20 @@
     },
     {
       "path": "react\\src\\modules\\editing\\App.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1776585135544,
+      "accessCount": 5,
+      "lastAccessed": 1776613136655,
       "type": "file"
     },
     {
       "path": "react\\src\\modules\\editing\\utils\\initialBackground.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776613166415,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\shared\\backgroundStyle.ts",
       "accessCount": 2,
-      "lastAccessed": 1776584792527,
+      "lastAccessed": 1776613136303,
       "type": "file"
     },
     {
@@ -126,12 +132,6 @@
       "path": "react\\src\\modules\\editing\\utils\\backgroundGeneration.ts",
       "accessCount": 1,
       "lastAccessed": 1776583537540,
-      "type": "file"
-    },
-    {
-      "path": "react\\src\\shared\\backgroundStyle.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776583537622,
       "type": "file"
     },
     {
@@ -168,6 +168,12 @@
       "path": "doc\\0419\\background_flicker_fix.md",
       "accessCount": 1,
       "lastAccessed": 1776585172798,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\components\\EditorCanvas.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776613142704,
       "type": "file"
     }
   ],

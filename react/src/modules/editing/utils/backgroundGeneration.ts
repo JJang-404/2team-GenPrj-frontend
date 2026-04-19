@@ -5,7 +5,7 @@ function svgData(svg: string) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-function createBackgroundSvg({ colors, variant, grain = false }: { colors: string[]; variant: string; grain?: boolean }) {
+export function createBackgroundSvg({ colors, variant, grain = false }: { colors: string[]; variant: string; grain?: boolean }) {
   const [c1, c2, c3, c4 = c3 ?? c2] = colors;
   const shapes: Record<string, string> = {
     split: `<rect width="50%" height="100%" fill="${c1}"/><rect x="50%" width="50%" height="100%" fill="${c2}"/>`,
@@ -181,10 +181,10 @@ function createLocalColorCandidates(payload: GenerateBackgroundRequest): Generat
   } else if (payload.backgroundMode === 'pastel') {
     const colors = (multi ?? ['#ffffff', '#1f1f1f']).slice(0, 2);
     const variants = [
-      { id: 'multi-local-1', name: '사용자 다중색 1', variant: 'split', css: `linear-gradient(90deg, ${colors[0]} 50%, ${colors[1]} 50%)`, note: '좌우 분할형 다중색' },
-      { id: 'multi-local-2', name: '사용자 다중색 2', variant: 'cornerArc', css: `radial-gradient(circle at 0 0, ${colors[0]} 0 63%, ${colors[1]} 64% 100%)`, note: '코너 아크형 다중색' },
-      { id: 'multi-local-3', name: '사용자 다중색 3', variant: 'topBlock', css: `linear-gradient(180deg, ${colors[0]} 0 52%, ${colors[1]} 52% 100%)`, note: '상단 블록형 다중색' },
-      { id: 'multi-local-4', name: '사용자 다중색 4', variant: 'diagonalCorner', css: `linear-gradient(150deg, ${colors[0]} 0 60%, ${colors[1]} 60% 100%)`, note: '대각 코너형 다중색' },
+      { id: 'multi-local-1', name: '사용자 다중색 1', variant: 'split', css: `linear-gradient(90deg, ${colors[0]} 50%, ${colors[1]} 50%)`, colors: [colors[0], colors[1]], note: '좌우 분할 형 다중색' },
+      { id: 'multi-local-2', name: '사용자 다중색 2', variant: 'cornerArc', css: `radial-gradient(circle at 0 0, ${colors[0]} 0 63%, ${colors[1]} 64% 100%)`, colors: [colors[0], colors[1]], note: '코너 아크형 다중색' },
+      { id: 'multi-local-3', name: '사용자 다중색 3', variant: 'topBlock', css: `linear-gradient(180deg, ${colors[0]} 0 52%, ${colors[1]} 52% 100%)`, colors: [colors[0], colors[1]], note: '상단 블록형 다중색' },
+      { id: 'multi-local-4', name: '사용자 다중색 4', variant: 'diagonalCorner', css: `linear-gradient(150deg, ${colors[0]} 0 60%, ${colors[1]} 60% 100%)`, colors: [colors[0], colors[1]], note: '대각 코너형 다중색' },
     ];
     candidates = variants.map((variant) => ({
       id: variant.id,

@@ -6,6 +6,7 @@ export interface BackgroundCandidate {
   mode: BackgroundMode;
   cssBackground: string;
   imageUrl?: string;
+  colors?: string[];
   note: string;
   translatedPrompt: string;
   negativePrompt: string;

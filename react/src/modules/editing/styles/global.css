@@ -40,11 +40,13 @@ button {
 
 .capture-surface {
   position: fixed;
-  left: -200vw;
-  top: -200vh;
+  left: 0;
+  top: 0;
+  z-index: -9999;
   width: 580px;
   pointer-events: none;
-  opacity: 0;
+  visibility: visible;
+  overflow: hidden;
 }
 
 .sidebar {

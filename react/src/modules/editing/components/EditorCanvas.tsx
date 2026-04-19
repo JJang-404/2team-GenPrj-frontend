@@ -41,7 +41,7 @@ export default function EditorCanvas({
   const [scaleFactor, setScaleFactor] = useState(1);
   const dragState = useRef<DragState | null>(null);
   const showGeneratedImage =
-    Boolean(background?.imageUrl) && (background?.mode === 'ai-image' || background?.mode === 'pastel');
+    Boolean(background?.imageUrl) && background?.mode === 'ai-image';
 
   // 캔버스 크기 변화를 감지하여 폰트 스케일링 비율 계산
   useEffect(() => {
@@ -149,13 +149,38 @@ export default function EditorCanvas({
         ref={canvasRef}
         onClick={() => onSelect(null)}
       >
-        {!captureMode && (
+        {background?.mode === 'pastel' && background?.colors ? (
+          <div className="editor-stage__background-part-container">
+            <div
+              className="editor-stage__background-part"
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: background.id.includes('topBlock') ? '100%' : '50%',
+                height: background.id.includes('topBlock') ? '52%' : '100%',
+                backgroundColor: background.colors[0],
+              }}
+            />
+            <div
+              className="editor-stage__background-part"
+              style={{
+                position: 'absolute',
+                left: background.id.includes('topBlock') ? 0 : '50%',
+                top: background.id.includes('topBlock') ? '52%' : 0,
+                width: background.id.includes('topBlock') ? '100%' : '50%',
+                height: background.id.includes('topBlock') ? '48%' : '100%',
+                backgroundColor: background.colors[1],
+              }}
+            />
+          </div>
+        ) : (
           <div
             className="editor-stage__background"
             style={{ background: background?.cssBackground ?? '#f3f4f6' }}
           />
         )}
-        {!captureMode && showGeneratedImage && (
+        {showGeneratedImage && (
           <img
             src={background.imageUrl}
             alt={background.name}

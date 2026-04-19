@@ -23,10 +23,7 @@ import {
   isPrimaryImageElement,
   mapProjectDataToTemplate,
 } from './utils/editorFlow';
-import {
-  ADDITIONAL_INFO_ITEMS,
-  type AdditionalInfoKey,
-} from './utils/additionalInfo';
+import { ADDITIONAL_INFO_ITEMS } from './utils/additionalInfo';
 import { captureElementAsDataUrl } from './utils/canvas';
 import { readFileAsDataUrl } from './utils/file';
 import { removeBgPipeline } from '../initPage/utils/removeBackground';
@@ -62,10 +59,10 @@ const DEFAULT_BACKGROUND_COLOR_DRAFT: BackgroundColorDraft = {
 // 한국어로 작성하면 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 SD3.5 영문으로 번역합니다.
 // 새 스타일 추가 시 이 배열에만 항목을 추가하면 됩니다.
 const BACKGROUND_VARIANTS = [
-  { label: '고급',   style: '고급스럽고 프리미엄한 분위기' },
-  { label: '빈티지', style: '빈티지 레트로 감성'           },
-  { label: '세련',   style: '세련되고 모던한 미니멀'        },
-  { label: '활기찬', style: '밝고 활기찬 따뜻한 색감'       },
+  { label: '고급', style: '고급스럽고 프리미엄한 분위기' },
+  { label: '빈티지', style: '빈티지 레트로 감성' },
+  { label: '세련', style: '세련되고 모던한 미니멀' },
+  { label: '활기찬', style: '밝고 활기찬 따뜻한 색감' },
 ] as const;
 
 // 테스트용: 생성할 배경 수 (전체 생성 시 BACKGROUND_VARIANTS.length 로 변경)
@@ -141,15 +138,7 @@ export default function App() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projectData, setProjectData] = useState<HomeProjectData | null>(null);
-  const [additionalInfoVisibility, setAdditionalInfoVisibility] = useState<Record<AdditionalInfoKey, boolean>>({
-    viewParking: false,
-    viewPet: false,
-    viewNoKids: false,
-    viewSmoking: false,
-    viewElevator: false,
-    viewPhone: false,
-    viewAddress: false,
-  });
+  const [additionalInfoVisibility, setAdditionalInfoVisibility] = useState<Record<string, boolean>>({});
   const [queuedBackgroundGeneration, setQueuedBackgroundGeneration] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [bridgeResolved, setBridgeResolved] = useState(false);
@@ -198,10 +187,14 @@ export default function App() {
     [bootstrap.templates, selectedTemplateId]
   );
 
+  // 현재 선택된 배경 후보 객체
   const selectedBackground = useMemo(
     () => backgroundCandidates.find((background) => background.id === selectedBackgroundId) ?? null,
-    [backgroundCandidates, selectedBackgroundId]
+    [backgroundCandidates, selectedBackgroundId],
   );
+
+  // AI 디자인 시스템: 배경색에 따라 텍스트 색상을 자동으로 최적화합니다.
+  useAiDesignSystem(selectedBackground, setElements);
 
   const renderElements = useMemo(
     () => applyElementVisibilityRules(selectedTemplateId, elements, backgroundMode, projectData),
@@ -232,9 +225,6 @@ export default function App() {
     setSelectedElementIds([id]);
   };
 
-  /** [AI-Design-System] 배경 밝기 자동 분석 및 대비 기능 장착 */
-  useAiDesignSystem(selectedBackground, setElements);
-
   useEffect(() => {
     if (!queuedBackgroundGeneration || !projectData) return;
 
@@ -249,11 +239,6 @@ export default function App() {
   /**
    * 단색/그라데이션/다중색 모드에서 모드 버튼 클릭 또는 색상 변경 시
    * 별도 '이미지 생성' 버튼 없이 캔버스 배경을 즉시 업데이트합니다.
-   *
-   * gradient/pastel 모드는 80ms 후 handleGenerateBackgrounds가 4개 후보를 생성하므로,
-   * 이미 후보가 존재할 때 1개로 덮어쓰면 카드 그리드가 4→1→4로 요동쳐
-   * ResizeObserver 기반 scaleFactor 재계산 및 'initPage 배경' 이름이 순간 노출됩니다.
-   * 후보가 이미 있으면 구조를 유지하고 생성 완료 후 자연스럽게 교체되도록 합니다.
    */
   useEffect(() => {
     if (!projectData || backgroundMode === 'ai-image') return;
@@ -261,16 +246,8 @@ export default function App() {
       return;
     }
     const preview = buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint, backgroundColorDraft);
-
-    if (backgroundMode === 'gradient' || backgroundMode === 'pastel') {
-      setBackgroundCandidates(prev => {
-        if (prev.length > 0) return prev;
-        return [preview];
-      });
-    } else {
-      setBackgroundCandidates([preview]);
-      setSelectedBackgroundId(preview.id);
-    }
+    setBackgroundCandidates([preview]);
+    setSelectedBackgroundId(preview.id);
   }, [backgroundMode, promptHint, projectData, backgroundColorDraft]);
 
   useEffect(() => {
@@ -322,7 +299,7 @@ export default function App() {
       try {
         const bridged = await readEditingBridgePayload();
         if (bridged) {
-          await handleStartFromHome(bridged.projectData);
+          await handleStartFromHome(bridged.projectData, bridged.draftIndex ?? 0);
           return;
         }
 
@@ -337,7 +314,7 @@ export default function App() {
     void resolveBridge();
   }, [loading, bridgeResolved]);
 
-  /** initPage 옵션에서 편집 사이드바의 초기 색상 토큰을 생성합니다. */
+  /** initPage 옵에서 편집 사이드바의 초기 색상 토큰을 생성합니다. */
   const buildInitPromptHint = (options: HomeProjectData['options']): string => {
     // 기존 기본색(빨강/파랑) fallback. 필요 시 아래 두 줄로 원복 가능.
     // const start = options.startColor ?? '#FF4757';
@@ -405,10 +382,7 @@ export default function App() {
     return freePrompt;
   };
 
-  const handleStartFromHome = async (data: HomeProjectData) => {
-    // payload는 draftIndex를 더 이상 포함하지 않음 — 편집 진입 시점에는 항상 Type 0.
-    // 편집 내부의 Type 전환(handleSelectLayoutVariant)은 options.draftIndex를 mutate한다.
-    const draftIndex = data.options.draftIndex ?? 0;
+  const handleStartFromHome = async (data: HomeProjectData, draftIndex = 0) => {
     // 편집 페이지 로딩 오버레이 활성화 — 모든 제품 이미지의 좌/우 절반 PNG dataURL
     // + natural 크기 추출이 끝날 때까지 본 화면을 가린다.
     setIsPrebakingImages(true);
@@ -424,25 +398,12 @@ export default function App() {
 
     baked = { ...baked, zonePositions: getDefaultZonePositions(draftIndex) };
     setProjectData(baked);
-    // bridge payload의 view* 플래그를 그대로 additionalInfoVisibility 로 seed (1:1 pass-through).
-    // 로컬 변수로 캡처해 같은 함수 scope의 createElementsFromWireframe 호출에 그대로 전달
-    // (setAdditionalInfoVisibility 직후 state는 stale이므로 state 읽기 대신 이 변수 사용).
-    const info = baked.additionalInfo;
-    const seededVisibility: Record<AdditionalInfoKey, boolean> = {
-      viewParking: Boolean(info.viewParking),
-      viewPet: Boolean(info.viewPet),
-      viewNoKids: Boolean(info.viewNoKids),
-      viewSmoking: Boolean(info.viewSmoking),
-      viewElevator: Boolean(info.viewElevator),
-      viewPhone: Boolean(info.viewPhone),
-      viewAddress: Boolean(info.viewAddress),
-    };
-    setAdditionalInfoVisibility(seededVisibility);
+    setAdditionalInfoVisibility({});
     const nextBackgroundMode =
       baked.options.concept === 'solid' ||
-      baked.options.concept === 'gradient' ||
-      baked.options.concept === 'pastel' ||
-      baked.options.concept === 'ai-image'
+        baked.options.concept === 'gradient' ||
+        baked.options.concept === 'pastel' ||
+        baked.options.concept === 'ai-image'
         ? baked.options.concept
         : 'ai-image';
     setBackgroundMode(nextBackgroundMode);
@@ -460,7 +421,7 @@ export default function App() {
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
     }
-    setElements(createElementsFromWireframe(baked, seededVisibility));
+    setElements(createElementsFromWireframe(baked, additionalInfoVisibility));
     setStep('background');
     setQueuedBackgroundGeneration(false);
     setSelectedElementIds([]);
@@ -511,7 +472,7 @@ export default function App() {
           guideImage: '',
           guideSummary: '',
         });
-        
+
         if (backgroundMode === 'solid') {
           const initialBackground = projectData
             ? buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint, backgroundColorDraft)
@@ -543,10 +504,7 @@ export default function App() {
 
         console.log(`[Editing] 배경 요청 #${idx + 1} (${variant.label}) 준비...`);
 
-        return callApi.generateBackground({
-          customPrompt: combinedPrompt,
-          industry: projectData.industry || '' // 업종별 프롬프트 자동 최적화 적용
-        })
+        return callApi.generateBackground({ customPrompt: combinedPrompt })
           .then(res => {
             console.log(`[Editing] 배경 요청 #${idx + 1} [${variant.label}]:`, res.ok ? '성공' : '실패');
             return { res, variant, idx };
@@ -563,7 +521,7 @@ export default function App() {
           return res.ok && res.blobUrl;
         })
         .map(({ res, variant, idx }) => buildAiCandidate(res, variant, idx));
-  
+
       console.log(`[Editing] 유효한 새 후보군 수: ${newCandidates.length}`);
 
       if (newCandidates.length > 0) {
@@ -573,7 +531,7 @@ export default function App() {
       } else {
         throw new Error('서버로부터 배경 이미지를 받지 못했습니다. 백엔드 상태를 확인하세요.');
       }
-  
+
     } catch (err) {
       console.error('[배경 생성 오류]', err);
       setError(err instanceof Error ? err.message : '배경 생성 도중 오류가 발생했습니다.');
@@ -583,7 +541,7 @@ export default function App() {
       setGenerating(false);
     }
   };
-  
+
   const handleSelectBackground = (backgroundId: string) => {
     setSelectedBackgroundId(backgroundId);
   };
@@ -691,12 +649,12 @@ export default function App() {
     }
   };
 
-  const handleToggleInfoItem = (viewKey: AdditionalInfoKey) => {
+  const handleToggleInfoItem = (label: string) => {
     setAdditionalInfoVisibility((prev) => {
-      const nextVisible = !prev[viewKey];
-      const nextVisibility: Record<AdditionalInfoKey, boolean> = { ...prev, [viewKey]: nextVisible };
+      const nextVisible = !prev[label];
+      const nextVisibility = { ...prev, [label]: nextVisible };
       setElements((current) =>
-        toggleAdditionalInfoElements(current, projectData, viewKey, nextVisible, nextVisibility),
+        toggleAdditionalInfoElements(current, projectData, label, nextVisible, nextVisibility),
       );
 
       return nextVisibility;
@@ -855,12 +813,10 @@ export default function App() {
   };
 
   const handleFullSave = async () => {
-    if (!mainPreviewRef.current) return;
+    if (!captureRef.current) return;
     setSaving(true);
     try {
-      // 기존 전체 래퍼 캡처 방식. 필요 시 이 줄로 원복 가능.
-      // const dataUrl = await captureElementAsDataUrl(mainPreviewRef.current, 3);
-      const posterCanvas = mainPreviewRef.current.querySelector('.editor-stage__canvas');
+      const posterCanvas = captureRef.current.querySelector('.editor-stage__canvas');
       if (!(posterCanvas instanceof HTMLElement)) {
         throw new Error('포스터 저장 대상을 찾을 수 없습니다.');
       }
@@ -964,10 +920,11 @@ export default function App() {
           <div ref={captureRef}>
             <EditorCanvas
               elements={renderElements}
-              background={null}
+              background={selectedBackground}
+              ratio={projectData?.options.ratio ?? '4:5'}
               selectedElementIds={[]}
-              onSelect={() => {}}
-              onChangeElement={(_id, _patch) => {}}
+              onSelect={() => { }}
+              onChangeElement={(_id, _patch) => { }}
               captureMode
             />
           </div>

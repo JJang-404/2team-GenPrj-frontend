@@ -30,11 +30,11 @@ export function getSharedBgStyle(
       const pos = `${splitPosition}%`;
       if (splitDirection === 'vertical') {
         return {
-          background: `linear-gradient(180deg, ${safeStart} ${pos}, ${safeEnd} ${pos})`,
+          background: `linear-gradient(180deg, ${safeStart} 0%, ${safeStart} ${pos}, ${safeEnd} ${pos}, ${safeEnd} 100%)`,
         };
       }
       return {
-        background: `linear-gradient(90deg, ${safeStart} ${pos}, ${safeEnd} ${pos})`,
+        background: `linear-gradient(90deg, ${safeStart} 0%, ${safeStart} ${pos}, ${safeEnd} ${pos}, ${safeEnd} 100%)`,
       };
     }
     default:

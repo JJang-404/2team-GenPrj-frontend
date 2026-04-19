@@ -3,6 +3,8 @@ import type { BackgroundMode } from '../types/editor-core';
 import type { HomeProjectData } from '../types/home';
 import { getSharedBgStyle } from '../../../shared/backgroundStyle';
 
+import { createBackgroundSvg } from './backgroundGeneration';
+
 interface BackgroundColorDraft {
   solid: [string];
   gradient: [string, string];
@@ -16,20 +18,6 @@ function extractBackgroundToken(promptHint = '', type: 'SOLID' | 'GRADIENT' | 'M
     .split(',')
     .map((item) => item.trim())
     .filter((item) => /^#[0-9a-fA-F]{6}$/.test(item) || /^#[0-9a-fA-F]{3}$/.test(item));
-}
-
-function getConceptCss(concept?: string) {
-  switch (concept) {
-    case 'solid':
-      return '#ffffff';
-    case 'gradient':
-      return '#ffffff';
-    case 'pastel':
-      return '#ffffff';
-    case 'ai-image':
-    default:
-      return '#ffffff';
-  }
 }
 
 export function buildInitialBackgroundCandidate(
@@ -99,11 +87,18 @@ export function buildInitialBackgroundCandidate(
     cssBackground = sharedStyle.background;
   }
 
+  // 다중색일 경우 고해상도 SVG 이미지를 즉석에서 생성하여 imageUrl에 할당합니다.
+  const imageUrl = normalizedMode === 'pastel'
+    ? createBackgroundSvg({ colors: [startColor, endColor, endColor], variant: 'split' })
+    : undefined;
+
   return {
     id: 'init-preview-background',
     name: 'initPage 배경',
     mode: normalizedMode,
     cssBackground,
+    imageUrl,
+    colors: [startColor, endColor],
     note: 'initPage에서 선택한 배경을 그대로 반영한 초기 후보',
     translatedPrompt: '',
     negativePrompt: '',
