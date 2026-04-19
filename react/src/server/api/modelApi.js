@@ -13,10 +13,9 @@ class ModelApi extends BaseApi {
    */
   async generateImageSync(prompt, positivePrompt = '', negativePrompt = '') {
     const queryParams = new URLSearchParams({ prompt });
-    if (positivePrompt?.trim()) queryParams.set('positive_prompt', positivePrompt.trim());
-    if (negativePrompt?.trim()) queryParams.set('negative_prompt', negativePrompt.trim());
+    if (positivePrompt && positivePrompt.trim()) queryParams.set('positive_prompt', positivePrompt.trim());
+    if (negativePrompt && negativePrompt.trim()) queryParams.set('negative_prompt', negativePrompt.trim());
 
-    // [MODIFIED] 백엔드 실제 구현명칭에 맞춰 _sync 추가
     const urlPath = `/model/generate_sync?${queryParams.toString()}`;
 
     try {
@@ -54,12 +53,7 @@ class ModelApi extends BaseApi {
             statusCode === 504
               ? '서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.'
               : `API 오류: ${error.response.statusText}`;
-          return {
-            ok: false,
-            apiUrl: this.buildUrl(urlPath),
-            statusCode,
-            error: friendlyError,
-          };
+          return { ok: false, apiUrl: this.buildUrl(urlPath), statusCode, error: friendlyError };
         }
       }
       return { ok: false, apiUrl: this.buildUrl(urlPath), error: `요청 실패: ${error.message}` };
@@ -67,25 +61,37 @@ class ModelApi extends BaseApi {
   }
 
   /**
-   * [비동기] 이미지 생성 폴링 (권장)
-   * /model/generate/jobs 를 사용하여 타임아웃 없이 생성 작업을 수행합니다.
+   * [비동기] 폴링 공통 로직
    */
   async generateImageAsync(prompt, positivePrompt = '', negativePrompt = '') {
-    const payload = {
+    return this._pollJobAsync('/model/generate/jobs', {
       prompt,
-      positive_prompt: positivePrompt?.trim() || undefined,
-      negative_prompt: negativePrompt?.trim() || undefined
-    };
+      positive_prompt: (positivePrompt && positivePrompt.trim()) || undefined,
+      negative_prompt: (negativePrompt && negativePrompt.trim()) || undefined
+    }, '[Generate]');
+  }
 
+  /**
+   * [비동기] ComfyUI 기반 이미지 생성 폴링
+   */
+  async generateImageComfyUIAsync(prompt, positivePrompt = '', negativePrompt = '') {
+    return this._pollJobAsync('/model/generatecomfyui/jobs', {
+      prompt,
+      positive_prompt: (positivePrompt && positivePrompt.trim()) || undefined,
+      negative_prompt: (negativePrompt && negativePrompt.trim()) || undefined
+    }, '[ComfyUI-Generate]');
+  }
+
+  async _pollJobAsync(jobPath, payload, logTag = '[Job]') {
     try {
       // 1. 작업 등록 (POST)
-      const createRes = await this.apiClient.post('/model/generate/jobs', payload);
+      const createRes = await this.apiClient.post(jobPath, payload);
       if (createRes.status !== 200 || !createRes.data.job_id) {
         throw new Error('작업 등록에 실패했습니다.');
       }
 
       const { job_id } = createRes.data;
-      console.log(`[ModelApi] 비동기 작업 등록 완료: ${job_id}`);
+      console.log(`${logTag} 비동기 작업 등록 완료: ${job_id}`);
 
       // 2. 폴링 시작
       const startedAt = Date.now();
@@ -93,17 +99,24 @@ class ModelApi extends BaseApi {
 
       while (true) {
         if (Date.now() - startedAt > timeoutMs) {
-          throw new Error('이미지 생성 시간이 초과되었습니다. (Timeout)');
+          throw new Error('작업 시간이 초과되었습니다. (Timeout)');
         }
 
-        const statusRes = await this.apiClient.get(`/model/generate/jobs/${job_id}`);
+        const statusRes = await this.apiClient.get(`${jobPath}/${job_id}`);
         const statusJson = statusRes.data;
 
-        if (statusJson.status === 'done') {
+        if (statusJson.status === 'done' || statusJson.status === 'completed') {
           // 3. 결과 수신 (GET)
-          const resultRes = await this.apiClient.get(`/model/generate/jobs/${job_id}/result`, {
+          const resultRes = await this.apiClient.get(`${jobPath}/${job_id}/result`, {
             responseType: 'blob'
           });
+          
+          if (resultRes.data.type === 'application/json') {
+             const text = await resultRes.data.text();
+             const json = JSON.parse(text);
+             return { ok: true, jobId: job_id, data: json };
+          }
+
           return {
             ok: true,
             jobId: job_id,
@@ -112,37 +125,81 @@ class ModelApi extends BaseApi {
         }
 
         if (statusJson.status === 'failed') {
-          throw new Error(statusJson.error || '이미지 생성 중 오류가 발생했습니다.');
+          throw new Error(statusJson.error || '작업 수행 중 오류가 발생했습니다.');
         }
 
-        console.log(`[ModelApi] 작업 진행 중... (Status: ${statusJson.status})`);
+        console.log(`${logTag} 작업 진행 중... (Status: ${statusJson.status})`);
         await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 간격 폴링
       }
     } catch (error) {
-      console.error('[ModelApi] 비동기 생성 실패:', error);
+      console.error(`${logTag} 비동기 작업 실패:`, error);
       return { ok: false, error: error.message };
     }
   }
 
   /**
-   * 하위 호환을 위해 기존 메서드명을 유지하되 내부적으로 비동기 방식을 사용하도록 합니다.
+   * [비동기] ComfyUI 배경 생성 최적화 폴링
    */
-  async generateImage(prompt, positivePrompt = '', negativePrompt = '') {
-    return this.generateImageAsync(prompt, positivePrompt, negativePrompt);
+  async makeBackgroundComfyUIAsync(prompt, imageBase64, positivePrompt = '', negativePrompt = '') {
+    return this._pollJobAsync('/model/makebgimagecomfyui/jobs', {
+      prompt,
+      image_base64: imageBase64,
+      positive_prompt: (positivePrompt && positivePrompt.trim()) || undefined,
+      negative_prompt: (negativePrompt && negativePrompt.trim()) || undefined,
+    }, '[ComfyUI-MakeBg]');
   }
 
   /**
-   * [동기] 이미지 변환
+   * [비동기] ComfyUI 기반 이미지 변형(img2img) 폴링
+   */
+  async changeImageComfyUIAsync(prompt, imageBase64, strength = 0.45, positivePrompt = '', negativePrompt = '') {
+    return this._pollJobAsync('/model/changeimagecomfyui/jobs', {
+      prompt,
+      image_base_64: imageBase64,
+      strength,
+      positive_prompt: (positivePrompt && positivePrompt.trim()) || undefined,
+      negative_prompt: (negativePrompt && negativePrompt.trim()) || undefined,
+    }, '[ComfyUI-Change]');
+  }
+
+  /**
+   * [비동기] VLM + GPT + ComfyUI 통합 생성 폴링
+   */
+  async generateVlmGptImageAsync(prompt, imageBase64, positivePrompt = '', negativePrompt = '') {
+    return this._pollJobAsync('/model/generate_vlm_gpt_image/jobs', {
+      prompt,
+      image_base_64: imageBase64,
+      positive_prompt: (positivePrompt && positivePrompt.trim()) || undefined,
+      negative_prompt: (negativePrompt && negativePrompt.trim()) || undefined,
+    }, '[VLM-GPT-Gen]');
+  }
+
+  /**
+   * 하위 호환을 위해 기존 메서드명을 유지하되 내부적으로 ComfyUI 비동기 방식을 사용하도록 합니다.
+   */
+  async generateImage(prompt, positivePrompt = '', negativePrompt = '') {
+    return this.generateImageComfyUIAsync(prompt, positivePrompt, negativePrompt);
+  }
+
+  /**
+   * 하위 호환을 위해 기존 메서드명을 유지하되 내부적으로 ComfyUI 비동기 방식을 사용하도록 합니다.
+   */
+  async changeImage(prompt, imageBase64, strength = 0.45, positivePrompt = '', negativePrompt = '') {
+    return this.changeImageComfyUIAsync(prompt, imageBase64, strength, positivePrompt, negativePrompt);
+  }
+
+  /**
+   * [동기] 이미지 변환 (레거시)
    */
   async changeImageSync(prompt, imageBase64, strength = 0.75, positivePrompt = '', negativePrompt = '') {
     const urlPath = '/model/changeimage_sync';
-    const body = {
-      prompt,
-      positive_prompt: positivePrompt?.trim() || undefined,
-      negative_prompt: negativePrompt?.trim() || undefined,
-      image_base64: imageBase64,
-      strength,
-    }; 
+      const body = {
+        prompt,
+        positive_prompt: (positivePrompt && positivePrompt.trim()) || undefined,
+        negative_prompt: (negativePrompt && negativePrompt.trim()) || undefined,
+        image_base_64: imageBase64,
+        strength,
+      }; 
 
     try {
       const response = await this.apiClient.post(urlPath, body, {
@@ -152,40 +209,16 @@ class ModelApi extends BaseApi {
 
       if (response.data instanceof Blob && !response.data.type?.startsWith('image/')) {
         const text = await response.data.text();
-        let errorMessage = '이미지 변경에 실패했습니다.';
-        try {
-          const json = JSON.parse(text);
-          errorMessage = json.message || json.error || json.detail || errorMessage;
-        } catch (e) {
-          errorMessage = text.slice(0, 100);
-        }
-        return { ok: false, apiUrl: this.buildUrl(urlPath), statusCode: response.status, error: errorMessage };
+        return { ok: false, error: text.slice(0, 100) };
       }
 
       return {
         ok: true,
-        apiUrl: this.buildUrl(urlPath),
-        statusCode: response.status,
         blobUrl: URL.createObjectURL(response.data),
       };
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.code === 'ECONNABORTED') {
-          return { ok: false, apiUrl: this.buildUrl(urlPath), error: `요청 시간 초과 (${IMAGE_CHANGE_TIMEOUT_MS}ms)` };
-        }
-        if (error.response) {
-          const statusCode = error.response.status;
-          const friendlyError = `API 오류: ${error.response.statusText}`;
-          return { ok: false, apiUrl: this.buildUrl(urlPath), statusCode, error: friendlyError };
-        }
-      }
-      return { ok: false, apiUrl: this.buildUrl(urlPath), error: `요청 실패: ${error.message}` };
+      return { ok: false, error: error.message };
     }
-  }
-
-  // 기본적으로 하위 호환을 위해 기존 메서드 유지 (동기 방식 유지 혹은 비동기로 교체 가능)
-  async changeImage(prompt, imageBase64, strength = 0.75, positivePrompt = '', negativePrompt = '') {
-    return this.changeImageSync(prompt, imageBase64, strength, positivePrompt, negativePrompt);
   }
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { FONT_STYLES, RATIOS } from './constants/design';
+import { FONT_STYLES, RATIOS, SAMPLE_COUNT } from './constants/design';
 import { useProducts } from './hooks/useProducts';
 import { useDesignOptions } from './hooks/useDesignOptions';
 import Sidebar from './components/sidebar/Sidebar';
@@ -94,7 +94,6 @@ const App = () => {
         basicInfo: mergedBasicInfo,
         extraInfo,
         products,
-        draftIndex: idx,
       });
 
       const token = await storeEditingPayload(payload);
@@ -127,7 +126,7 @@ const App = () => {
   };
 
   const orderedIndices = (() => {
-    const all = Array.from({ length: options.sampleCount }, (_, i) => i);
+    const all = Array.from({ length: SAMPLE_COUNT }, (_, i) => i);
     return [...selectedDesigns, ...all.filter((i) => !selectedDesigns.includes(i))];
   })();
 
@@ -177,7 +176,7 @@ const App = () => {
 
         <div
           className={`grid gap-12 ${
-            options.sampleCount <= 4 ? 'grid-cols-2' : 'grid-cols-3'
+            SAMPLE_COUNT <= 4 ? 'grid-cols-2' : 'grid-cols-3'
           } max-w-[1200px] mx-auto pb-20`}
         >
           {orderedIndices.map((idx) => (

@@ -136,7 +136,7 @@ const BG_TYPE_TO_EDITING_MODE = {
 
 // ─── 페이로드 빌더 ───────────────────────────────────────────────────────────
 
-export async function buildEditingPayload({ options, basicInfo, extraInfo, products, draftIndex }) {
+export async function buildEditingPayload({ options, basicInfo, extraInfo, products }) {
   const normalizedProducts = await Promise.all(
     products.map(async (product) => ({
       ...product,
@@ -144,9 +144,9 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
     }))
   );
 
-  // 이미지가 있는 제품만 드래프트 슬롯 좌표 계산
+  // 이미지가 있는 제품만 드래프트 슬롯 좌표 계산 (현재 initPage는 Type 0 고정)
   const activeWithImage = normalizedProducts.filter((p) => p.image);
-  const slots = getDraftProductSlots(draftIndex, activeWithImage.length);
+  const slots = getDraftProductSlots(0, activeWithImage.length);
 
   let slotCursor = 0;
   const productsWithTransform = normalizedProducts.map((product) => {
@@ -157,12 +157,9 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
   });
 
   return {
-    draftIndex,
     projectData: {
       options: {
-        draftIndex,
         ratio: options.ratio,
-        sampleCount: options.sampleCount,
         concept: BG_TYPE_TO_EDITING_MODE[options.bgType] ?? 'ai-image',
         brandColor: options.brandColor,
         bgType: options.bgType,
@@ -190,13 +187,20 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
         transform: product.transform ?? null,
       })),
       additionalInfo: {
-        parkingSpaces: String(extraInfo.parkingCount ?? ''),
+        parkingSpaces: Number(extraInfo.parkingCount) || 0,
         petFriendly: Boolean(extraInfo.petFriendly),
         noKidsZone: Boolean(extraInfo.isNoKids),
         smokingArea: Boolean(extraInfo.hasSmokingArea),
         elevator: Boolean(extraInfo.hasElevator),
         phoneNumber: extraInfo.phone ?? '',
         address: extraInfo.address ?? '',
+        viewParking: Boolean(extraInfo.showParkingCount),
+        viewPet: Boolean(extraInfo.showPetFriendly),
+        viewPhone: Boolean(extraInfo.showPhone),
+        viewAddress: Boolean(extraInfo.showAddress),
+        viewIsNoKids: Boolean(extraInfo.showIsNoKids),
+        viewSmokingArea: Boolean(extraInfo.showSmokingArea),
+        viewHasElevator: Boolean(extraInfo.showHasElevator),
       },
     },
   };

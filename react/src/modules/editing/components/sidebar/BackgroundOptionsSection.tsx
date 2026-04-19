@@ -1,7 +1,6 @@
 import type { BackgroundMode } from '../../types/editor';
 import SidebarBlock from './SidebarBlock';
 import SidebarMiniButton from './SidebarMiniButton';
-import { stripBackgroundTokens } from './backgroundTokens';
 
 const modes: { id: BackgroundMode; label: string }[] = [
   { id: 'solid', label: '단색' },
@@ -41,36 +40,8 @@ export default function BackgroundOptionsSection({
   onGenerateBackgrounds,
   onBackToBackgrounds,
 }: BackgroundOptionsSectionProps) {
-  const freePrompt = stripBackgroundTokens(promptHint);
-  // 기존 promptHint 토큰 파싱/주입 방식. 필요 시 아래 로직으로 원복 가능.
-  // const solidColor = extractHexColor(parseBackgroundToken(promptHint, 'SOLID')?.[0] ?? '', '#60a5fa');
-  // const gradientColors = (parseBackgroundToken(promptHint, 'GRADIENT') ?? ['#93c5fd', '#1d4ed8'])
-  //   .slice(0, 2)
-  //   .map((color) => extractHexColor(color, '#93c5fd'));
-  // const multiColors = (parseBackgroundToken(promptHint, 'MULTI') ?? ['#c4b5fd', '#93c5fd'])
-  //   .slice(0, 2)
-  //   .map((color) => extractHexColor(color, '#93c5fd'));
-  // const buildPromptForMode = (mode: BackgroundMode, basePrompt: string, overrides?: string[]) => {
-  //   if (mode === 'solid') {
-  //     return withBackgroundToken(basePrompt, `BG_SOLID(${overrides?.[0] ?? solidColor})`);
-  //   }
-  //   if (mode === 'gradient') {
-  //     const colors = overrides?.length ? overrides : gradientColors;
-  //     return withBackgroundToken(basePrompt, `BG_GRADIENT(${colors.join(',')})`);
-  //   }
-  //   if (mode === 'pastel') {
-  //     const colors = overrides?.length ? overrides : multiColors;
-  //     return withBackgroundToken(basePrompt, `BG_MULTI(${colors.join(',')})`);
-  //   }
-  //   return basePrompt;
-  // };
-  // const setPromptWithToken = (mode: BackgroundMode, basePrompt: string, colors?: string[]) => {
-  //   onPromptHintChange(buildPromptForMode(mode, basePrompt, colors));
-  // };
-
   const handleModeSelect = (mode: BackgroundMode) => {
     onBackgroundModeChange(mode);
-    onPromptHintChange(freePrompt);
   };
 
   const generationButtonLabel = {
@@ -92,18 +63,18 @@ export default function BackgroundOptionsSection({
       </div>
 
       {backgroundMode === 'ai-image' && (
-        <div className="sidebar__hint" style={{ 
-          marginTop: '4px', 
-          padding: '12px', 
-          backgroundColor: '#fffbeb', 
-          border: '1px solid #fef3c7', 
+        <div className="sidebar__hint" style={{
+          marginTop: '4px',
+          padding: '12px',
+          backgroundColor: '#fffbeb',
+          border: '1px solid #fef3c7',
           borderRadius: '12px',
           color: '#b45309',
           fontSize: '11px',
           lineHeight: '1.5'
         }}>
           <strong>⚠ AI 배경 생성 주의사항</strong><br />
-          생성 시 약 10~20초 정도 소요될 수 있습니다. 현재 배치된 상품의 위치와 텍스트 레이아웃을 가이드로 삼아 최적의 배경을 생성합니다.
+          생성 시 약 3~10분 정도 소요될 수 있습니다. 현재 배치된 상품의 위치와 텍스트 레이아웃을 가이드로 삼아 최적의 배경을 생성합니다.
         </div>
       )}
 
@@ -121,9 +92,9 @@ export default function BackgroundOptionsSection({
                 type="color"
                 value={color}
                 onChange={(event) => {
-                  const next = [...gradientColors];
+                  const next = [...gradientColors] as [string, string];
                   next[index] = event.target.value;
-                  onGradientColorsChange(next as [string, string]);
+                  onGradientColorsChange(next);
                 }}
               />
             </div>
@@ -138,9 +109,9 @@ export default function BackgroundOptionsSection({
                 type="color"
                 value={color}
                 onChange={(event) => {
-                  const next = [...multiColors];
+                  const next = [...multiColors] as [string, string];
                   next[index] = event.target.value;
-                  onMultiColorsChange(next as [string, string]);
+                  onMultiColorsChange(next);
                 }}
               />
             </div>
@@ -149,7 +120,7 @@ export default function BackgroundOptionsSection({
       ) : null}
       <textarea
         className="sidebar__textarea"
-        value={freePrompt}
+        value={promptHint}
         onChange={(event) => onPromptHintChange(event.target.value)}
         placeholder="AI 이미지 생성 프롬프트"
       />

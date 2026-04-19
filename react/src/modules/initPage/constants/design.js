@@ -38,10 +38,11 @@ export const createProduct = () => ({
   showName: true,
 });
 
+/** InitPage 드래프트 카드 표시 개수. 원래 4가지 레이아웃이었으나 현재 1가지만 노출. */
+export const SAMPLE_COUNT = 1;
+
 export const DEFAULT_OPTIONS = {
   ratio: '4:5',
-  // sampleCount: 4, // 원래 4가지 레이아웃 표시 — 현재 1가지만 표시
-  sampleCount: 1,
   concept: 'vivid',
   bgType: '단색',
   startColor: '#ffffff',

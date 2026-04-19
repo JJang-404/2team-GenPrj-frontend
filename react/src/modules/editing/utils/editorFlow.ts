@@ -537,7 +537,7 @@ export function shouldShowAdditionalInfoText(projectData: HomeProjectData | null
     case '주소':
       return Boolean(info.address.trim());
     case '주차 공간 수':
-      return Boolean(info.parkingSpaces?.trim()) && Number(info.parkingSpaces) > 0;
+      return info.parkingSpaces > 0;
     default:
       return false;
   }

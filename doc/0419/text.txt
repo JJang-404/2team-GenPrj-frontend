@@ -1,0 +1,148 @@
+1. 개요
+*   **목적**: `United1_8` 팀원의 UI 작업물을 100% 보존하면서, `United1_7`의 AI 핵심 기능을 안정적으로 이식함.
+*   **기술적 지향점**: `App.tsx` 파일의 비대화를 방지하고 가독성 및 유지보수성을 극대화하기 위해 **Custom Hook** 기반의 모듈화 방식을 채택함.
+
+---
+
+2. 주요 변경 사항
+
+### [모듈화] AI 디자인 시스템 커스텀 훅 (`useAiDesignSystem`)
+*   **파일**: `react/src/modules/editing/hooks/useAiDesignSystem.ts` [NEW]
+*   **기능**: 배경 이미지의 밝기를 분석하여 텍스트 가독성을 위한 최적의 색상(Black/White)을 자동으로 설정함.
+*   **효과**: `App.tsx`에서 복잡한 분석 로직을 분리하여 코드 가독성을 높임.
+
+### [AI 최적화] 업종별 프롬프트 자동 연동
+*   **기능**: 사용자가 입력한 업종 데이터(카페, 식당 등)를 분석하여 생성 프롬프트를 자동으로 조립함.
+*   **연동**: `App.tsx`에서 배경 생성 요청 시 `industry` 데이터를 자동으로 전달하도록 수정함.
+
+### [UI 보존] App.tsx 최소 수정
+*   **수정 사항**: 기존 UI 렌더링 코드는 건드리지 않고, 커스텀 훅을 등록하는 코드 단 1줄과 API 인자를 추가하는 부분만 수정함.
+*   **효과**: 팀원이 작성한 `EditorCanvas`, `WireframeChoiceCard` 등의 레이아웃 로직이 완벽하게 유지됨.
+
+---
+
+하지만 [배경 시스템] 실시간 색상 동기화 오류가 나옵니다.
+D:\01.project\2team-GenPrj-frontend\react\src\modules\editing\App.tsx
+파일에서 어떤 파일을 분리했다가 동기화 오류가 나오는걸로 예상합니다
+하단 내가 구성한 수정 계획이 맞는 지 코드 확인 후 제대로 된 plan (md) 파일을 보여주세요.
+
+---
+
+
+# 배경색 동기화 버그 수정 계획
+
+사용자가 사이드바에서 배경색(단색, 그라데이션, 다중색)을 변경해도 캔버스에 반영되지 않는 문제를 해결합니다.
+
+## User Review Required
+
+> [!IMPORTANT]
+> 기존에는 `promptHint` 문자열 내에 `BG_SOLID(#hex)` 와 같은 토큰을 삽입하여 색상을 관리했습니다. 이번 수정으로 색상 정보는 `backgroundColorDraft` 상태로 별도 관리되며, 프롬프트 문자열은 순수 텍스트만 유지하도록 변경됩니다. 이는 코드 가독성과 유지보수성을 크게 향상시킵니다.
+
+## Proposed Changes
+
+### 편집 모듈 (Editing Module)
+
+---
+
+#### [MODIFY] [BackgroundOptionsSection.tsx](file:///d:/01.project/2team-GenPrj-frontend/react/src/modules/editing/components/sidebar/BackgroundOptionsSection.tsx)
+
+- `BackgroundOptionsSectionProps` 인터페이스에 색상 값 및 변경 핸들러 추가.
+- 내부적으로 `promptHint`를 파싱하던 로직 제거 및 Props 값 사용.
+- 컬러 피커의 `onChange` 이벤트 발생 시 `onSolidColorChange` 등 전용 핸들러 호출.
+
+#### [MODIFY] [Sidebar.tsx](file:///d:/01.project/2team-GenPrj-frontend/react/src/modules/editing/components/Sidebar.tsx)
+
+- `BackgroundOptionsSection`으로 전달하는 Props를 최신화하여 끊어진 데이터 흐름 복구.
+
+#### [MODIFY] [App.tsx](file:///d:/01.project/2team-GenPrj-frontend/react/src/modules/editing/App.tsx)
+
+- 색상 변경 시 `promptHint` 내의 토큰을 강제로 업데이트하던 로직이 있다면 정리 (선택 사항).
+- `handleSolidColorChange` 등이 호출될 때 `backgroundColorDraft`가 안정적으로 갱신되는지 확인.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+- 브라우저 도구를 사용하여 사이드바의 컬러 피커 조작 시 `EditorCanvas`의 배경색이 즉시 변경되는지 확인.
+- 띄어쓰기(프롬프트) 입력 시 공백이 유지되는지 재확인.
+
+### Manual Verification
+- 단색 -> 그라데이션 -> 다중색 전환 시 각각 설정한 색상이 유지되는지 확인.
+- 'AI 배경 생성' 버튼 클릭 시 현재 선택된 색상 정보가 프롬프트에 포함되어 백엔드로 전달되는지 확인.
+@bg_sync_fix_plan.md
+
+---
+
+doc\0417\background_candidate_auto_show_analysis.md
+doc/0417/background_default_white_gray_report.md
+react/src/modules/editing/utils/backgroundGeneration.ts
+    (-) const colors = (gradient ?? ['#93c5fd', '#1d4ed8']).slice(0, 2) 
+    (+)const colors = (gradient ?? ['#ffffff', '#2f2f2f']).slice(0, 2);
+    (-) const colors = (multi ?? ['#c4b5fd', '#93c5fd']).slice(0, 2) 
+    (+)const colors = (multi ?? ['#ffffff', '#1f1f1f']).slice(0, 2);
+react/src/modules/editing/utils/exportPoster.ts
+react/src/modules/editing/utils/initialBackground.ts
+    (-)'#FF4757' (+) '#ffffff'
+    (-)'#4A90E2'; (+) '#2f2f2f';
+react/src/modules/initPage/constants/design.js
+    (-)startColor: '#FF4757',
+    (-)endColor: '#4A90E2',        // 기본 종료 색: 파랑 (그라데이션/다중색 시 대비 명확)
+    (+)startColor: '#ffffff',
+    (+)endColor: '#2f2f2f',        // 기본 종료 색: 거의 검정에 가까운 진회색
+react/src/shared/backgroundStyle.ts
+    (-)const safeStart = startColor ?? '#FF4757';
+    (-)const safeEnd = endColor ?? '#4A90E2';
+    (+)const safeStart = startColor ?? '#ffffff';
+    (+)const safeEnd = endColor ?? '#2f2f2f';
+
+기존 팀원이 수정했던 내용을 참고해서 수정해주길 바랍니다.
+@bg_sync_fix_report.md
+
+---
+
+궁금한게 있습니다. 지금 코드에서
+'그라데이션' , '다중색' 에서 'AI 이미지 생성 프롬프트' 에 문장을 기입하게 되면
+'배경 선택' 의 'WireframeChoiceCard' 의 글씨체가 커졌다 작아지면서 'initPage' 문구가 나왔다가 다시 '사용자 그라데이션 1' 이렇게 나옵니다.
+
+아래는 제가 분석한 내용인데 코드와 맞는지 확인해주길 바랍니다.
+
+---
+
+### 1. "initPage" 문구가 잠깐 나타나는 이유
+현재 코드의 `App.tsx`와 `initialBackground.ts` 로직 사이에 **상태 업데이트의 우선순위 충돌**이 있습니다.
+
+*   **동작 과정**:
+    1.  사용자가 프롬프트에 입력을 하면 `promptHint` 상태가 변경됩니다.
+    2.  `App.tsx`의 242라인 `useEffect`가 즉시 실행되면서 `buildInitialBackgroundCandidate` 함수를 호출합니다.
+    3.  이 함수는 반환 값의 `name`을 **무조건 `'initPage 배경'`으로 설정**하여 `backgroundCandidates`를 초기화합니다. (리스트가 1개로 줄어듬)
+    4.  동시에 252라인 `useEffect`에 의해 **실제 배경 생성 로직(`handleGenerateBackgrounds`)이 80ms 뒤에 실행**됩니다.
+    5.  배경 생성이 완료되면 결과물들이 다시 `backgroundCandidates`에 담기며 이름이 `'사용자 그라데이션 1'` 등으로 바뀝니다. (리스트가 4개로 늘어남)
+
+### 2. 글씨 크기가 커졌다 작아지는(Flickering) 이유
+이는 `BackgroundCard.tsx`에서 사용하고 있는 **실시간 크기 감지 로직(`ResizeObserver`)** 때문입니다.
+
+*   **원인**:
+    *   위의 과정에서 배경 후보군이 **1개였다가 잠깐 뒤에 4개**로 바뀝니다.
+    *   우측 패널(`choice-grid`)의 레이아웃이 1개일 때와 4개일 때 카드의 실제 너비가 달라집니다.
+    *   `BackgroundCard`는 `ResizeObserver`를 통해 자기 자신의 너비를 보고 글꼴 크기(`scaleFactor`)를 결정하는데, 후보군 개수가 변하며 카드 크기가 요동치니 글씨 크기도 함께 커졌다 작아지는 현상이 발생합니다.
+
+---
+
+### 수정 제안 (Plan)
+이 문제를 해결하기 위해 다음과 같이 코드를 개선하겠습니다.
+
+1.  **`initialBackground.ts` 수정**: 초기 배경 이름이 사용자에게 'initPage'라는 시스템 명칭으로 보이지 않도록 '사용자 설정 배경' 등으로 명칭을 개선하고, 가급적 기존 이름을 유지하도록 합니다.
+2.  **`App.tsx` 동기화 로직 최적화**: 사용자가 입력 중일 때는 배경 후보군 리스트 전체를 'initPage' 1개로 덮어씌우지 않고, 현재 결과물을 유지하면서 필요한 값만 업데이트하도록 수정하여 레이아웃이 요동치는 것을 방지하겠습니다.
+
+> [!IMPORTANT]
+> **핵심 요약**
+> 사용자가 입력할 때마다 배경 리스트를 1개로 초기화(`initPage`) 했다가 다시 4개로 생성하는 과정이 반복되면서 이름과 레이아웃이 튀는 현상입니다. 기입 중에는 리스트 구조를 깨뜨리지 않는 것이 핵심입니다.
+
+---
+
+수정 내용 요약:
+- App.tsx:242 useEffect — gradient/pastel 모드에서 prev.length > 0이면 setBackgroundCandidates 스킵, 구조 유지
+- doc/0419/background_flicker_fix.md — 원인 분석 및 수정 내용 문서화 
+  
+@background_flicker_fix.md

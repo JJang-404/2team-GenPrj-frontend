@@ -42,7 +42,6 @@ async function idbDelete(key: IDBValidKey): Promise<void> {
 // ─── 페이로드 파싱 ───────────────────────────────────────────────────────────
 
 export interface EditingBridgePayload {
-  draftIndex?: number;
   projectData: HomeProjectData;
 }
 
@@ -50,6 +49,7 @@ function parsePayload(raw: string | null): EditingBridgePayload | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as EditingBridgePayload;
+    console.log(parsed);
     if (!parsed?.projectData) return null;
     return parsed;
   } catch {

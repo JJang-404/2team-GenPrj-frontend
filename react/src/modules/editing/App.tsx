@@ -36,6 +36,7 @@ import {
 import { readEditingBridgePayload } from './utils/editingBridge';
 import { buildInitialBackgroundCandidate } from './utils/initialBackground';
 import { prebakeProductImages, prebakeSingleProductImage } from './utils/productImagePrebake';
+import { useAiDesignSystem } from './hooks/useAiDesignSystem';
 
 const initialBootstrap: BootstrapResponse = {
   templates: [],
@@ -220,6 +221,9 @@ export default function App() {
     setSelectedElementIds([id]);
   };
 
+  /** [AI-Design-System] 배경 밝기 자동 분석 및 대비 기능 장착 */
+  useAiDesignSystem(selectedBackground, setElements);
+
   useEffect(() => {
     if (!queuedBackgroundGeneration || !projectData) return;
 
@@ -234,6 +238,11 @@ export default function App() {
   /**
    * 단색/그라데이션/다중색 모드에서 모드 버튼 클릭 또는 색상 변경 시
    * 별도 '이미지 생성' 버튼 없이 캔버스 배경을 즉시 업데이트합니다.
+   *
+   * gradient/pastel 모드는 80ms 후 handleGenerateBackgrounds가 4개 후보를 생성하므로,
+   * 이미 후보가 존재할 때 1개로 덮어쓰면 카드 그리드가 4→1→4로 요동쳐
+   * ResizeObserver 기반 scaleFactor 재계산 및 'initPage 배경' 이름이 순간 노출됩니다.
+   * 후보가 이미 있으면 구조를 유지하고 생성 완료 후 자연스럽게 교체되도록 합니다.
    */
   useEffect(() => {
     if (!projectData || backgroundMode === 'ai-image') return;
@@ -241,8 +250,16 @@ export default function App() {
       return;
     }
     const preview = buildInitialBackgroundCandidate(projectData, backgroundMode, promptHint, backgroundColorDraft);
-    setBackgroundCandidates([preview]);
-    setSelectedBackgroundId(preview.id);
+
+    if (backgroundMode === 'gradient' || backgroundMode === 'pastel') {
+      setBackgroundCandidates(prev => {
+        if (prev.length > 0) return prev;
+        return [preview];
+      });
+    } else {
+      setBackgroundCandidates([preview]);
+      setSelectedBackgroundId(preview.id);
+    }
   }, [backgroundMode, promptHint, projectData, backgroundColorDraft]);
 
   useEffect(() => {
@@ -294,7 +311,7 @@ export default function App() {
       try {
         const bridged = await readEditingBridgePayload();
         if (bridged) {
-          await handleStartFromHome(bridged.projectData, bridged.draftIndex ?? 0);
+          await handleStartFromHome(bridged.projectData);
           return;
         }
 
@@ -377,7 +394,10 @@ export default function App() {
     return freePrompt;
   };
 
-  const handleStartFromHome = async (data: HomeProjectData, draftIndex = 0) => {
+  const handleStartFromHome = async (data: HomeProjectData) => {
+    // payload는 draftIndex를 더 이상 포함하지 않음 — 편집 진입 시점에는 항상 Type 0.
+    // 편집 내부의 Type 전환(handleSelectLayoutVariant)은 options.draftIndex를 mutate한다.
+    const draftIndex = data.options.draftIndex ?? 0;
     // 편집 페이지 로딩 오버레이 활성화 — 모든 제품 이미지의 좌/우 절반 PNG dataURL
     // + natural 크기 추출이 끝날 때까지 본 화면을 가린다.
     setIsPrebakingImages(true);
@@ -393,7 +413,20 @@ export default function App() {
 
     baked = { ...baked, zonePositions: getDefaultZonePositions(draftIndex) };
     setProjectData(baked);
-    setAdditionalInfoVisibility({});
+    // bridge payload의 view* 플래그 → additionalInfoVisibility(한국어 레이블 key)로 seed.
+    // 로컬 변수로 캡처해 같은 함수 scope의 createElementsFromWireframe 호출에 그대로 전달
+    // (setAdditionalInfoVisibility 직후 state는 stale이므로 state 읽기 대신 이 변수 사용).
+    const info = baked.additionalInfo;
+    const seededVisibility: Record<string, boolean> = {
+      '주차 공간 수': Boolean(info.viewParking),
+      '애견 동반 가능 여부': Boolean(info.viewPet),
+      '노키즈존': Boolean(info.viewIsNoKids),
+      '흡연 구역 존재 여부': Boolean(info.viewSmokingArea),
+      '엘리베이터 존재 여부': Boolean(info.viewHasElevator),
+      '전화번호': Boolean(info.viewPhone),
+      '주소': Boolean(info.viewAddress),
+    };
+    setAdditionalInfoVisibility(seededVisibility);
     const nextBackgroundMode =
       baked.options.concept === 'solid' ||
       baked.options.concept === 'gradient' ||
@@ -416,7 +449,7 @@ export default function App() {
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
     }
-    setElements(createElementsFromWireframe(baked, additionalInfoVisibility));
+    setElements(createElementsFromWireframe(baked, seededVisibility));
     setStep('background');
     setQueuedBackgroundGeneration(false);
     setSelectedElementIds([]);
@@ -499,7 +532,10 @@ export default function App() {
 
         console.log(`[Editing] 배경 요청 #${idx + 1} (${variant.label}) 준비...`);
 
-        return callApi.generateBackground({ customPrompt: combinedPrompt })
+        return callApi.generateBackground({
+          customPrompt: combinedPrompt,
+          industry: projectData.industry || '' // 업종별 프롬프트 자동 최적화 적용
+        })
           .then(res => {
             console.log(`[Editing] 배경 요청 #${idx + 1} [${variant.label}]:`, res.ok ? '성공' : '실패');
             return { res, variant, idx };
