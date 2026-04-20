@@ -138,7 +138,9 @@ products[] = [{
 - `blob:` URL 은 `normalizeProductImage` 에서 dataURL 로 변환 + PNG bbox 크롭
 - `bgType` 한글은 `BG_TYPE_TO_EDITING_MODE` (단색→solid, 그라데이션→gradient,
   다중색→pastel, AI 생성→ai-image) 로 `options.concept` 에 기록
-- `show*` 는 모두 `Boolean(...)` 강제 캐스팅 후 `view*` 로 개명
+- `view*` 플래그는 모두 `Boolean(...)` 캐스팅만 적용 후 동일 키로 1:1 pass-through
+  (InitPage `extraInfo.view*` → bridge `additionalInfo.view*` → editing
+  `additionalInfoVisibility['view*']`, § 6.2)
 
 ---
 
@@ -386,7 +388,7 @@ rect = {
 ```ts
 elements: EditorElement[]                             // 편집의 진실
 selectedElementIds: string[]                          // EditorElement.id 참조
-additionalInfoVisibility: Record<string, boolean>     // key 는 한국어 레이블 (§ 6.2)
+additionalInfoVisibility: Record<AdditionalInfoKey, boolean>  // key 는 `view*` (§ 6.2)
 ```
 
 나머지 20개는 [03a_editing_state_chain.md § 1](03a_editing_state_chain.md) 에 상세.

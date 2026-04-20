@@ -88,8 +88,8 @@
   "hotPaths": [
     {
       "path": "react/src/modules/editing/App.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1775889332480,
+      "accessCount": 17,
+      "lastAccessed": 1776649030194,
       "type": "directory"
     },
     {
@@ -174,6 +174,42 @@
       "path": "react\\src\\modules\\editing\\components\\EditorCanvas.tsx",
       "accessCount": 1,
       "lastAccessed": 1776613142704,
+      "type": "file"
+    },
+    {
+      "path": "doc/structure/08_data_interfaces.md",
+      "accessCount": 1,
+      "lastAccessed": 1776593111145,
+      "type": "file"
+    },
+    {
+      "path": "react/src/modules/editing/utils/editorFlow.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776593126841,
+      "type": "file"
+    },
+    {
+      "path": "react/src/modules/editing",
+      "accessCount": 1,
+      "lastAccessed": 1776593128444,
+      "type": "directory"
+    },
+    {
+      "path": "react/src/modules/editing/utils/editingBridge.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776648957021,
+      "type": "file"
+    },
+    {
+      "path": "react/src/modules/editing/types/home.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776649009408,
+      "type": "file"
+    },
+    {
+      "path": "react/src/modules/editing/utils/projectEditor.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776649023072,
       "type": "file"
     }
   ],

@@ -23,7 +23,7 @@ import {
   isPrimaryImageElement,
   mapProjectDataToTemplate,
 } from './utils/editorFlow';
-import { ADDITIONAL_INFO_ITEMS } from './utils/additionalInfo';
+import { ADDITIONAL_INFO_ITEMS, type AdditionalInfoKey } from './utils/additionalInfo';
 import { captureElementAsDataUrl } from './utils/canvas';
 import { readFileAsDataUrl } from './utils/file';
 import { removeBgPipeline } from '../initPage/utils/removeBackground';
@@ -299,7 +299,7 @@ export default function App() {
       try {
         const bridged = await readEditingBridgePayload();
         if (bridged) {
-          await handleStartFromHome(bridged.projectData, bridged.draftIndex ?? 0);
+          await handleStartFromHome(bridged.projectData, bridged.projectData.options.draftIndex ?? 0);
           return;
         }
 
@@ -398,7 +398,20 @@ export default function App() {
 
     baked = { ...baked, zonePositions: getDefaultZonePositions(draftIndex) };
     setProjectData(baked);
-    setAdditionalInfoVisibility({});
+    // bridge payload의 view* 플래그를 그대로 additionalInfoVisibility 로 seed (1:1 pass-through).
+    // 로컬 변수로 캡처해 같은 함수 scope의 createElementsFromWireframe 호출에 그대로 전달
+    // (setAdditionalInfoVisibility 직후 state는 stale이므로 state 읽기 대신 이 변수 사용).
+    const info = baked.additionalInfo;
+    const seededVisibility: Record<AdditionalInfoKey, boolean> = {
+      viewParking: Boolean(info.viewParking),
+      viewPet: Boolean(info.viewPet),
+      viewNoKids: Boolean(info.viewNoKids),
+      viewSmoking: Boolean(info.viewSmoking),
+      viewElevator: Boolean(info.viewElevator),
+      viewPhone: Boolean(info.viewPhone),
+      viewAddress: Boolean(info.viewAddress),
+    };
+    setAdditionalInfoVisibility(seededVisibility);
     const nextBackgroundMode =
       baked.options.concept === 'solid' ||
         baked.options.concept === 'gradient' ||
@@ -421,7 +434,7 @@ export default function App() {
     if (nextTemplate) {
       setSelectedTemplateId(nextTemplate.id);
     }
-    setElements(createElementsFromWireframe(baked, additionalInfoVisibility));
+    setElements(createElementsFromWireframe(baked, seededVisibility));
     setStep('background');
     setQueuedBackgroundGeneration(false);
     setSelectedElementIds([]);
@@ -649,12 +662,12 @@ export default function App() {
     }
   };
 
-  const handleToggleInfoItem = (label: string) => {
+  const handleToggleInfoItem = (viewKey: AdditionalInfoKey) => {
     setAdditionalInfoVisibility((prev) => {
-      const nextVisible = !prev[label];
-      const nextVisibility = { ...prev, [label]: nextVisible };
+      const nextVisible = !prev[viewKey];
+      const nextVisibility = { ...prev, [viewKey]: nextVisible };
       setElements((current) =>
-        toggleAdditionalInfoElements(current, projectData, label, nextVisible, nextVisibility),
+        toggleAdditionalInfoElements(current, projectData, viewKey, nextVisible, nextVisibility),
       );
 
       return nextVisibility;
