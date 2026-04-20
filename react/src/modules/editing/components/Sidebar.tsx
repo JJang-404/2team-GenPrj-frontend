@@ -88,7 +88,7 @@ export default function Sidebar({
   return (
     <aside className={`sidebar sidebar--structured ${expanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
       <div className="sidebar__topbar">
-        <h1 className="sidebar__brand">AD-GEN <span>PRO</span></h1>
+        <h1 className="sidebar__brand">Backlit <span>AI</span></h1>
         <div className="sidebar__header-actions">
           <button className="sidebar__topbar-btn" onClick={onBackToInitialPage}>처음으로</button>
           <button className="sidebar__topbar-btn sidebar__topbar-btn--toggle" onClick={onToggleExpanded}>

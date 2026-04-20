@@ -1,10 +1,10 @@
 import type { HomeProjectData } from '../types/home';
 
-const EDITING_BRIDGE_KEY = 'adgen-editing-bridge';
-const WINDOW_NAME_PREFIX = 'adgen-editing-bridge:';
+const EDITING_BRIDGE_KEY = 'backlit-editing-bridge';
+const WINDOW_NAME_PREFIX = 'backlit-editing-bridge:';
 
 // ─── IndexedDB 헬퍼 (읽기 전용) ──────────────────────────────────────────────
-const IDB_DB_NAME = 'adgen-bridge-db';
+const IDB_DB_NAME = 'backlit-bridge-db';
 const IDB_STORE_NAME = 'editing-bridge';
 const IDB_PAYLOAD_KEY = 'latest';
 

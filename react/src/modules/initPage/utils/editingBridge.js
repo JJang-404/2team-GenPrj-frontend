@@ -1,9 +1,9 @@
 import { getDraftProductSlots } from '../../../shared/draftLayout';
 
-const EDITING_BRIDGE_KEY = 'adgen-editing-bridge';
+const EDITING_BRIDGE_KEY = 'backlit-editing-bridge';
 
 // ─── IndexedDB 헬퍼 ──────────────────────────────────────────────────────────
-const IDB_DB_NAME = 'adgen-bridge-db';
+const IDB_DB_NAME = 'backlit-bridge-db';
 const IDB_STORE_NAME = 'editing-bridge';
 export const IDB_PAYLOAD_KEY = 'latest';
 

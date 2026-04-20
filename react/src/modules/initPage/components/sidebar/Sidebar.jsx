@@ -42,7 +42,7 @@ const Sidebar = ({
         className="hover:opacity-80 transition-opacity"
         title="홈페이지로 이동"
       >
-        <h1 className="sidebar__brand">AD-GEN <span>PRO</span></h1>
+        <h1 className="sidebar__brand">Backlit <span>AI</span></h1>
       </a>
       <button
         type="button"

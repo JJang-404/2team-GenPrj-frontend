@@ -322,11 +322,11 @@ StrictMode 에서 effect 가 두 번 실행되어도 **payload 읽기 + `idbDele
 
 | 상수 | 값 | 쓰임 |
 |------|-----|------|
-| `EDITING_BRIDGE_KEY` | `'adgen-editing-bridge'` | sessionStorage 키 |
-| `IDB_DB_NAME` | `'adgen-bridge-db'` | IndexedDB 이름 |
+| `EDITING_BRIDGE_KEY` | `'backlit-editing-bridge'` | sessionStorage 키 |
+| `IDB_DB_NAME` | `'backlit-bridge-db'` | IndexedDB 이름 |
 | `IDB_STORE_NAME` | `'editing-bridge'` | IndexedDB objectStore |
 | `IDB_PAYLOAD_KEY` | `'latest'` | IndexedDB 내 유일한 키 |
-| `WINDOW_NAME_PREFIX` | `'adgen-editing-bridge:'` | window.name 식별자 |
+| `WINDOW_NAME_PREFIX` | `'backlit-editing-bridge:'` | window.name 식별자 |
 
 이 상수는 **두 파일에 각각 선언**되어 있다 (공유 상수 파일 없음). 값이
 어긋나면 payload 가 건너가지 않으므로 **수정 시 반드시 양쪽 동시 수정**.
