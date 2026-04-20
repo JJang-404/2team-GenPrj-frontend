@@ -7,7 +7,12 @@ import { adverApi } from './adverApi';
 import {
   EMPTY_INPUT_FALLBACK,
 } from '../common/defines';
-import { SCENE_PROMPTS, COFFEE_RELATED_KEYWORDS } from '../../modules/editing/constants/prompts';
+import { 
+  SCENE_PROMPTS, 
+  COFFEE_RELATED_KEYWORDS,
+  createUniversalPositivePrompt,
+  getUniversalNegativePrompt
+} from '../../modules/editing/constants/prompts';
 
 const normalizeValue = (value) => {
   const text = String(value ?? '').trim();
@@ -268,31 +273,22 @@ class CallApi extends BaseApi {
 
   /**
    * AI 배경 생성용 포지티브 프롬프트를 조립합니다.
-   * - 업종(industry)에 따라 커피/디저트용 다크 씬 또는 범용 브라이트 미니멀 씬을 자동으로 선택합니다. [NEW]
+   * - 업종 구분 없이 범용 고출력 템플릿에 키워드를 직접 치환하여 생성합니다. [REFACTORED]
    */
   _buildBackgroundPrompt(customPrompt = '', industry = '') {
-    const isCoffeeIndustry = COFFEE_RELATED_KEYWORDS.some(kw => 
-      industry.toLowerCase().includes(kw.toLowerCase())
-    );
-
-    const baseScene = isCoffeeIndustry ? SCENE_PROMPTS.COFFEE : SCENE_PROMPTS.GENERAL;
+    // 프론트엔드 단독으로 템플릿 내 플레이스홀더를 치환하여 완성된 프롬프트를 만듭니다.
+    const finalPrompt = createUniversalPositivePrompt(customPrompt);
     
-    console.log(`[CallApi] 씬 선택 완료: ${isCoffeeIndustry ? 'DARK MOODY (Coffee)' : 'BRIGHT MINIMAL (General)'}`);
-
-    return [
-      customPrompt.trim(),
-      `Scene: ${baseScene}`,
-    ].filter(Boolean).join(', ');
+    console.log('[CallApi] 범용 고출력 프롬프트 조립 완료 (Industry agnostic)');
+    
+    return finalPrompt;
   }
 
   /**
-   * AI 배경 생성용 네거티브 프롬프트를 반환합니다.
-   * 영문으로 유지하여 이미지 엔진이 직접 해석하고 백엔드 GPT가 보존하게 합니다.
+   * AI 배경 생성용 네거티브 프롬프트를 반환합니다. [REFACTORED]
    */
   _buildBackgroundNegativePrompt() {
-    return [
-      'any object:2.0', 'cup:2.0', 'glass:2.0', 'beverage:2.0', 'drink:2.0', 'food:2.0', 'bottle:2.0', 'people:1.5', 'centered objects', 'items on table', 'clutter', 'indoor', 'text', 'watermark'
-    ].join(', ');
+    return getUniversalNegativePrompt();
   }
 
   /**
