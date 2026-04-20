@@ -61,30 +61,12 @@ function parsePayload(raw: string | null): EditingBridgePayload | null {
 
 /**
  * 우선순위:
- * 1. URL ?token= → 백엔드 API
- * 2. IndexedDB (백엔드 장애 시 폴백 — 5MB 제한 없음)
- * 3. sessionStorage (소용량 마지막 수단)
- * 4. window.name 인코딩
+ * 1. IndexedDB (5MB 제한 없음)
+ * 2. sessionStorage (소용량 폴백)
+ * 3. window.name 인코딩
  */
 export async function readEditingBridgePayload(): Promise<EditingBridgePayload | null> {
-  // 1. 백엔드 토큰
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-
-  if (token) {
-    try {
-      const response = await fetch(`/api/bridge/editing/${token}`);
-      if (response.ok) {
-        const payload = await response.json();
-        window.history.replaceState({}, '', window.location.pathname);
-        return payload as EditingBridgePayload;
-      }
-    } catch (error) {
-      console.error('브리지 토큰 데이터 가져오기 실패:', error);
-    }
-  }
-
-  // 2. IndexedDB 폴백
+  // 1. IndexedDB
   try {
     const fromIdb = await idbGet<EditingBridgePayload>(IDB_PAYLOAD_KEY);
     if (fromIdb?.projectData) {
@@ -95,14 +77,14 @@ export async function readEditingBridgePayload(): Promise<EditingBridgePayload |
     console.warn('IndexedDB 읽기 실패:', idbError);
   }
 
-  // 3. sessionStorage 폴백
+  // 2. sessionStorage 폴백
   const fromSession = parsePayload(sessionStorage.getItem(EDITING_BRIDGE_KEY));
   if (fromSession) {
     sessionStorage.removeItem(EDITING_BRIDGE_KEY);
     return fromSession;
   }
 
-  // 4. window.name 폴백
+  // 3. window.name 폴백
   if (window.name.startsWith(WINDOW_NAME_PREFIX)) {
     const raw = window.name.slice(WINDOW_NAME_PREFIX.length);
     const decoded = parsePayload(decodeURIComponent(raw));

@@ -156,13 +156,12 @@ InitPage 입장
  ├─ (필요 시) AI 광고 문구 생성
  ├─ storeInfo.saveStoreInfo (localStorage)
  ├─ buildEditingPayload → normalize(blob→dataURL), bgType 매핑
- └─ storeEditingPayload → POST /api/bridge/editing → token 수신
-         (실패 시 IndexedDB → sessionStorage 폴백)
+ └─ storeEditingPayload → IndexedDB (1순위) → sessionStorage 폴백
 
-navigate '/editing?token=...'
+navigate '/editing'
 
 EditingPage 입장
- ├─ readEditingBridgePayload (token → IDB → session → window.name)
+ ├─ readEditingBridgePayload (IDB → session → window.name)
  ├─ prebakeProductImages (좌/우 반쪽 PNG dataURL + natural size)
  ├─ getDefaultZonePositions(draftIndex) 로 ZonePositions 결정
  ├─ createElementsFromWireframe(projectData, visibility) → elements[]

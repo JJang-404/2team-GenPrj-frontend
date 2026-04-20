@@ -125,11 +125,10 @@ DraftCard 4장 렌더 (orderedIndices 기반)
      │   ├─ additionalInfo.parkingSpaces = Number(extraInfo.parkingCount) || 0
      │   └─ bgType → editing concept 매핑
      ├─ storeEditingPayload(payload)
-     │   ├─ POST /api/bridge/editing → { token }
-     │   ├─ 실패 시 IndexedDB 저장 (5MB 제한 없음)
-     │   └─ 최후 sessionStorage
+     │   ├─ IndexedDB 저장 (5MB 제한 없음, 1순위)
+     │   └─ 실패 시 sessionStorage 폴백
      ├─ getEditingAppUrl() (`VITE_EDITING_URL` ?? '/editing')
-     └─ window.location.href = `${baseUrl}?token=${token}`  (풀 리로드)
+     └─ window.location.href = baseUrl  (풀 리로드, 쿼리 없음)
 ```
 
 확인 모달 "아니요" → `setPendingIdx(null)` 로 그냥 닫고 initPage 에 머문다.

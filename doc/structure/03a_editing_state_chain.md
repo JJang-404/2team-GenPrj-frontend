@@ -278,7 +278,7 @@ E1 bootstrap effect 발화
         │
         ▼ loading change triggers E2
   E2 bridge effect 발화
-    ├─ readEditingBridgePayload()  (IndexedDB 또는 fetch /api/bridge/editing/...)
+    ├─ readEditingBridgePayload()  (IndexedDB → sessionStorage → window.name)
     │
     ├─ bridged !== null:
     │   await handleStartFromHome(projectData):          // draftIndex = projectData.options.draftIndex ?? 0

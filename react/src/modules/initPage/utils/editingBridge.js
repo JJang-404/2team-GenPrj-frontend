@@ -209,40 +209,22 @@ export async function buildEditingPayload({ options, basicInfo, extraInfo, produ
 // ─── 페이로드 저장 ───────────────────────────────────────────────────────────
 
 /**
- * 페이로드를 백엔드에 저장하고 토큰을 반환합니다.
- * 백엔드 접속 불가 시 IndexedDB에 저장하고 null을 반환합니다(5MB 제한 없음).
- * 최후 수단으로 sessionStorage 폴백.
+ * 페이로드를 IndexedDB에 저장합니다(5MB 제한 없음).
+ * 실패 시 sessionStorage 폴백.
  */
 export async function storeEditingPayload(payload) {
   try {
-    const response = await fetch('/api/bridge/editing', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payload }),
-    });
-
-    if (!response.ok) {
-      throw new Error('백엔드 브리지 서버 응답 오류');
-    }
-
-    const { token } = await response.json();
-    return token;
-  } catch (error) {
-    console.error('브리지 토큰 생성 실패, IndexedDB 폴백 시도:', error);
-
+    await idbSet(IDB_PAYLOAD_KEY, payload);
+    console.info('IndexedDB에 페이로드 저장 완료');
+    return null;
+  } catch (idbError) {
+    console.warn('IndexedDB 저장 실패, sessionStorage 폴백 시도:', idbError);
     try {
-      await idbSet(IDB_PAYLOAD_KEY, payload);
-      console.info('IndexedDB에 페이로드 저장 완료 (폴백)');
-      return null;
-    } catch (idbError) {
-      console.warn('IndexedDB 저장 실패, sessionStorage 마지막 폴백 시도:', idbError);
-      try {
-        sessionStorage.setItem(EDITING_BRIDGE_KEY, safeStringify(payload));
-      } catch (e) {
-        console.warn('sessionStorage 용량 초과 — 데이터 전달 불가');
-      }
-      return null;
+      sessionStorage.setItem(EDITING_BRIDGE_KEY, safeStringify(payload));
+    } catch (e) {
+      console.warn('sessionStorage 용량 초과 — 데이터 전달 불가');
     }
+    return null;
   }
 }
 
