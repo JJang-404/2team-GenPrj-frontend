@@ -507,7 +507,7 @@ export default function App() {
         const settled = await Promise.allSettled(
           optValues.map((opt) =>
             callApi.generateBackground({
-              customPrompt: promptKo,
+              customPrompt: promptHint,
               imageBase64,
               opt,
             }),

@@ -7,12 +7,6 @@ import { adverApi } from './adverApi';
 import {
   EMPTY_INPUT_FALLBACK,
 } from '../common/defines';
-import { 
-  SCENE_PROMPTS, 
-  COFFEE_RELATED_KEYWORDS,
-  createUniversalPositivePrompt,
-  getUniversalNegativePrompt
-} from '../../modules/editing/constants/prompts';
 
 const normalizeValue = (value) => {
   const text = String(value ?? '').trim();
@@ -272,43 +266,21 @@ class CallApi extends BaseApi {
   }
 
   /**
-   * AI 배경 생성용 포지티브 프롬프트를 조립합니다.
-   * - 업종 구분 없이 범용 고출력 템플릿에 키워드를 직접 치환하여 생성합니다. [REFACTORED]
-   */
-  _buildBackgroundPrompt(customPrompt = '', industry = '') {
-    // 프론트엔드 단독으로 템플릿 내 플레이스홀더를 치환하여 완성된 프롬프트를 만듭니다.
-    const finalPrompt = createUniversalPositivePrompt(customPrompt);
-    
-    console.log('[CallApi] 범용 고출력 프롬프트 조립 완료 (Industry agnostic)');
-    
-    return finalPrompt;
-  }
-
-  /**
-   * AI 배경 생성용 네거티브 프롬프트를 반환합니다. [REFACTORED]
-   */
-  _buildBackgroundNegativePrompt() {
-    return getUniversalNegativePrompt();
-  }
-
-  /**
    * AI 배경 이미지를 생성합니다.
-   * - industry가 제공되면 업종별 최적화된 베이스 프롬프트를 적용합니다. [NEW]
-   * - opt(0/1/2)는 `_opt` 엔드포인트에서 3개 샘플을 구분할 때 사용합니다.
+   * - `prompt`에 사용자 의도만 전달하고, positive/negative는 빈 값으로 보냅니다.
+   *   백엔드가 opt(0/1/2) 분기에 따라 LLM으로 SD용 positive/negative를 생성합니다.
    *
-   * @param {{ customPrompt?: string, imageBase64?: string, industry?: string, opt?: number }} [options]
-   * @returns {Promise<{ ok: boolean, blobUrl?: string, error?: string, prompt: string, negativePrompt: string, apiUrl?: string, statusCode?: number, positivePrompt?: string, contentType?: string }>}
+   * @param {{ customPrompt?: string, imageBase64?: string, opt?: number }} [options]
+   * @returns {Promise<{ ok: boolean, blobUrl?: string, error?: string, prompt: string, apiUrl?: string, statusCode?: number, positivePrompt?: string, contentType?: string }>}
    */
   async generateBackground(options = {}) {
-    const { customPrompt = '', imageBase64 = '', industry = '', opt = 0 } = options;
-    const prompt = this._buildBackgroundPrompt(customPrompt, industry);
-    const negativePrompt = this._buildBackgroundNegativePrompt();
+    const { customPrompt = '', imageBase64 = '', opt = 0 } = options;
+    const prompt = (customPrompt || '').trim();
 
     console.log(
       '[CallApi] generateBackground 시작',
       imageBase64 ? `(제품 가이드 모드, opt=${opt})` : '(텍스트 전용 모드)',
     );
-    console.log('[CallApi] 타겟 업종:', industry || '미지정');
 
     // strength 0.9는 백엔드 changeimage.json의 denoise 기본값과 일치 (제품 구도는 가이드, 배경은 새로 생성)
     const result = imageBase64
@@ -316,11 +288,11 @@ class CallApi extends BaseApi {
           opt,
           prompt,
           positive_prompt: '',
-          negative_prompt: negativePrompt,
+          negative_prompt: '',
           image_base64: imageBase64,
           strength: 0.9,
         })
-      : await modelApi.generateImage(prompt, '', negativePrompt);
+      : await modelApi.generateImage(prompt, '', '');
 
     if (result.ok) {
       console.log(`[CallApi] AI 배경 생성 성공 (opt=${opt}):`, result.blobUrl);
@@ -328,7 +300,7 @@ class CallApi extends BaseApi {
       console.error(`[CallApi] AI 배경 생성 실패 (opt=${opt}):`, result.error || result.statusCode);
     }
 
-    return { ...result, prompt, negativePrompt };
+    return { ...result, prompt };
   }
 
   /**

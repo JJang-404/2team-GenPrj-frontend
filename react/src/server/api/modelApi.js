@@ -952,50 +952,11 @@ class ModelApi extends BaseApi {
       }
 
       const resultPath = `/model/changeimagecomfyui_opt/jobs/${jobId}/result`;
-      try {
-        const resultResponse = await this.apiClient.get(resultPath, { timeout: 60000 });
-        const data = resultResponse.data || {};
-        const contentType = data.content_type || 'image/png';
-        const imageBase64Result = data.image_base64 || '';
-        if (!imageBase64Result) {
-          return {
-            ok: false,
-            apiUrl: this.buildUrl(resultPath),
-            error: '응답에 image_base64가 없습니다.',
-          };
-        }
-        const dataUrl = `data:${contentType};base64,${imageBase64Result}`;
-        return {
-          ok: true,
-          apiUrl: this.buildUrl(resultPath),
-          blobUrl: dataUrl,
-          positivePrompt: data.positive_prompt,
-          negativePrompt: data.negative_prompt,
-          contentType,
-        };
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status === 409) {
-            return {
-              ok: false,
-              apiUrl: this.buildUrl(resultPath),
-              error: '작업이 아직 완료되지 않았습니다.',
-            };
-          }
-          if (error.response?.status === 500) {
-            return {
-              ok: false,
-              apiUrl: this.buildUrl(resultPath),
-              error: error.response.data?.statusMsg || '작업 결과 오류',
-            };
-          }
-        }
-        return {
-          ok: false,
-          apiUrl: this.buildUrl(resultPath),
-          error: `결과 조회 실패: ${error.message}`,
-        };
-      }
+      const fetchResult = await this.fetchJobResult(resultPath);
+      return {
+        ...fetchResult,
+        apiUrl: this.buildUrl(resultPath),
+      };
     } catch (error) {
       return {
         ok: false,
