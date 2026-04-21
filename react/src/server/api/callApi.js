@@ -305,9 +305,9 @@ class CallApi extends BaseApi {
     console.log('[CallApi] generateBackground 시작', imageBase64 ? '(제품 가이드 모드)' : '(텍스트 전용 모드)');
     console.log('[CallApi] 타겟 업종:', industry || '미지정');
 
-    // 노이즈 제거(Denoising) 강도를 1.0으로 설정하여 제품 이미지를 가이드로 쓰되 배경은 100% 새로 생성 [MODIFIED]
+    // strength 0.9는 백엔드 changeimage.json의 denoise 기본값과 일치 (제품 구도는 가이드, 배경은 새로 생성)
     const result = imageBase64
-      ? await modelApi.changeImage(prompt, imageBase64, 1.0, '', negativePrompt)
+      ? await modelApi.changeImage(prompt, imageBase64, 0.9, '', negativePrompt)
       : await modelApi.generateImage(prompt, '', negativePrompt);
 
     if (result.ok) {

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776561044342,
+  "lastScanned": 1776691370690,
   "projectRoot": "D:\\01.project\\2team-GenPrj-frontend",
   "techStack": {
     "languages": [],
@@ -38,14 +38,14 @@
       "path": "doc",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776561044306,
+      "lastAccessed": 1776691370644,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 4,
-      "lastAccessed": 1776561044307,
+      "lastAccessed": 1776691370644,
       "keyFiles": [
         "EDITING_MODULE.md",
         "EDITING_RIGHT_PANEL_TOGGLE.md",
@@ -57,7 +57,7 @@
       "path": "react",
       "purpose": null,
       "fileCount": 9,
-      "lastAccessed": 1776561044308,
+      "lastAccessed": 1776691370645,
       "keyFiles": [
         "index.html",
         "package-lock.json",
@@ -66,18 +66,29 @@
         "README.md"
       ]
     },
+    "react\\dist": {
+      "path": "react\\dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 4,
+      "lastAccessed": 1776691370647,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg",
+        "img.jpg"
+      ]
+    },
     "react\\node_modules": {
       "path": "react\\node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1776561044310,
+      "lastAccessed": 1776691370647,
       "keyFiles": []
     },
     "react\\public": {
       "path": "react\\public",
       "purpose": "Public files",
       "fileCount": 3,
-      "lastAccessed": 1776561044311,
+      "lastAccessed": 1776691370648,
       "keyFiles": [
         "favicon.svg",
         "icons.svg",
@@ -93,15 +104,39 @@
       "type": "directory"
     },
     {
-      "path": "react\\src\\modules\\editing\\components\\sidebar\\BackgroundOptionsSection.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1776584798322,
+      "path": "react\\src\\modules\\editing\\App.tsx",
+      "accessCount": 15,
+      "lastAccessed": 1776730254350,
       "type": "file"
     },
     {
-      "path": "react\\src\\modules\\editing\\App.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1776613136655,
+      "path": "react\\src\\modules\\editing",
+      "accessCount": 8,
+      "lastAccessed": 1776730260840,
+      "type": "directory"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\components\\sidebar\\BackgroundOptionsSection.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776691542269,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\components\\EditorCanvas.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776730193174,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\server\\api\\callApi.js",
+      "accessCount": 6,
+      "lastAccessed": 1776730206942,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\server\\api\\modelApi.js",
+      "accessCount": 4,
+      "lastAccessed": 1776730134630,
       "type": "file"
     },
     {
@@ -111,27 +146,51 @@
       "type": "file"
     },
     {
+      "path": "react\\src\\modules\\editing\\components\\Sidebar.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776691560138,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\utils\\backgroundGeneration.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776692215099,
+      "type": "file"
+    },
+    {
+      "path": "react\\src",
+      "accessCount": 3,
+      "lastAccessed": 1776692457190,
+      "type": "directory"
+    },
+    {
       "path": "react\\src\\shared\\backgroundStyle.ts",
       "accessCount": 2,
       "lastAccessed": 1776613136303,
       "type": "file"
     },
     {
-      "path": "react\\src\\modules\\editing\\components\\Sidebar.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776582996048,
+      "path": "react\\src\\modules\\editing\\components\\BackgroundCard.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776691556389,
       "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\utils\\canvas.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776730080167,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\server\\api",
+      "accessCount": 2,
+      "lastAccessed": 1776730140787,
+      "type": "directory"
     },
     {
       "path": "doc\\0419\\bg_sync_fix_plan.md",
       "accessCount": 1,
       "lastAccessed": 1776583068007,
-      "type": "file"
-    },
-    {
-      "path": "react\\src\\modules\\editing\\utils\\backgroundGeneration.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776583537540,
       "type": "file"
     },
     {
@@ -159,21 +218,9 @@
       "type": "file"
     },
     {
-      "path": "react\\src\\modules\\editing\\components\\BackgroundCard.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776584997116,
-      "type": "file"
-    },
-    {
       "path": "doc\\0419\\background_flicker_fix.md",
       "accessCount": 1,
       "lastAccessed": 1776585172798,
-      "type": "file"
-    },
-    {
-      "path": "react\\src\\modules\\editing\\components\\EditorCanvas.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776613142704,
       "type": "file"
     },
     {
@@ -211,6 +258,78 @@
       "accessCount": 1,
       "lastAccessed": 1776649023072,
       "type": "file"
+    },
+    {
+      "path": "doc\\0409\\ai-background-integration.md",
+      "accessCount": 1,
+      "lastAccessed": 1776691543424,
+      "type": "file"
+    },
+    {
+      "path": "doc\\0410\\ai_background_final_report.md",
+      "accessCount": 1,
+      "lastAccessed": 1776691543473,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\api\\client.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776691549918,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\types\\api.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776691552830,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\constants\\prompts.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776691553279,
+      "type": "file"
+    },
+    {
+      "path": "doc\\0411\\ai_background_pure_generation_report.md",
+      "accessCount": 1,
+      "lastAccessed": 1776691564405,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\types\\editor-core.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776691564659,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\types",
+      "accessCount": 1,
+      "lastAccessed": 1776692210280,
+      "type": "directory"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\types\\home.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776692214103,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\w00sh\\.claude\\projects\\D--01-project-2team-GenPrj-frontend\\memory\\MEMORY.md",
+      "accessCount": 1,
+      "lastAccessed": 1776729959900,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\w00sh\\.claude\\projects\\D--01-project-2team-GenPrj-frontend\\memory\\spec_ai_background_img2img.md",
+      "accessCount": 1,
+      "lastAccessed": 1776729978576,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\styles\\global.css",
+      "accessCount": 1,
+      "lastAccessed": 1776730121454,
+      "type": "directory"
     }
   ],
   "userDirectives": []

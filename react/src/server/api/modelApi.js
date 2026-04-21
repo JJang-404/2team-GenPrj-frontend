@@ -155,7 +155,7 @@ class ModelApi extends BaseApi {
   async changeImageComfyUIAsync(prompt, imageBase64, strength = 0.45, positivePrompt = '', negativePrompt = '') {
     return this._pollJobAsync('/model/changeimagecomfyui/jobs', {
       prompt,
-      image_base_64: imageBase64,
+      image_base64: imageBase64,
       strength,
       positive_prompt: (positivePrompt && positivePrompt.trim()) || undefined,
       negative_prompt: (negativePrompt && negativePrompt.trim()) || undefined,

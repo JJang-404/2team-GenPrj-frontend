@@ -55,35 +55,19 @@ const DEFAULT_BACKGROUND_COLOR_DRAFT: BackgroundColorDraft = {
   pastel: ['#ffffff', '#1f1f1f'],
 };
 
-// ─── AI 배경 스타일 변형 정의 ──────────────────────────────────────────────────
-// 한국어로 작성하면 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 SD3.5 영문으로 번역합니다.
-// 새 스타일 추가 시 이 배열에만 항목을 추가하면 됩니다.
-const BACKGROUND_VARIANTS = [
-  { label: '고급', style: '고급스럽고 프리미엄한 분위기' },
-  { label: '빈티지', style: '빈티지 레트로 감성' },
-  { label: '세련', style: '세련되고 모던한 미니멀' },
-  { label: '활기찬', style: '밝고 활기찬 따뜻한 색감' },
-] as const;
-
-// 테스트용: 생성할 배경 수 (전체 생성 시 BACKGROUND_VARIANTS.length 로 변경)
-const GENERATE_VARIANT_COUNT = 1;
-
-// ─── 후보군 항목 타입 (as const 로 인한 widening 방지) ─────────────────────────
-type BackgroundVariant = (typeof BACKGROUND_VARIANTS)[number];
-
 // ─── AI 배경 후보 객체를 생성하는 순수 함수 ────────────────────────────────────
+// img2img 전환 후: 단일 호출만 사용하므로 variant 구조 제거
 function buildAiCandidate(
   res: { blobUrl?: string; prompt?: string; negativePrompt?: string },
-  variant: BackgroundVariant,
   index: number,
 ): BackgroundCandidate {
   return {
     id: `ai-gen-${Date.now()}-${index}`,
-    name: `AI 배경 ${index + 1} (${variant.label})`,
+    name: `AI 배경 ${index + 1}`,
     mode: 'ai-image' as const,
     cssBackground: 'transparent',
     imageUrl: res.blobUrl!,
-    note: `${variant.label} 스타일로 생성된 배경입니다.`,
+    note: '제품 구도를 참조하여 생성된 배경입니다.',
     translatedPrompt: res.prompt ?? '',
     negativePrompt: res.negativePrompt ?? '',
   };
@@ -503,47 +487,32 @@ export default function App() {
         return;
       }
 
-      // [Case B] AI 이미지 생성 모드 — GENERATE_VARIANT_COUNT 만큼 병렬 생성
-      const activeVariants = BACKGROUND_VARIANTS.slice(0, GENERATE_VARIANT_COUNT);
-      console.log(`[Editing] AI 이미지 생성 시작 (${activeVariants.length}개 요청)`);
+      // [Case B] AI 이미지 생성 모드 (img2img)
+      // captureRef는 captureMode=true인 미러 캔버스 — 텍스트/로고/배경은 data-html2canvas-ignore 처리되어 제품 이미지만 캡처됨
+      console.log('[Editing] AI 이미지 생성 시작 (img2img 모드)');
 
-      // 각 스타일별 생성 태스크 구성
-      // - 사용자 입력 프롬프트(promptKo)를 최우선으로 배치하고 스타일 키워드를 보조로 결합
-      // - 백엔드 GPT(OpenAiJob.build_prompt_bundle)가 한국어 → SD3.5 영문으로 번역
-      const generateTasks = activeVariants.map((variant, idx) => {
-        const combinedPrompt = promptKo.trim()
-          ? `${promptKo}, ${variant.style}`
-          : variant.style;
+      const captureRoot = captureRef.current;
+      if (!captureRoot) {
+        throw new Error('캡처 대상 캔버스를 찾을 수 없습니다.');
+      }
 
-        console.log(`[Editing] 배경 요청 #${idx + 1} (${variant.label}) 준비...`);
+      const imageBase64 = await captureElementAsDataUrl(captureRoot);
+      console.log('[Editing] MainPreview 캡처 완료, 백엔드에 이미지+프롬프트 전송');
 
-        return callApi.generateBackground({ customPrompt: combinedPrompt })
-          .then(res => {
-            console.log(`[Editing] 배경 요청 #${idx + 1} [${variant.label}]:`, res.ok ? '성공' : '실패');
-            return { res, variant, idx };
-          });
+      const res = await callApi.generateBackground({
+        customPrompt: promptKo,
+        imageBase64,
       });
 
-      const results = await Promise.all(generateTasks);
-      console.log('[Editing] 모든 배경 생성 완료. 결과 분석 중...');
-
-      // 성공한 결과만 후보군(BackgroundCandidate)으로 변환
-      const newCandidates = results
-        .filter(({ res }) => {
-          if (!res.ok) console.warn('[Editing] 생성 실패:', res.error);
-          return res.ok && res.blobUrl;
-        })
-        .map(({ res, variant, idx }) => buildAiCandidate(res, variant, idx));
-
-      console.log(`[Editing] 유효한 새 후보군 수: ${newCandidates.length}`);
-
-      if (newCandidates.length > 0) {
-        setBackgroundCandidates(newCandidates.slice(0, 4));
-        setSelectedBackgroundId(newCandidates[0].id); // 첫 번째 이미지를 자동 선택
-        console.log('[Editing] 배경 후보군 업데이트 완료');
-      } else {
+      if (!res.ok || !res.blobUrl) {
+        console.warn('[Editing] 생성 실패:', res.error);
         throw new Error('서버로부터 배경 이미지를 받지 못했습니다. 백엔드 상태를 확인하세요.');
       }
+
+      const candidate = buildAiCandidate(res, 0);
+      setBackgroundCandidates([candidate]);
+      setSelectedBackgroundId(candidate.id);
+      console.log('[Editing] 배경 후보군 업데이트 완료');
 
     } catch (err) {
       console.error('[배경 생성 오류]', err);
@@ -567,7 +536,8 @@ export default function App() {
 
     setRightPanelMode('background');
 
-    if (backgroundCandidates.length >= 4) {
+    const threshold = backgroundMode === 'ai-image' ? 1 : 4;
+    if (backgroundCandidates.length >= threshold) {
       return;
     }
 

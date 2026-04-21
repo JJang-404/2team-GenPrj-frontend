@@ -3,6 +3,7 @@ import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import type { BackgroundCandidate, EditorElement } from '../types/editor';
 import { clamp, toPercent } from '../utils/editor';
 import { ratioToAspectValue } from '../utils/ratio';
+import { isPrimaryImageElement } from '../utils/editorFlow';
 
 // 모든 폰트 비율의 기준이 되는 캔버스 너비
 const REFERENCE_WIDTH = 580;
@@ -150,7 +151,10 @@ export default function EditorCanvas({
         onClick={() => onSelect(null)}
       >
         {background?.mode === 'pastel' && background?.colors ? (
-          <div className="editor-stage__background-part-container">
+          <div
+            className="editor-stage__background-part-container"
+            data-html2canvas-ignore={captureMode ? 'true' : undefined}
+          >
             <div
               className="editor-stage__background-part"
               style={{
@@ -177,7 +181,8 @@ export default function EditorCanvas({
         ) : (
           <div
             className="editor-stage__background"
-            style={{ background: background?.cssBackground ?? '#f3f4f6' }}
+            style={{ background: captureMode ? 'transparent' : (background?.cssBackground ?? '#f3f4f6') }}
+            data-html2canvas-ignore={captureMode ? 'true' : undefined}
           />
         )}
         {showGeneratedImage && (
@@ -185,6 +190,7 @@ export default function EditorCanvas({
             src={background.imageUrl}
             alt={background.name}
             className="editor-stage__background-image"
+            data-html2canvas-ignore={captureMode ? 'true' : undefined}
           />
         )}
         {elements
@@ -219,11 +225,15 @@ export default function EditorCanvas({
               filter: shadow,
             };
 
+            const ignoreInCapture =
+              captureMode && (element.kind === 'text' || element.kind === 'shape' || !isPrimaryImageElement(element));
+
             return (
               <div
                 key={element.id}
                 className={`canvas-element canvas-element--${element.kind} ${selected ? 'selected' : ''}`}
                 style={base}
+                data-html2canvas-ignore={ignoreInCapture ? 'true' : undefined}
                 onMouseDown={(event) => startMove(event, element)}
                 onClick={(event) => {
                   event.stopPropagation();

@@ -130,6 +130,18 @@
   },
   "hotPaths": [
     {
+      "path": "src\\server\\api\\modelApi.js",
+      "accessCount": 3,
+      "lastAccessed": 1776731866362,
+      "type": "file"
+    },
+    {
+      "path": "src\\modules\\editing\\App.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776730323729,
+      "type": "file"
+    },
+    {
       "path": "src/modules/editing/utils/editorFlow.ts",
       "accessCount": 1,
       "lastAccessed": 1776608002607,
