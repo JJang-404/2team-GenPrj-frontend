@@ -98,15 +98,21 @@
   },
   "hotPaths": [
     {
+      "path": "react\\src\\modules\\editing\\App.tsx",
+      "accessCount": 21,
+      "lastAccessed": 1776759298437,
+      "type": "file"
+    },
+    {
       "path": "react/src/modules/editing/App.tsx",
       "accessCount": 17,
       "lastAccessed": 1776649030194,
       "type": "directory"
     },
     {
-      "path": "react\\src\\modules\\editing\\App.tsx",
-      "accessCount": 15,
-      "lastAccessed": 1776730254350,
+      "path": "react\\src\\server\\api\\callApi.js",
+      "accessCount": 10,
+      "lastAccessed": 1776761452703,
       "type": "file"
     },
     {
@@ -114,6 +120,12 @@
       "accessCount": 8,
       "lastAccessed": 1776730260840,
       "type": "directory"
+    },
+    {
+      "path": "react\\src\\server\\api\\modelApi.js",
+      "accessCount": 8,
+      "lastAccessed": 1776759221368,
+      "type": "file"
     },
     {
       "path": "react\\src\\modules\\editing\\components\\sidebar\\BackgroundOptionsSection.tsx",
@@ -128,16 +140,10 @@
       "type": "file"
     },
     {
-      "path": "react\\src\\server\\api\\callApi.js",
+      "path": "react\\src",
       "accessCount": 6,
-      "lastAccessed": 1776730206942,
-      "type": "file"
-    },
-    {
-      "path": "react\\src\\server\\api\\modelApi.js",
-      "accessCount": 4,
-      "lastAccessed": 1776730134630,
-      "type": "file"
+      "lastAccessed": 1776761462559,
+      "type": "directory"
     },
     {
       "path": "react\\src\\modules\\editing\\utils\\initialBackground.ts",
@@ -158,10 +164,10 @@
       "type": "file"
     },
     {
-      "path": "react\\src",
+      "path": "react\\src\\modules\\editing\\utils\\canvas.ts",
       "accessCount": 3,
-      "lastAccessed": 1776692457190,
-      "type": "directory"
+      "lastAccessed": 1776759056134,
+      "type": "file"
     },
     {
       "path": "react\\src\\shared\\backgroundStyle.ts",
@@ -176,16 +182,28 @@
       "type": "file"
     },
     {
-      "path": "react\\src\\modules\\editing\\utils\\canvas.ts",
-      "accessCount": 2,
-      "lastAccessed": 1776730080167,
-      "type": "file"
-    },
-    {
       "path": "react\\src\\server\\api",
       "accessCount": 2,
       "lastAccessed": 1776730140787,
       "type": "directory"
+    },
+    {
+      "path": "doc\\0421\\API_backend.md",
+      "accessCount": 2,
+      "lastAccessed": 1776739702538,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\styles\\global.css",
+      "accessCount": 2,
+      "lastAccessed": 1776759178546,
+      "type": "directory"
+    },
+    {
+      "path": "react\\src\\modules\\editing\\constants\\prompts.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776761468534,
+      "type": "file"
     },
     {
       "path": "doc\\0419\\bg_sync_fix_plan.md",
@@ -284,12 +302,6 @@
       "type": "file"
     },
     {
-      "path": "react\\src\\modules\\editing\\constants\\prompts.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776691553279,
-      "type": "file"
-    },
-    {
       "path": "doc\\0411\\ai_background_pure_generation_report.md",
       "accessCount": 1,
       "lastAccessed": 1776691564405,
@@ -326,10 +338,22 @@
       "type": "file"
     },
     {
-      "path": "react\\src\\modules\\editing\\styles\\global.css",
+      "path": "react\\src\\server\\api\\imageApi.js",
       "accessCount": 1,
-      "lastAccessed": 1776730121454,
-      "type": "directory"
+      "lastAccessed": 1776759056193,
+      "type": "file"
+    },
+    {
+      "path": "react\\src\\server\\api\\baseApi.js",
+      "accessCount": 1,
+      "lastAccessed": 1776759057335,
+      "type": "file"
+    },
+    {
+      "path": "doc\\0421\\ai-bg-changeimage-opt-backend-report.md",
+      "accessCount": 1,
+      "lastAccessed": 1776761148656,
+      "type": "file"
     }
   ],
   "userDirectives": []

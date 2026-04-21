@@ -294,26 +294,38 @@ class CallApi extends BaseApi {
   /**
    * AI 배경 이미지를 생성합니다.
    * - industry가 제공되면 업종별 최적화된 베이스 프롬프트를 적용합니다. [NEW]
+   * - opt(0/1/2)는 `_opt` 엔드포인트에서 3개 샘플을 구분할 때 사용합니다.
    *
-   * @param {{ customPrompt?: string, imageBase64?: string, industry?: string }} [options]
+   * @param {{ customPrompt?: string, imageBase64?: string, industry?: string, opt?: number }} [options]
+   * @returns {Promise<{ ok: boolean, blobUrl?: string, error?: string, prompt: string, negativePrompt: string, apiUrl?: string, statusCode?: number, positivePrompt?: string, contentType?: string }>}
    */
   async generateBackground(options = {}) {
-    const { customPrompt = '', imageBase64 = '', industry = '' } = options;
+    const { customPrompt = '', imageBase64 = '', industry = '', opt = 0 } = options;
     const prompt = this._buildBackgroundPrompt(customPrompt, industry);
     const negativePrompt = this._buildBackgroundNegativePrompt();
 
-    console.log('[CallApi] generateBackground 시작', imageBase64 ? '(제품 가이드 모드)' : '(텍스트 전용 모드)');
+    console.log(
+      '[CallApi] generateBackground 시작',
+      imageBase64 ? `(제품 가이드 모드, opt=${opt})` : '(텍스트 전용 모드)',
+    );
     console.log('[CallApi] 타겟 업종:', industry || '미지정');
 
     // strength 0.9는 백엔드 changeimage.json의 denoise 기본값과 일치 (제품 구도는 가이드, 배경은 새로 생성)
     const result = imageBase64
-      ? await modelApi.changeImage(prompt, imageBase64, 0.9, '', negativePrompt)
+      ? await modelApi.changeImageComfyUIOptAsync({
+          opt,
+          prompt,
+          positive_prompt: '',
+          negative_prompt: negativePrompt,
+          image_base64: imageBase64,
+          strength: 0.9,
+        })
       : await modelApi.generateImage(prompt, '', negativePrompt);
 
     if (result.ok) {
-      console.log('[CallApi] AI 배경 생성 성공:', result.blobUrl);
+      console.log(`[CallApi] AI 배경 생성 성공 (opt=${opt}):`, result.blobUrl);
     } else {
-      console.error('[CallApi] AI 배경 생성 실패:', result.error || result.statusCode);
+      console.error(`[CallApi] AI 배경 생성 실패 (opt=${opt}):`, result.error || result.statusCode);
     }
 
     return { ...result, prompt, negativePrompt };

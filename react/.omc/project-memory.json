@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776607696180,
-  "projectRoot": "/home/codeitDev/project/2team-GenPrj-frontend/react",
+  "lastScanned": 1776760869383,
+  "projectRoot": "D:\\01.project\\2team-GenPrj-frontend\\react",
   "techStack": {
     "languages": [
       {
@@ -76,7 +76,7 @@
       "path": "dist",
       "purpose": "Distribution/build output",
       "fileCount": 4,
-      "lastAccessed": 1776607696154,
+      "lastAccessed": 1776760869303,
       "keyFiles": [
         "favicon.svg",
         "icons.svg",
@@ -88,7 +88,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 3,
-      "lastAccessed": 1776607696159,
+      "lastAccessed": 1776760869304,
       "keyFiles": [
         "favicon.svg",
         "icons.svg",
@@ -99,29 +99,29 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 3,
-      "lastAccessed": 1776607696164,
+      "lastAccessed": 1776760869328,
       "keyFiles": [
         "App.tsx",
         "main.tsx",
         "server.zip"
       ]
     },
-    "dist/assets": {
-      "path": "dist/assets",
+    "dist\\assets": {
+      "path": "dist\\assets",
       "purpose": "Static assets",
       "fileCount": 7,
-      "lastAccessed": 1776607696169,
+      "lastAccessed": 1776760869330,
       "keyFiles": [
-        "index-D9IOhx8Z.js",
+        "index-CGFtlros.js",
         "index-DUmQZWuK.css",
         "ort-wasm-simd-threaded.jsep-D5Jk56-t.wasm"
       ]
     },
-    "src/pages": {
-      "path": "src/pages",
+    "src\\pages": {
+      "path": "src\\pages",
       "purpose": "Page components",
       "fileCount": 2,
-      "lastAccessed": 1776607696177,
+      "lastAccessed": 1776760869331,
       "keyFiles": [
         "EditingPage.tsx",
         "InitPage.tsx"
@@ -146,6 +146,12 @@
       "accessCount": 1,
       "lastAccessed": 1776608002607,
       "type": "directory"
+    },
+    {
+      "path": "src\\server\\api\\callApi.js",
+      "accessCount": 1,
+      "lastAccessed": 1776759353936,
+      "type": "file"
     }
   ],
   "userDirectives": []

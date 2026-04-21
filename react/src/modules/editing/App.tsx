@@ -140,6 +140,7 @@ export default function App() {
    */
   const [prebakingProductIds, setPrebakingProductIds] = useState<Set<number>>(() => new Set());
   const [saving, setSaving] = useState(false);
+  const [isGeneratingAiBackground, setIsGeneratingAiBackground] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
   const mainPreviewRef = useRef<HTMLDivElement>(null);
   const autoCopyKeyRef = useRef('');
@@ -487,33 +488,66 @@ export default function App() {
         return;
       }
 
-      // [Case B] AI 이미지 생성 모드 (img2img)
-      // captureRef는 captureMode=true인 미러 캔버스 — 텍스트/로고/배경은 data-html2canvas-ignore 처리되어 제품 이미지만 캡처됨
-      console.log('[Editing] AI 이미지 생성 시작 (img2img 모드)');
+      // [Case B] AI 이미지 생성 모드 (img2img) — opt=0/1/2 3개 병렬
+      // 1회 캡처(mainPreviewRef) → 3개 opt job에 동일 base64 전달 → Promise.allSettled
+      // 생성 중에는 editing 전역 오버레이로 모든 클릭/입력 차단.
+      console.log('[Editing] AI 이미지 생성 시작 (img2img _opt 병렬 모드)');
 
-      const captureRoot = captureRef.current;
-      if (!captureRoot) {
-        throw new Error('캡처 대상 캔버스를 찾을 수 없습니다.');
+      setIsGeneratingAiBackground(true);
+      try {
+        const captureRoot = mainPreviewRef.current;
+        if (!captureRoot) {
+          throw new Error('캡처 대상 캔버스를 찾을 수 없습니다.');
+        }
+
+        const imageBase64 = await captureElementAsDataUrl(captureRoot);
+        console.log('[Editing] MainPreview 캡처 완료, opt=0/1/2 3개 job 병렬 실행');
+
+        const optValues = [0, 1, 2] as const;
+        const settled = await Promise.allSettled(
+          optValues.map((opt) =>
+            callApi.generateBackground({
+              customPrompt: promptKo,
+              imageBase64,
+              opt,
+            }),
+          ),
+        );
+
+        const succeeded: BackgroundCandidate[] = [];
+        const errors: string[] = [];
+        settled.forEach((entry, idx) => {
+          const optValue = optValues[idx];
+          if (entry.status === 'fulfilled' && entry.value?.ok && entry.value.blobUrl) {
+            succeeded.push(buildAiCandidate(entry.value, idx));
+          } else {
+            const reason =
+              entry.status === 'fulfilled'
+                ? entry.value?.error ?? '알 수 없는 오류'
+                : entry.reason instanceof Error
+                  ? entry.reason.message
+                  : String(entry.reason);
+            errors.push(`opt=${optValue}: ${reason}`);
+            console.warn(`[Editing] opt=${optValue} 생성 실패:`, reason);
+          }
+        });
+
+        if (succeeded.length === 0) {
+          const message =
+            errors.length > 0
+              ? `AI 배경 생성 실패 (3개 모두 실패):\n${errors.join('\n')}`
+              : 'AI 배경 생성 실패 (3개 모두 실패)';
+          window.alert(message);
+          console.error('[Editing] 3개 job 모두 실패');
+          return;
+        }
+
+        setBackgroundCandidates(succeeded);
+        setSelectedBackgroundId(succeeded[0].id);
+        console.log(`[Editing] 배경 후보군 업데이트 완료 (${succeeded.length}/3 성공)`);
+      } finally {
+        setIsGeneratingAiBackground(false);
       }
-
-      const imageBase64 = await captureElementAsDataUrl(captureRoot);
-      console.log('[Editing] MainPreview 캡처 완료, 백엔드에 이미지+프롬프트 전송');
-
-      const res = await callApi.generateBackground({
-        customPrompt: promptKo,
-        imageBase64,
-      });
-
-      if (!res.ok || !res.blobUrl) {
-        console.warn('[Editing] 생성 실패:', res.error);
-        throw new Error('서버로부터 배경 이미지를 받지 못했습니다. 백엔드 상태를 확인하세요.');
-      }
-
-      const candidate = buildAiCandidate(res, 0);
-      setBackgroundCandidates([candidate]);
-      setSelectedBackgroundId(candidate.id);
-      console.log('[Editing] 배경 후보군 업데이트 완료');
-
     } catch (err) {
       console.error('[배경 생성 오류]', err);
       setError(err instanceof Error ? err.message : '배경 생성 도중 오류가 발생했습니다.');
@@ -982,6 +1016,68 @@ export default function App() {
           </>
         )}
       </main>
+
+      {isGeneratingAiBackground && (
+        <div
+          className="ai-bg-overlay"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <style>{`
+            @keyframes ai-bg-overlay-spin { to { transform: rotate(360deg); } }
+            .ai-bg-overlay {
+              position: fixed;
+              inset: 0;
+              z-index: 9999;
+              background: rgba(15, 23, 42, 0.55);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              pointer-events: auto;
+              cursor: wait;
+            }
+            .ai-bg-overlay__box {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 18px;
+              color: #fff;
+              padding: 24px 32px;
+              border-radius: 16px;
+              background: rgba(15, 23, 42, 0.75);
+              box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+              backdrop-filter: blur(2px);
+            }
+            .ai-bg-overlay__spinner {
+              width: 56px;
+              height: 56px;
+              border: 4px solid rgba(255, 255, 255, 0.2);
+              border-top-color: #fff;
+              border-radius: 50%;
+              animation: ai-bg-overlay-spin 0.9s linear infinite;
+            }
+            .ai-bg-overlay__label {
+              margin: 0;
+              font-size: 1rem;
+              font-weight: 600;
+              letter-spacing: -0.01em;
+            }
+            .ai-bg-overlay__hint {
+              margin: 0;
+              font-size: 0.85rem;
+              color: rgba(255, 255, 255, 0.75);
+            }
+          `}</style>
+          <div className="ai-bg-overlay__box">
+            <div className="ai-bg-overlay__spinner" aria-hidden="true" />
+            <p className="ai-bg-overlay__label">AI 배경 생성 중...</p>
+            <p className="ai-bg-overlay__hint">3개 샘플을 동시에 만들고 있어요. 잠시만 기다려 주세요.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

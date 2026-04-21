@@ -16,13 +16,13 @@ class ImageApi extends BaseApi {
       });
 
       const responseData = response.data;
-      const ok = this.isApiSuccess(response.status, responseData);
+      const statusStr = responseData?.statusCode ? String(responseData.statusCode) : '';
+      const ok = response.status >= 200 && response.status < 300 && statusStr !== '100';
 
       return {
         ok,
         apiUrl: this.buildUrl(urlPath),
-        httpStatusCode: response.status,
-        statusCode: this.getApiStatusCode(responseData, response.status),
+        statusCode: response.status,
         requestBody: {
           user_id: userId,
           file_desc: fileDesc,
@@ -65,19 +65,13 @@ class ImageApi extends BaseApi {
         timeout: this.timeoutMs,
       });
 
-      const responseData = response.data;
-      const ok = this.isApiSuccess(response.status, responseData);
-
       return {
-        ok,
+        ok: response.status >= 200 && response.status < 300,
         apiUrl: this.buildUrl(urlPath),
-        httpStatusCode: response.status,
-        statusCode: this.getApiStatusCode(responseData, response.status),
+        statusCode: response.status,
         requestBody: body,
-        data: responseData?.datalist ?? responseData,
-        responseJson: responseData,
-        message: this.getResponseMessage(responseData, ok ? null : '이미지 목록 조회에 실패했습니다.'),
-        error: ok ? null : this.getResponseMessage(responseData, '이미지 목록 조회에 실패했습니다.'),
+        data: response.data,
+        error: null,
       };
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

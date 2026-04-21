@@ -15,53 +15,35 @@ class BaseApi {
   }
 
   buildUrl(urlPath) {
+    // dev 환경에서는 baseURL이 프록시 경로(/addhelper)라서 전체 URL이 필요 없음
+    if (import.meta.env && import.meta.env.DEV) {
+      return `${this.backendUrl}${urlPath}`;
+    }
+    // prod 환경에서는 실제 백엔드 전체 URL
     return `${this.backendUrl}${urlPath}`;
-  }
-
-  hasApiStatus(responseData) {
-    return responseData && typeof responseData === 'object' && 'statusCode' in responseData;
-  }
-
-  getApiStatusCode(responseData, fallbackStatusCode = null) {
-    if (this.hasApiStatus(responseData)) {
-      return responseData.statusCode;
-    }
-
-    return fallbackStatusCode;
-  }
-
-  isApiSuccess(httpStatusCode, responseData) {
-    const isHttpSuccess = httpStatusCode >= 200 && httpStatusCode < 300;
-    if (!isHttpSuccess) {
-      return false;
-    }
-
-    if (!this.hasApiStatus(responseData)) {
-      return true;
-    }
-
-    return String(responseData.statusCode) === '200';
   }
 
   getResponseMessage(responseData, fallbackMessage) {
     return responseData?.statusMsg || responseData?.data || fallbackMessage;
   }
 
+  getNetworkFailureMessage(urlPath) {
+    const apiUrl = this.buildUrl(urlPath);
+    const origin = typeof window !== 'undefined' ? window.location.origin : '알 수 없음';
+
+    return `네트워크 연결 실패: ${apiUrl} 서버 미응답(현재 앱 출처: ${origin}, CORS/SSL/도메인 접근 여부를 확인해 주세요).`;
+  }
+
   async get(urlPath) {
     try {
       const response = await this.apiClient.get(urlPath);
-      const responseData = response.data;
-      const ok = this.isApiSuccess(response.status, responseData);
 
       return {
-        ok,
+        ok: response.status >= 200 && response.status < 300,
         apiUrl: this.buildUrl(urlPath),
-        httpStatusCode: response.status,
-        statusCode: this.getApiStatusCode(responseData, response.status),
-        data: responseData?.datalist ?? responseData,
-        responseJson: responseData,
-        message: this.getResponseMessage(responseData, ok ? null : null),
-        error: ok ? null : this.getResponseMessage(responseData, '요청 처리 중 오류가 발생했습니다.'),
+        statusCode: response.status,
+        data: response.data,
+        error: null,
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -87,7 +69,7 @@ class BaseApi {
       return {
         ok: false,
         apiUrl: this.buildUrl(urlPath),
-        error: `요청 실패: ${error.message}`,
+        error: error.request ? this.getNetworkFailureMessage(urlPath) : `요청 실패: ${error.message}`,
       };
     }
   }
@@ -96,13 +78,13 @@ class BaseApi {
     try {
       const response = await this.apiClient.post(urlPath, body);
       const responseData = response.data;
-      const ok = this.isApiSuccess(response.status, responseData);
+      const statusStr = responseData?.statusCode ? String(responseData.statusCode) : '';
+      const ok = response.status >= 200 && response.status < 300 && statusStr !== '100';
 
       return {
         ok,
         apiUrl: this.buildUrl(urlPath),
-        httpStatusCode: response.status,
-        statusCode: this.getApiStatusCode(responseData, response.status),
+        statusCode: response.status,
         requestBody: body,
         responseJson: responseData,
         data: responseData?.datalist ?? null,
@@ -136,7 +118,7 @@ class BaseApi {
         ok: false,
         apiUrl: this.buildUrl(urlPath),
         requestBody: body,
-        error: `요청 실패: ${error.message}`,
+        error: error.request ? this.getNetworkFailureMessage(urlPath) : `요청 실패: ${error.message}`,
       };
     }
   }
