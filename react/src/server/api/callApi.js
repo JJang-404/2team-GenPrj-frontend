@@ -5,6 +5,10 @@ import { imageApi } from './imageApi';
 import { storeInfo } from './storeInfo';
 import { adverApi } from './adverApi';
 import {
+  BG_BASE_POSITIVE_PROMPT,
+  BG_BASE_NEGATIVE_PROMPT,
+} from '../../modules/editing/constants/prompts';
+import {
   EMPTY_INPUT_FALLBACK,
 } from '../common/defines';
 
@@ -267,8 +271,9 @@ class CallApi extends BaseApi {
 
   /**
    * AI 배경 이미지를 생성합니다.
-   * - `prompt`에 사용자 의도만 전달하고, positive/negative는 빈 값으로 보냅니다.
-   *   백엔드가 opt(0/1/2) 분기에 따라 LLM으로 SD용 positive/negative를 생성합니다.
+   * - `prompt`에 사용자 의도만 전달하고, positive/negative는 changeimage.json Node 8/9의
+   *   고정 기본값(BG_BASE_POSITIVE_PROMPT / BG_BASE_NEGATIVE_PROMPT)을 보냅니다.
+   *   백엔드가 opt(0/1/2) 분기에 따라 이 값과 사용자 입력을 LLM에 전달합니다.
    *
    * @param {{ customPrompt?: string, imageBase64?: string, opt?: number }} [options]
    * @returns {Promise<{ ok: boolean, blobUrl?: string, error?: string, prompt: string, apiUrl?: string, statusCode?: number, positivePrompt?: string, contentType?: string }>}
@@ -287,8 +292,8 @@ class CallApi extends BaseApi {
       ? await modelApi.changeImageComfyUIOptAsync({
           opt,
           prompt,
-          positive_prompt: '',
-          negative_prompt: '',
+          positive_prompt: BG_BASE_POSITIVE_PROMPT,
+          negative_prompt: BG_BASE_NEGATIVE_PROMPT,
           image_base64: imageBase64,
           strength: 0.9,
         })

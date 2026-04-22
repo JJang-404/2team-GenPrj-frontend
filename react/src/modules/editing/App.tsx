@@ -25,6 +25,7 @@ import {
 } from './utils/editorFlow';
 import { ADDITIONAL_INFO_ITEMS, type AdditionalInfoKey } from './utils/additionalInfo';
 import { captureElementAsDataUrl } from './utils/canvas';
+import { captureProductOnly } from './utils/captureProductOnly';
 import { readFileAsDataUrl } from './utils/file';
 import { removeBgPipeline } from '../initPage/utils/removeBackground';
 import {
@@ -448,6 +449,12 @@ export default function App() {
 
   const handleGenerateBackgrounds = async () => {
     if (!selectedTemplateId || !projectData) return;
+
+    if (backgroundMode === 'ai-image' && !promptHint.trim()) {
+      window.alert('배경 설명을 입력해 주세요.');
+      return;
+    }
+
     suspendInitialBackgroundSyncRef.current = false;
 
     setGenerating(true);
@@ -495,13 +502,15 @@ export default function App() {
 
       setIsGeneratingAiBackground(true);
       try {
-        const captureRoot = mainPreviewRef.current;
-        if (!captureRoot) {
+        const aiCaptureRoot =
+          mainPreviewRef.current?.querySelector<HTMLElement>('.editor-stage__canvas');
+        if (!aiCaptureRoot) {
           throw new Error('캡처 대상 캔버스를 찾을 수 없습니다.');
         }
 
-        const imageBase64 = await captureElementAsDataUrl(captureRoot);
-        console.log('[Editing] MainPreview 캡처 완료, opt=0/1/2 3개 job 병렬 실행');
+        const imageBase64 = await captureProductOnly(aiCaptureRoot, renderElements);
+
+        console.log('[Editing] product-only 캡처 완료 (Canvas 2D / DOM px), opt=0/1/2 3개 job 병렬 실행');
 
         const optValues = [0, 1, 2] as const;
         const settled = await Promise.allSettled(
@@ -942,7 +951,6 @@ export default function App() {
               selectedElementIds={[]}
               onSelect={() => { }}
               onChangeElement={(_id, _patch) => { }}
-              captureMode
             />
           </div>
         </div>

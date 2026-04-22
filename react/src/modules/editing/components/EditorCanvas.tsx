@@ -233,6 +233,7 @@ export default function EditorCanvas({
                 key={element.id}
                 className={`canvas-element canvas-element--${element.kind} ${selected ? 'selected' : ''}`}
                 style={base}
+                data-element-id={element.id}
                 data-html2canvas-ignore={ignoreInCapture ? 'true' : undefined}
                 onMouseDown={(event) => startMove(event, element)}
                 onClick={(event) => {
