@@ -37,6 +37,10 @@ import { readEditingBridgePayload } from './utils/editingBridge';
 import { buildInitialBackgroundCandidate } from './utils/initialBackground';
 import { prebakeProductImages, prebakeSingleProductImage } from './utils/productImagePrebake';
 import { useAiDesignSystem } from './hooks/useAiDesignSystem';
+import {
+  createAiBackgroundPositivePrompt,
+  getAiBackgroundNegativePrompt,
+} from './constants/prompts';
 
 const initialBootstrap: BootstrapResponse = {
   templates: [],
@@ -58,13 +62,16 @@ const DEFAULT_BACKGROUND_COLOR_DRAFT: BackgroundColorDraft = {
 // ─── AI 배경 후보 객체를 생성하는 순수 함수 ────────────────────────────────────
 // img2img 전환 후: 단일 호출만 사용하므로 variant 구조 제거
 function buildAiCandidate(
-  res: { blobUrl?: string; prompt?: string; negativePrompt?: string },
+  res: { blobUrl?: string; prompt?: string; negativePrompt?: string; opt?: number },
   index: number,
 ): BackgroundCandidate {
+  const sourceOpt = res.opt === 0 || res.opt === 1 || res.opt === 2 ? res.opt : undefined;
+
   return {
-    id: `ai-gen-${Date.now()}-${index}`,
+    id: `ai-gen-opt-${sourceOpt ?? index}-${Date.now()}`,
     name: `AI 배경 ${index + 1}`,
     mode: 'ai-image' as const,
+    sourceOpt,
     cssBackground: 'transparent',
     imageUrl: res.blobUrl!,
     note: '제품 구도를 참조하여 생성된 배경입니다.',
@@ -142,7 +149,6 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [isGeneratingAiBackground, setIsGeneratingAiBackground] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
-  const mainPreviewRef = useRef<HTMLDivElement>(null);
   const autoCopyKeyRef = useRef('');
   const suspendInitialBackgroundSyncRef = useRef(false);
 
@@ -489,20 +495,23 @@ export default function App() {
       }
 
       // [Case B] AI 이미지 생성 모드 (img2img) — opt=0/1/2 3개 병렬
-      // 1회 캡처(mainPreviewRef) → 3개 opt job에 동일 base64 전달 → Promise.allSettled
+      // 1회 캡처(captureMode canvas) → 3개 opt job에 동일 base64 전달 → Promise.allSettled
+      // captureMode는 메인 프리뷰 캔버스 비율/좌표계를 유지하면서 배경/텍스트/도형/비주요 이미지를 제외한다.
       // 생성 중에는 editing 전역 오버레이로 모든 클릭/입력 차단.
       console.log('[Editing] AI 이미지 생성 시작 (img2img _opt 병렬 모드)');
 
       setIsGeneratingAiBackground(true);
       try {
-        const captureRoot = mainPreviewRef.current;
-        if (!captureRoot) {
-          throw new Error('캡처 대상 캔버스를 찾을 수 없습니다.');
+        const objectGuideCanvas = captureRef.current?.querySelector('.editor-stage__canvas');
+        if (!(objectGuideCanvas instanceof HTMLElement)) {
+          throw new Error('객체 가이드 캡처 대상 캔버스를 찾을 수 없습니다.');
         }
 
-        const imageBase64 = await captureElementAsDataUrl(captureRoot);
-        console.log('[Editing] MainPreview 캡처 완료, opt=0/1/2 3개 job 병렬 실행');
+        const imageBase64 = await captureElementAsDataUrl(objectGuideCanvas);
+        console.log('[Editing] 객체 가이드 캔버스 캡처 완료, opt=0/1/2 3개 job 병렬 실행');
 
+        const fixedPositivePrompt = createAiBackgroundPositivePrompt(promptHint);
+        const fixedNegativePrompt = getAiBackgroundNegativePrompt();
         const optValues = [0, 1, 2] as const;
         const settled = await Promise.allSettled(
           optValues.map((opt) =>
@@ -510,6 +519,8 @@ export default function App() {
               customPrompt: promptHint,
               imageBase64,
               opt,
+              positivePrompt: fixedPositivePrompt,
+              negativePrompt: fixedNegativePrompt,
             }),
           ),
         );
@@ -952,7 +963,7 @@ export default function App() {
         ) : (
           <>
             <section className="workspace__section workspace__section--split">
-              <div className="workspace__main-preview" ref={mainPreviewRef}>
+              <div className="workspace__main-preview">
                 <EditorCanvas
                   elements={renderElements}
                   background={selectedBackground}

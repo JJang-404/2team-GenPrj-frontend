@@ -4,6 +4,7 @@ export interface BackgroundCandidate {
   id: string;
   name: string;
   mode: BackgroundMode;
+  sourceOpt?: 0 | 1 | 2;
   cssBackground: string;
   imageUrl?: string;
   colors?: string[];

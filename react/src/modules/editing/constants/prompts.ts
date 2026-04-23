@@ -51,6 +51,21 @@ export const getUniversalNegativePrompt = (): string => {
 };
 
 /**
+ * AI 배경 img2img(opt 0/1/2) 호출에 전달할 고정 positive 프롬프트.
+ * 사용자가 제공한 템플릿을 명시적인 편집 페이지 API 이름으로 노출합니다.
+ */
+export const createAiBackgroundPositivePrompt = (keywords: string): string => {
+  return createUniversalPositivePrompt(keywords);
+};
+
+/**
+ * AI 배경 img2img(opt 0/1/2) 호출에 전달할 고정 negative 프롬프트.
+ */
+export const getAiBackgroundNegativePrompt = (): string => {
+  return getUniversalNegativePrompt();
+};
+
+/**
  * 커피군으로 판별할 업종 키워드 리스트
  */
 export const COFFEE_RELATED_KEYWORDS = [

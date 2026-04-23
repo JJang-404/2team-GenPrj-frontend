@@ -267,15 +267,18 @@ class CallApi extends BaseApi {
 
   /**
    * AI 배경 이미지를 생성합니다.
-   * - `prompt`에 사용자 의도만 전달하고, positive/negative는 빈 값으로 보냅니다.
-   *   백엔드가 opt(0/1/2) 분기에 따라 LLM으로 SD용 positive/negative를 생성합니다.
+   * - `prompt`에 사용자 의도를 전달합니다.
+   * - frontend에 저장된 고정 positive/negative 프롬프트도 함께 전달하여
+   *   백엔드 opt(0/1/2) 분기와 ComfyUI 생성 흐름을 사용합니다.
    *
-   * @param {{ customPrompt?: string, imageBase64?: string, opt?: number }} [options]
-   * @returns {Promise<{ ok: boolean, blobUrl?: string, error?: string, prompt: string, apiUrl?: string, statusCode?: number, positivePrompt?: string, contentType?: string }>}
+   * @param {{ customPrompt?: string, imageBase64?: string, opt?: number, positivePrompt?: string, positive_prompt?: string, negativePrompt?: string, negative_prompt?: string }} [options]
+   * @returns {Promise<{ ok: boolean, blobUrl?: string, error?: string, prompt: string, opt: number, apiUrl?: string, statusCode?: number, positivePrompt?: string, negativePrompt?: string, contentType?: string }>}
    */
   async generateBackground(options = {}) {
     const { customPrompt = '', imageBase64 = '', opt = 0 } = options;
     const prompt = (customPrompt || '').trim();
+    const positivePrompt = String(options.positivePrompt ?? options.positive_prompt ?? '').trim();
+    const negativePrompt = String(options.negativePrompt ?? options.negative_prompt ?? '').trim();
 
     console.log(
       '[CallApi] generateBackground 시작',
@@ -287,12 +290,12 @@ class CallApi extends BaseApi {
       ? await modelApi.changeImageComfyUIOptAsync({
           opt,
           prompt,
-          positive_prompt: '',
-          negative_prompt: '',
+          positive_prompt: positivePrompt,
+          negative_prompt: negativePrompt,
           image_base64: imageBase64,
           strength: 0.9,
         })
-      : await modelApi.generateImage(prompt, '', '');
+      : await modelApi.generateImage(prompt, positivePrompt, negativePrompt);
 
     if (result.ok) {
       console.log(`[CallApi] AI 배경 생성 성공 (opt=${opt}):`, result.blobUrl);
@@ -300,7 +303,7 @@ class CallApi extends BaseApi {
       console.error(`[CallApi] AI 배경 생성 실패 (opt=${opt}):`, result.error || result.statusCode);
     }
 
-    return { ...result, prompt };
+    return { ...result, prompt, positivePrompt, negativePrompt, opt };
   }
 
   /**

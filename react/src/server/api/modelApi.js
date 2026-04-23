@@ -916,7 +916,7 @@ class ModelApi extends BaseApi {
     strength = 0.9,
   } = {}) {
     const createJobPath = '/model/changeimagecomfyui_opt/jobs';
-    const imagePromptTimeoutMs = 10 * 60 * 1000;
+    const imagePromptTimeoutMs = 20 * 60 * 1000;
     const body = {
       opt,
       prompt: prompt?.trim() || '',
