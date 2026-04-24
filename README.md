@@ -325,9 +325,13 @@ VITE_INITPAGE_URL=/
 > 팀 구성: AI 엔지니어 6기 2팀
 
 **김경태** : [협업일지](https://www.notion.so/3358dd9ffeba80a18572f5b2ba11ae6d?v=3358dd9ffeba80ccaf85000c25dd18e1&source=copy_link)
+
 **김영욱** :
+
 **오현석** :
+
 **장우정** : [협업일지](https://www.notion.so/AI-6-2-34c2cc364d71807aba85e00982c9510f)
+
 
 ---
 
