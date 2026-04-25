@@ -328,7 +328,7 @@ VITE_INITPAGE_URL=/
 
 **김영욱** :
 
-**오현석** :
+**오현석** : [협업일지](https://blog.naver.com/PostList.naver?blogId=ohs3201&from=postList&categoryNo=13)
 
 **장우정** : [협업일지](https://www.notion.so/AI-6-2-34c2cc364d71807aba85e00982c9510f)
 
