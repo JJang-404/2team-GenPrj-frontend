@@ -6,7 +6,7 @@ export const SCENE_PROMPTS = {
    * [Universal] 업종 구분 없이 적용 가능한 고출력 범용 프롬프트 템플릿
    * {GPT_TRANSLATED_KEYWORDS} 자리에 사용자 입력값이 삽입됩니다.
    */
-  UNIVERSAL: `photorealistic landscape photography, cinematic lighting, (completely empty center:1.5), (no objects in center:1.5), (unobstructed view:1.4), beautiful nature, masterpiece, best quality, 8k resolution, raw photo.`,
+  UNIVERSAL: `photorealistic landscape photography, cinematic lighting, atmospheric, (completely empty center:1.8), (no objects in center:1.8), (unobstructed view:1.7), masterful, masterful quality, masterpiece, best quality, 8k resolution, raw photo, stunning composition`,
 
   /**
    * [Legacy] 다크 씬 (커피/디저트용)
@@ -22,7 +22,7 @@ export const SCENE_PROMPTS = {
 /**
  * [SYSTEM DEFAULT] 범용 부정적 프롬프트 (face:2.0, human:2.0 등 포함)
  */
-export const UNIVERSAL_NEGATIVE_PROMPT = `(object in center:1.8), (giant table, furniture in middle:1.7), (cup, glass, product:1.9), depth of field blur on center, low quality, worst quality, artificial, blurry.`;
+export const UNIVERSAL_NEGATIVE_PROMPT = `(object in center:1.9), (giant table, furniture in middle, floor, base surface:1.8), (cup, mug, glass, paper cup, cup holder, teacup, saucer, coaster, bottle, container, beverage, drink:1.9), (person, human, face, figure, hands, arms:1.9), depth of field blur on center, low quality, worst quality, artificial, blurry, amateur, text, logo, watermark`;
 
 /**
  * 범용 긍정적 프롬프트 생성 함수
