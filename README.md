@@ -327,7 +327,7 @@ VITE_INITPAGE_URL=/
 
 **김경태** : [협업일지](https://www.notion.so/3358dd9ffeba80a18572f5b2ba11ae6d?v=3358dd9ffeba80ccaf85000c25dd18e1&source=copy_link)
 
-**김영욱** :
+**김영욱** : [협업일지](https://docs.google.com/spreadsheets/d/1QL6goWTcyoOIjKeangkJJL5NRXj_AoQ0wd3dnbg6ipQ/edit?usp=sharing)
 
 **오현석** : [협업일지](https://blog.naver.com/PostList.naver?blogId=ohs3201&from=postList&categoryNo=13)
 
