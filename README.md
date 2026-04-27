@@ -59,6 +59,7 @@ _상품 한 장이 광고가 되는 가장 빠른 길_
 | **Backend**  | 2team-GenPrj-backend  | [github.com/JJang-404/2team-GenPrj-backend](https://github.com/JJang-404/2team-GenPrj-backend) |
 | **Test**     | 2team-GenPrj-test     | [github.com/JJang-404/2team-GenPrj-test](https://github.com/JJang-404/2team-GenPrj-test) |
 | **ComfyUI**  | 이미지 생성 서버      | [gen-proj.duckdns.org:8188](http://gen-proj.duckdns.org:8188/) |
+| **Documents**| 프로젝트 발표 자료    | [PDF 보기](./docs/%5BAI%5D2%ED%8C%80_%EB%B0%9C%ED%91%9C%EC%9E%90%EB%A3%8C.pdf) |
 
 </div>
 
